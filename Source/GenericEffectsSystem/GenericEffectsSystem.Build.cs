@@ -26,6 +26,7 @@ public class GenericEffectsSystem : ModuleRules
 			new string[]
 			{
 				"Core",
+				"PhysicsCore",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -36,8 +37,8 @@ public class GenericEffectsSystem : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"Slate",
-				"SlateCore",
+				"GameplayTags",
+				"Niagara", "DeveloperSettings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

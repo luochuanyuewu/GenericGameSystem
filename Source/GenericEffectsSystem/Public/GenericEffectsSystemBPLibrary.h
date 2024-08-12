@@ -27,6 +27,6 @@ class UGenericEffectsSystemBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "GenericEffectsSystem sample test testing"), Category = "GenericEffectsSystemTesting")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "GenericEffectsSystem sample test testing"), Category="GenericEffectsSystemTesting")
 	static float GenericEffectsSystemSampleFunction(float Param);
 };
