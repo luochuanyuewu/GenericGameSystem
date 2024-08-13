@@ -75,9 +75,9 @@ struct GENERICEFFECTSSYSTEM_API FGES_ContextEffectAnimNotifyPreviewSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (EditCondition = "bPreviewPhysicalSurfaceAsContext"))
 	TEnumAsByte<EPhysicalSurface> PreviewPhysicalSurface = EPhysicalSurface::SurfaceType_Default;
 
-	// Preview Library
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (AllowedClasses = "/Script/GenericMovementSystem.GES_ContextEffectsLibrary"))
-	FSoftObjectPath PreviewContextEffectsLibrary;
+	// Preview Libraries
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (AllowedClasses = "/Script/GenericEffectsSystem.GES_ContextEffectsLibrary"))
+	TArray<FSoftObjectPath> PreviewContextEffectsLibraries;
 
 	// Preview Context
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
@@ -154,6 +154,9 @@ public:
 	FGES_ContextEffectAnimNotifyTraceSettings TraceProperties;
 
 #if WITH_EDITORONLY_DATA
+
+	void PerformEditorPreview(AActor* InOwningActor,FGameplayTagContainer& InContexts,USkeletalMeshComponent* InMeshComp);
+	
 	// UPROPERTY(Config, EditAnywhere, Category="PreviewProperties")
 	// uint32 bPreviewInEditor : 1;
 
