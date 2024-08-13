@@ -25,9 +25,9 @@ enum class EGES_ContextEffectsLibraryLoadState : uint8
 };
 
 /**
- *
+ * The definition of a context effects.
  */
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, DisplayName="GES Context Effects Definition")
 struct GENERICEFFECTSSYSTEM_API FGES_ContextEffects
 {
 	GENERATED_BODY()
@@ -43,9 +43,9 @@ struct GENERICEFFECTSSYSTEM_API FGES_ContextEffects
 };
 
 /**
- *
+ * An instance of context effects.
  */
-UCLASS()
+UCLASS(DisplayName="GMS Context Effects Instance")
 class GENERICEFFECTSSYSTEM_API UGES_ActiveContextEffects : public UObject
 {
 	GENERATED_BODY()
@@ -67,7 +67,7 @@ public:
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGES_ContextEffectLibraryLoadingComplete, TArray<UGES_ActiveContextEffects *>, ActiveContextEffects);
 
 /**
- *
+ * A DataAsset which contains many context effects definitions.
  */
 UCLASS(BlueprintType)
 class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsLibrary : public UDataAsset
@@ -79,7 +79,7 @@ public:
 	TArray<FGES_ContextEffects> ContextEffects;
 
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
-	void GetEffects(const FGameplayTag Effect, const FGameplayTagContainer Context, TArray<USoundBase *> &Sounds, TArray<UNiagaraSystem *> &NiagaraSystems);
+	void GetEffects(const FGameplayTag Effect, const FGameplayTagContainer Context, TArray<USoundBase*>& Sounds, TArray<UNiagaraSystem*>& NiagaraSystems);
 
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
 	void LoadEffects();
@@ -89,7 +89,7 @@ public:
 private:
 	void LoadEffectsInternal();
 
-	void OnContextEffectLibraryLoadingComplete(TArray<UGES_ActiveContextEffects *> InActiveContextEffects);
+	void OnContextEffectLibraryLoadingComplete(TArray<UGES_ActiveContextEffects*> InActiveContextEffects);
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UGES_ActiveContextEffects>> ActiveContextEffects;

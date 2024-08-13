@@ -2,6 +2,8 @@
 
 
 #include "Feedback/GES_ContextEffectComponent.h"
+
+#include "GameplayTagAssetInterface.h"
 #include "Engine/World.h"
 #include "Feedback/GES_ContextEffectsSubsystem.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -56,6 +58,22 @@ void UGES_ContextEffectComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	Super::EndPlay(EndPlayReason);
 }
 
+void UGES_ContextEffectComponent::SetupTagsProvider()
+{
+	if (GetOwner()->GetClass()->ImplementsInterface(UGameplayTagAssetInterface::StaticClass()))
+	{
+		SetGameplayTagsProvider(GetOwner());
+	}
+	else
+	{
+		TArray<UActorComponent*> Components = GetOwner()->GetComponentsByInterface(UGameplayTagAssetInterface::StaticClass());
+		if (Components.IsValidIndex(0))
+		{
+			SetGameplayTagsProvider(Components[0]);
+		}
+	}
+}
+
 // Implementation of Interface's AnimMotionEffect function
 void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bone, const FGameplayTag MotionEffect, USceneComponent* StaticMeshComponent,
                                                                   const FVector LocationOffset, const FRotator RotationOffset, const UAnimSequenceBase* AnimationSequence,
@@ -71,6 +89,12 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 	// Aggregate contexts
 	TotalContexts.AppendTags(Contexts);
 	TotalContexts.AppendTags(CurrentContexts);
+	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(GameplayTagsProvider))
+	{
+		FGameplayTagContainer RetTags;
+		TagAssetInterface->GetOwnedGameplayTags(RetTags);
+		TotalContexts.AppendTags(RetTags);
+	}
 
 	// Check if converting Physical Surface Type to Context
 	if (bConvertPhysicalSurfaceToContext)
@@ -89,7 +113,7 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 			{
 				if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
 				{
-					UE_LOG(LogGES,Warning,TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
+					UE_LOG(LogGES, Warning, TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
 				}
 				else
 				{
@@ -151,6 +175,25 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 	// Append Active
 	ActiveNiagaraComponents.Empty();
 	ActiveNiagaraComponents.Append(NiagaraComponentsToAdd);
+}
+
+void UGES_ContextEffectComponent::SetGameplayTagsProvider(UObject* Provider)
+{
+	if (!IsValid(Provider))
+	{
+		UE_LOG(LogGES, Warning, TEXT("Passed invalid GameplayTagsProvider. Actor:%s  %S"), *GetName(), __FUNCTION__);
+		return;
+	}
+	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(Provider))
+	{
+		GameplayTagsProvider = Provider;
+	}
+	else
+	{
+		UE_LOG(LogGES, Warning, TEXT("Passed in GameplayTagsProvider(%s) Doesn't implement GameplayTagAssetInterface, it can't provide gameplay tags. Actor:%s  %S"), *Provider->GetClass()->GetName(),
+		       *GetName(), __FUNCTION__);
+		return;
+	}
 }
 
 void UGES_ContextEffectComponent::UpdateEffectContexts(FGameplayTagContainer NewEffectContexts)

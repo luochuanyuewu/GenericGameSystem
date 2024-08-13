@@ -21,7 +21,11 @@ class USceneComponent;
 struct FFrame;
 struct FHitResult;
 
-UCLASS(ClassGroup = (GES), hidecategories = (Variable, Tags, ComponentTick, ComponentReplication, Activation, Cooking, AssetUserData, Collision), CollapseCategories, meta = (BlueprintSpawnableComponent))
+/**
+ * Default component which implements GES_ContextEffectsInterface to response to context effects. 
+ */
+UCLASS(ClassGroup = (GES), hidecategories = (Variable, Tags, ComponentTick, ComponentReplication, Activation, Cooking, AssetUserData, Collision), CollapseCategories,
+	meta = (BlueprintSpawnableComponent))
 class GENERICEFFECTSSYSTEM_API UGES_ContextEffectComponent : public UActorComponent, public IGES_ContextEffectsInterface
 {
 	GENERATED_BODY()
@@ -37,13 +41,18 @@ protected:
 	// Called when the game ends
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	virtual void SetupTagsProvider();
+
 public:
 	// AnimMotionEffect Implementation
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
-	virtual void AnimMotionEffect_Implementation(const FName Bone, const FGameplayTag MotionEffect, USceneComponent *StaticMeshComponent,
-												 const FVector LocationOffset, const FRotator RotationOffset, const UAnimSequenceBase *AnimationSequence,
-												 const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts,
-												 FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1) override;
+	virtual void AnimMotionEffect_Implementation(const FName Bone, const FGameplayTag MotionEffect, USceneComponent* StaticMeshComponent,
+	                                             const FVector LocationOffset, const FRotator RotationOffset, const UAnimSequenceBase* AnimationSequence,
+	                                             const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts,
+	                                             FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1) override;
+
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
+	void SetGameplayTagsProvider(UObject* Provider);
 
 	// Auto-Convert Physical Surface from Trace Result to Context
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
@@ -57,6 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Settings")
 	TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> DefaultContextEffectsLibraries;
 
+	/**
+	 * Adding additional gameplay tags to current contexts(will override default contexts)
+	 */
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
 	void UpdateEffectContexts(FGameplayTagContainer NewEffectContexts);
 
@@ -64,8 +76,23 @@ public:
 	void UpdateLibraries(TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> NewContextEffectsLibraries);
 
 private:
-	UPROPERTY(Transient)
+	
+	UPROPERTY(VisibleInstanceOnly, Transient, Category="State")
 	FGameplayTagContainer CurrentContexts;
+
+	/**
+	 * If checked, will look for owner or owner's components to find one which implements GameplayTagAssetInterface, and set it as TagsProvider.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Settings")
+	bool bAutoSetupTagsProvider{false};
+
+	/**
+	 * This is an optional UObject which implements GameplayTagAssetInterface.
+	 * The owned tags of this object will be the return value of GetGameplayTags;
+	 * If you are using GameplayAbilitySystem, You can set ability system component as TagsProvider, so you can use AbilitySystemComponent's tags to drive EfectContexts.
+	 */
+	UPROPERTY(VisibleAnywhere, Category="State")
+	TObjectPtr<UObject> GameplayTagsProvider{nullptr};
 
 	UPROPERTY(Transient)
 	TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> CurrentContextEffectsLibraries;
