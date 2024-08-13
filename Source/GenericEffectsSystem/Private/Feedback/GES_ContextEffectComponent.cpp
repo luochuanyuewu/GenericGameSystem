@@ -114,6 +114,10 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 				if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
 				{
 					UE_LOG(LogGES, Warning, TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
+					if (FallbackPhysicalSurface.IsValid())
+					{
+						TotalContexts.AddTag(FallbackPhysicalSurface);
+					}
 				}
 				else
 				{
@@ -124,7 +128,22 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 
 						TotalContexts.AddTag(SurfaceContext);
 					}
+					else
+					{
+						UE_LOG(LogGES, Warning, TEXT("No surface type(%d) to context map found, Please check ContextEffectsSetting in ProjectSettings!"), PhysicalSurfaceType.GetValue());
+						if (FallbackPhysicalSurface.IsValid())
+						{
+							TotalContexts.AddTag(FallbackPhysicalSurface);
+						}
+					}
 				}
+			}
+		}
+		else
+		{
+			if (FallbackPhysicalSurface.IsValid())
+			{
+				TotalContexts.AddTag(FallbackPhysicalSurface);
 			}
 		}
 	}

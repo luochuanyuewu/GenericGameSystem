@@ -145,7 +145,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AttachmentProperties", meta = (ExposeOnSpawn = true, EditCondition = "bAttached"))
 	FName SocketName;
 
-	// Will perform a trace, required for SurfaceType to Context Conversion
+	/**
+	 * Will perform a trace, required for SurfaceType to Context Conversion,If you don't want trace for performance saving, make sure you pass SurfaceType.XXX to contexts.
+	 * 
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AnimNotify", meta = (ExposeOnSpawn = true))
 	uint32 bPerformTrace : 1;
 

@@ -58,6 +58,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	bool bConvertPhysicalSurfaceToContext = true;
 
+	/**
+	 * Fallback surface type when there are no mapping, or valid physical material.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings", meta=(Categories="GES.SurfaceType"))
+	FGameplayTag FallbackPhysicalSurface;
+
 	// Default Contexts
 	UPROPERTY(EditAnywhere, Category="Settings")
 	FGameplayTagContainer DefaultEffectContexts;
@@ -76,7 +82,6 @@ public:
 	void UpdateLibraries(TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> NewContextEffectsLibraries);
 
 private:
-	
 	UPROPERTY(VisibleInstanceOnly, Transient, Category="State")
 	FGameplayTagContainer CurrentContexts;
 
