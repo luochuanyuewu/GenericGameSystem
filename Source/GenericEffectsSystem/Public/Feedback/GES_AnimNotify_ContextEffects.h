@@ -62,31 +62,6 @@ struct GENERICEFFECTSSYSTEM_API FGES_ContextEffectAnimNotifyTraceSettings
 /**
  *
  */
-USTRUCT(BlueprintType)
-struct GENERICEFFECTSSYSTEM_API FGES_ContextEffectAnimNotifyPreviewSettings
-{
-	GENERATED_BODY()
-
-	// If true, will attempt to match selected Surface Type to Context Tag via Project Settings
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
-	bool bPreviewPhysicalSurfaceAsContext = true;
-
-	// Surface Type
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (EditCondition = "bPreviewPhysicalSurfaceAsContext"))
-	TEnumAsByte<EPhysicalSurface> PreviewPhysicalSurface = EPhysicalSurface::SurfaceType_Default;
-
-	// Preview Libraries
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (AllowedClasses = "/Script/GenericEffectsSystem.GES_ContextEffectsLibrary"))
-	TArray<FSoftObjectPath> PreviewContextEffectsLibraries;
-
-	// Preview Context
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
-	FGameplayTagContainer PreviewContexts;
-};
-
-/**
- *
- */
 UCLASS(const, hidecategories = Object, CollapseCategories, Config = Game, meta = (DisplayName = "Play Context Effects"))
 class GENERICEFFECTSSYSTEM_API UGES_AnimNotify_ContextEffects : public UAnimNotify
 {

@@ -42,6 +42,10 @@ void UGES_ContextEffectComponent::BeginPlay()
 			ContextEffectsSubsystem->LoadAndAddContextEffectsLibraries(GetOwner(), CurrentContextEffectsLibraries);
 		}
 	}
+	if (bAutoSetupTagsProvider)
+	{
+		SetupTagsProvider();
+	}
 }
 
 void UGES_ContextEffectComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

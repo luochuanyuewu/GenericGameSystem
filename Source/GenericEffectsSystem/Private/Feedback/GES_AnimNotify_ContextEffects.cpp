@@ -9,6 +9,7 @@
 #include "NiagaraSystem.h"
 #include "Feedback/GES_ContextEffectsInterface.h"
 #include "Feedback/GES_ContextEffectsLibrary.h"
+#include "Feedback/GES_ContextEffectsPreviewSetting.h"
 #include "Feedback/GES_ContextEffectsSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GES_AnimNotify_ContextEffects)
@@ -162,7 +163,7 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 	}
 
 	// This is for Anim Editor previewing, it is a deconstruction of the calls made by the Interface and the Subsystem
-	if (!ContextEffectsSettings->bPreviewInEditor)
+	if (!ContextEffectsSettings->bPreviewInEditor || ContextEffectsSettings->PreviewSetting.IsNull())
 		return;
 
 	UWorld* World = OwningActor->GetWorld();
@@ -171,15 +172,21 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 	if (!World || World->WorldType != EWorldType::EditorPreview)
 		return;
 
-	const auto& PreviewProperties = ContextEffectsSettings->PreviewProperties;
+	// const auto& PreviewProperties = ContextEffectsSettings->PreviewProperties;
+	const UGES_ContextEffectsPreviewSetting* PreviewSetting = ContextEffectsSettings->PreviewSetting.LoadSynchronous();
+
+	if (PreviewSetting == nullptr)
+	{
+		return;
+	}
 
 	// Add Preview contexts if necessary
-	Contexts.AppendTags(PreviewProperties.PreviewContexts);
+	Contexts.AppendTags(PreviewSetting->PreviewContexts);
 
 	// Convert given Surface Type to Context and Add it to the Contexts for this Preview
-	if (PreviewProperties.bPreviewPhysicalSurfaceAsContext)
+	if (PreviewSetting->bPreviewPhysicalSurfaceAsContext)
 	{
-		TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType = PreviewProperties.PreviewPhysicalSurface;
+		TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType = PreviewSetting->PreviewPhysicalSurface;
 
 		if (const FGameplayTag* SurfaceContextPtr = ContextEffectsSettings->SurfaceTypeToContextMap.Find(PhysicalSurfaceType))
 		{
@@ -189,10 +196,10 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 		}
 	}
 
-	for (int i = 0; i < PreviewProperties.PreviewContextEffectsLibraries.Num(); ++i)
+  	for (int i = 0; i < PreviewSetting->PreviewContextEffectsLibraries.Num(); ++i)
 	{
 		// Libraries are soft referenced, so you will want to try to load them now
-		if (UObject* EffectsLibrariesObj = PreviewProperties.PreviewContextEffectsLibraries[i].TryLoad())
+		if (UObject* EffectsLibrariesObj = PreviewSetting->PreviewContextEffectsLibraries[i].TryLoad())
 		{
 			// Check if it is in fact a UGES_ContextEffectLibrary type
 			if (UGES_ContextEffectsLibrary* EffectLibrary = Cast<UGES_ContextEffectsLibrary>(EffectsLibrariesObj))

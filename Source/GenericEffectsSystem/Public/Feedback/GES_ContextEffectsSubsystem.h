@@ -9,6 +9,7 @@
 
 #include "GES_ContextEffectsSubsystem.generated.h"
 
+class UGES_ContextEffectsPreviewSetting;
 enum EPhysicalSurface : int;
 
 class AActor;
@@ -37,8 +38,8 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="PreviewProperties")
 	uint32 bPreviewInEditor : 1;
 
-	UPROPERTY(EditAnywhere, Category="PreviewProperties", meta = (EditCondition = "bPreviewInEditor"))
-	FGES_ContextEffectAnimNotifyPreviewSettings PreviewProperties;
+	UPROPERTY(config,EditAnywhere, Category="PreviewProperties", meta = (EditCondition = "bPreviewInEditor"))
+	TSoftObjectPtr<UGES_ContextEffectsPreviewSetting> PreviewSetting;
 #endif
 };
 
