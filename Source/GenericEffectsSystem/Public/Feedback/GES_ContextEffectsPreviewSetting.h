@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Engine/DataAsset.h"
+#include "Chaos/ChaosEngineInterface.h"
 #include "UObject/Object.h"
 #include "GES_ContextEffectsPreviewSetting.generated.h"
 
