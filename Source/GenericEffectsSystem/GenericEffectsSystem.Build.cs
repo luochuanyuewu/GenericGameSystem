@@ -38,7 +38,8 @@ public class GenericEffectsSystem : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"GameplayTags",
-				"Niagara", "DeveloperSettings"
+				"Niagara", 
+				"DeveloperSettings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
