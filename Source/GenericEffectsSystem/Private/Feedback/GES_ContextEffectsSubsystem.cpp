@@ -70,7 +70,7 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(
 			{
 				// Spawn Sounds Attached, add Audio Component to List of ACs
 				UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAttached(Sound, AttachToComponent, AttachPoint, LocationOffset, RotationOffset, EAttachLocation::KeepRelativeOffset,
-					false, AudioVolume, AudioPitch, 0.0f, nullptr, nullptr, true);
+				                                                                       false, AudioVolume, AudioPitch, 0.0f, nullptr, nullptr, true);
 
 				AudioOut.Add(AudioComponent);
 			}
@@ -80,7 +80,69 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(
 			{
 				// Spawn Niagara Systems Attached, add Niagara Component to List of NCs
 				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, AttachToComponent, AttachPoint, LocationOffset,
-					RotationOffset, VFXScale, EAttachLocation::KeepRelativeOffset, true, ENCPoolMethod::None, true, true);
+				                                                                                   RotationOffset, VFXScale, EAttachLocation::KeepRelativeOffset, true, ENCPoolMethod::None, true,
+				                                                                                   true);
+
+				NiagaraOut.Add(NiagaraComponent);
+			}
+		}
+	}
+}
+
+void UGES_ContextEffectsSubsystem::SpawnContextEffects_OneShot(const AActor* SpawningActor, const FVector Location, const FRotator Rotation, FGameplayTag Effect, TArray<UAudioComponent*>& AudioOut,
+                                                               TArray<UNiagaraComponent*>& NiagaraOut,
+                                                               FGameplayTagContainer Contexts, FVector VFXScale, float AudioVolume, float AudioPitch)
+{
+	// First determine if this Actor has a matching Set of Libraries
+	if (TObjectPtr<UGES_ContextEffectsSet>* EffectsLibrariesSetPtr = ActiveActorEffectsMap.Find(SpawningActor))
+	{
+		// Validate the pointers from the Map Find
+		if (UGES_ContextEffectsSet* EffectsLibraries = *EffectsLibrariesSetPtr)
+		{
+			// Prepare Arrays for Sounds and Niagara Systems
+			TArray<USoundBase*> TotalSounds;
+			TArray<UNiagaraSystem*> TotalNiagaraSystems;
+
+			// Cycle through Effect Libraries
+			for (UGES_ContextEffectsLibrary* EffectLibrary : EffectsLibraries->ContextEffectsLibraries)
+			{
+				// Check if the Effect Library is valid and data Loaded
+				if (EffectLibrary && EffectLibrary->GetContextEffectsLibraryLoadState() == EGES_ContextEffectsLibraryLoadState::Loaded)
+				{
+					// Set up local list of Sounds and Niagara Systems
+					TArray<USoundBase*> Sounds;
+					TArray<UNiagaraSystem*> NiagaraSystems;
+
+					// Get Sounds and Niagara Systems
+					EffectLibrary->GetEffects(Effect, Contexts, Sounds, NiagaraSystems);
+
+					// Append to accumulating array
+					TotalSounds.Append(Sounds);
+					TotalNiagaraSystems.Append(NiagaraSystems);
+				}
+				else if (EffectLibrary && EffectLibrary->GetContextEffectsLibraryLoadState() == EGES_ContextEffectsLibraryLoadState::Unloaded)
+				{
+					// Else load effects
+					EffectLibrary->LoadEffects();
+				}
+			}
+
+			// Cycle through found Sounds
+			for (USoundBase* Sound : TotalSounds)
+			{
+				// Spawn Sounds Attached, add Audio Component to List of ACs
+				UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAtLocation(SpawningActor, Sound, Location, Rotation, AudioVolume, AudioPitch, 0.0f, nullptr, nullptr, true);
+
+				AudioOut.Add(AudioComponent);
+			}
+
+			// Cycle through found Niagara Systems
+			for (UNiagaraSystem* NiagaraSystem : TotalNiagaraSystems)
+			{
+				// Spawn Niagara Systems Attached, add Niagara Component to List of NCs
+				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(SpawningActor,NiagaraSystem, Location,
+				                                                                                   Rotation, VFXScale, true, true,
+				                                                                                    ENCPoolMethod::None,true);
 
 				NiagaraOut.Add(NiagaraComponent);
 			}
@@ -106,7 +168,7 @@ bool UGES_ContextEffectsSubsystem::GetContextFromSurfaceType(
 }
 
 void UGES_ContextEffectsSubsystem::LoadAndAddContextEffectsLibraries(AActor* OwningActor,
-	TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> ContextEffectsLibraries)
+                                                                     TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> ContextEffectsLibraries)
 {
 	// Early out if Owning Actor is invalid or if the associated Libraries is 0 (or less)
 	if (OwningActor == nullptr || ContextEffectsLibraries.Num() <= 0)
@@ -147,4 +209,3 @@ void UGES_ContextEffectsSubsystem::UnloadAndRemoveContextEffectsLibraries(AActor
 	// Remove ref from Active Actor/Effects Set Map
 	ActiveActorEffectsMap.Remove(OwningActor);
 }
-

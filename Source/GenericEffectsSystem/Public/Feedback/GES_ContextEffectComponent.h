@@ -45,11 +45,19 @@ protected:
 
 public:
 	// AnimMotionEffect Implementation
-	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect",meta=(DisplayName="Play Context Effects(Attached)"))
 	virtual void AnimMotionEffect_Implementation(const FName Bone, const FGameplayTag MotionEffect, USceneComponent* StaticMeshComponent,
 	                                             const FVector LocationOffset, const FRotator RotationOffset, const UAnimSequenceBase* AnimationSequence,
 	                                             const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts,
 	                                             FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1) override;
+
+	virtual void PlayContextEffectsAttached_Implementation(const FName Bone, const FGameplayTag EffectName, USceneComponent* ComponentToAttach, const FVector LocationOffset,
+		const FRotator RotationOffset,const UAnimSequenceBase* AnimationSequence, const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts, FVector VFXScale, float AudioVolume, float AudioPitch) override;
+
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect",meta=(DisplayName="Play Context Effects"))
+	virtual void PlayContextEffects_Implementation(const FGameplayTag EffectName, const FVector Location, const FRotator Rotation,
+												 const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts,
+												 FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1) override;
 
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffect")
 	void SetGameplayTagsProvider(UObject* Provider);

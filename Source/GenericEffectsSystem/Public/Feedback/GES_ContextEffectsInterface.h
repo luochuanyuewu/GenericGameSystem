@@ -38,8 +38,18 @@ class GENERICEFFECTSSYSTEM_API IGES_ContextEffectsInterface : public IInterface
 
 public:
 	/** */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GES|ContextEffect")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GES|ContextEffect",meta=(DeprecatedFunction,DeprecationMessage="Using Play Context Effects Attached"))
 	void AnimMotionEffect(const FName Bone, const FGameplayTag MotionEffect, USceneComponent* StaticMeshComponent, const FVector LocationOffset, const FRotator RotationOffset,
 	                      const UAnimSequenceBase* AnimationSequence, const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts, FVector VFXScale = FVector(1),
 	                      float AudioVolume = 1, float AudioPitch = 1);
+
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GES|ContextEffect")
+	void PlayContextEffectsAttached(const FName Bone, const FGameplayTag EffectName, USceneComponent* ComponentToAttach, const FVector LocationOffset, const FRotator RotationOffset,const UAnimSequenceBase* AnimationSequence, const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts, FVector VFXScale = FVector(1),
+						  float AudioVolume = 1, float AudioPitch = 1);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GES|ContextEffect")
+	void PlayContextEffects(const FGameplayTag EffectName, const FVector Location, const FRotator Rotation,
+											 const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts,
+											 FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1);
 };

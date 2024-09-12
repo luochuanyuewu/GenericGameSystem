@@ -70,6 +70,11 @@ public:
 	void SpawnContextEffects(
 		const AActor *SpawningActor, USceneComponent *AttachToComponent, const FName AttachPoint, const FVector LocationOffset, const FRotator RotationOffset, FGameplayTag Effect, FGameplayTagContainer Contexts, TArray<UAudioComponent *> &AudioOut, TArray<UNiagaraComponent *> &NiagaraOut, FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1);
 
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
+	void SpawnContextEffects_OneShot(
+		const AActor *SpawningActor,const FVector Location, const FRotator Rotation, FGameplayTag Effect,TArray<UAudioComponent *> &AudioOut, TArray<UNiagaraComponent *> &NiagaraOut, FGameplayTagContainer Contexts, FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1);
+
+	
 	/** */
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
 	bool GetContextFromSurfaceType(TEnumAsByte<EPhysicalSurface> PhysicalSurface, FGameplayTag &Context);

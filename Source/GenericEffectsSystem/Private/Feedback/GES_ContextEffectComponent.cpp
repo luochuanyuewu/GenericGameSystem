@@ -200,6 +200,244 @@ void UGES_ContextEffectComponent::AnimMotionEffect_Implementation(const FName Bo
 	ActiveNiagaraComponents.Append(NiagaraComponentsToAdd);
 }
 
+void UGES_ContextEffectComponent::PlayContextEffectsAttached_Implementation(const FName Bone, const FGameplayTag EffectName, USceneComponent* ComponentToAttach, const FVector LocationOffset,
+	const FRotator RotationOffset,const UAnimSequenceBase* AnimationSequence, const bool bHitSuccess, const FHitResult HitResult, FGameplayTagContainer Contexts, FVector VFXScale, float AudioVolume, float AudioPitch)
+{
+	// Prep Components
+	TArray<UAudioComponent*> AudioComponentsToAdd;
+	TArray<UNiagaraComponent*> NiagaraComponentsToAdd;
+
+	FGameplayTagContainer TotalContexts;
+
+	// Aggregate contexts
+	TotalContexts.AppendTags(Contexts);
+	TotalContexts.AppendTags(CurrentContexts);
+	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(GameplayTagsProvider))
+	{
+		FGameplayTagContainer RetTags;
+		TagAssetInterface->GetOwnedGameplayTags(RetTags);
+		TotalContexts.AppendTags(RetTags);
+	}
+
+	// Check if converting Physical Surface Type to Context
+	if (bConvertPhysicalSurfaceToContext)
+	{
+		// Get Phys Mat Type Pointer
+		TWeakObjectPtr<UPhysicalMaterial> PhysicalSurfaceTypePtr = HitResult.PhysMaterial;
+
+		// Check if pointer is okay
+		if (PhysicalSurfaceTypePtr.IsValid())
+		{
+			// Get the Surface Type Pointer
+			TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType = PhysicalSurfaceTypePtr->SurfaceType;
+
+			// If Settings are valid
+			if (const UGES_ContextEffectsSettings* ContextEffectsSettings = GetDefault<UGES_ContextEffectsSettings>())
+			{
+				if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
+				{
+					UE_LOG(LogGES, Warning, TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
+					if (FallbackPhysicalSurface.IsValid())
+					{
+						TotalContexts.AddTag(FallbackPhysicalSurface);
+					}
+				}
+				else
+				{
+					// Convert Surface Type to known
+					if (const FGameplayTag* SurfaceContextPtr = ContextEffectsSettings->SurfaceTypeToContextMap.Find(PhysicalSurfaceType))
+					{
+						FGameplayTag SurfaceContext = *SurfaceContextPtr;
+
+						TotalContexts.AddTag(SurfaceContext);
+					}
+					else
+					{
+						UE_LOG(LogGES, Warning, TEXT("No surface type(%d) to context map found, Please check ContextEffectsSetting in ProjectSettings!"), PhysicalSurfaceType.GetValue());
+						if (FallbackPhysicalSurface.IsValid())
+						{
+							TotalContexts.AddTag(FallbackPhysicalSurface);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (FallbackPhysicalSurface.IsValid())
+			{
+				TotalContexts.AddTag(FallbackPhysicalSurface);
+			}
+		}
+	}
+
+	// Cycle through Active Audio Components and cache
+	for (UAudioComponent* ActiveAudioComponent : ActiveAudioComponents)
+	{
+		if (ActiveAudioComponent)
+		{
+			AudioComponentsToAdd.Add(ActiveAudioComponent);
+		}
+	}
+
+	// Cycle through Active Niagara Components and cache
+	for (UNiagaraComponent* ActiveNiagaraComponent : ActiveNiagaraComponents)
+	{
+		if (ActiveNiagaraComponent)
+		{
+			NiagaraComponentsToAdd.Add(ActiveNiagaraComponent);
+		}
+	}
+
+	// Get World
+	if (const UWorld* World = GetWorld())
+	{
+		// Get Subsystem
+		if (UGES_ContextEffectsSubsystem* ContextEffectsSubsystem = World->GetSubsystem<UGES_ContextEffectsSubsystem>())
+		{
+			// Set up Audio Components and Niagara
+			TArray<UAudioComponent*> AudioComponents;
+			TArray<UNiagaraComponent*> NiagaraComponents;
+
+			// Spawn effects
+			ContextEffectsSubsystem->SpawnContextEffects(GetOwner(), ComponentToAttach, Bone,
+			                                             LocationOffset, RotationOffset, EffectName, TotalContexts,
+			                                             AudioComponents, NiagaraComponents, VFXScale, AudioVolume, AudioPitch);
+
+			// Append resultant effects
+			AudioComponentsToAdd.Append(AudioComponents);
+			NiagaraComponentsToAdd.Append(NiagaraComponents);
+		}
+	}
+
+	// Append Active Audio Components
+	ActiveAudioComponents.Empty();
+	ActiveAudioComponents.Append(AudioComponentsToAdd);
+
+	// Append Active
+	ActiveNiagaraComponents.Empty();
+	ActiveNiagaraComponents.Append(NiagaraComponentsToAdd);
+}
+
+void UGES_ContextEffectComponent::PlayContextEffects_Implementation(const FGameplayTag EffectName, const FVector Location, const FRotator Rotation, const bool bHitSuccess,
+	const FHitResult HitResult, FGameplayTagContainer Contexts, FVector VFXScale, float AudioVolume, float AudioPitch)
+{
+		// Prep Components
+	TArray<UAudioComponent*> AudioComponentsToAdd;
+	TArray<UNiagaraComponent*> NiagaraComponentsToAdd;
+
+	FGameplayTagContainer TotalContexts;
+
+	// Aggregate contexts
+	TotalContexts.AppendTags(Contexts);
+	TotalContexts.AppendTags(CurrentContexts);
+	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(GameplayTagsProvider))
+	{
+		FGameplayTagContainer RetTags;
+		TagAssetInterface->GetOwnedGameplayTags(RetTags);
+		TotalContexts.AppendTags(RetTags);
+	}
+
+	// Check if converting Physical Surface Type to Context
+	if (bConvertPhysicalSurfaceToContext)
+	{
+		// Get Phys Mat Type Pointer
+		TWeakObjectPtr<UPhysicalMaterial> PhysicalSurfaceTypePtr = HitResult.PhysMaterial;
+
+		// Check if pointer is okay
+		if (PhysicalSurfaceTypePtr.IsValid())
+		{
+			// Get the Surface Type Pointer
+			TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType = PhysicalSurfaceTypePtr->SurfaceType;
+
+			// If Settings are valid
+			if (const UGES_ContextEffectsSettings* ContextEffectsSettings = GetDefault<UGES_ContextEffectsSettings>())
+			{
+				if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
+				{
+					UE_LOG(LogGES, Warning, TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
+					if (FallbackPhysicalSurface.IsValid())
+					{
+						TotalContexts.AddTag(FallbackPhysicalSurface);
+					}
+				}
+				else
+				{
+					// Convert Surface Type to known
+					if (const FGameplayTag* SurfaceContextPtr = ContextEffectsSettings->SurfaceTypeToContextMap.Find(PhysicalSurfaceType))
+					{
+						FGameplayTag SurfaceContext = *SurfaceContextPtr;
+
+						TotalContexts.AddTag(SurfaceContext);
+					}
+					else
+					{
+						UE_LOG(LogGES, Warning, TEXT("No surface type(%d) to context map found, Please check ContextEffectsSetting in ProjectSettings!"), PhysicalSurfaceType.GetValue());
+						if (FallbackPhysicalSurface.IsValid())
+						{
+							TotalContexts.AddTag(FallbackPhysicalSurface);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (FallbackPhysicalSurface.IsValid())
+			{
+				TotalContexts.AddTag(FallbackPhysicalSurface);
+			}
+		}
+	}
+
+	// Cycle through Active Audio Components and cache
+	for (UAudioComponent* ActiveAudioComponent : ActiveAudioComponents)
+	{
+		if (ActiveAudioComponent)
+		{
+			AudioComponentsToAdd.Add(ActiveAudioComponent);
+		}
+	}
+
+	// Cycle through Active Niagara Components and cache
+	for (UNiagaraComponent* ActiveNiagaraComponent : ActiveNiagaraComponents)
+	{
+		if (ActiveNiagaraComponent)
+		{
+			NiagaraComponentsToAdd.Add(ActiveNiagaraComponent);
+		}
+	}
+
+	// Get World
+	if (const UWorld* World = GetWorld())
+	{
+		// Get Subsystem
+		if (UGES_ContextEffectsSubsystem* ContextEffectsSubsystem = World->GetSubsystem<UGES_ContextEffectsSubsystem>())
+		{
+			// Set up Audio Components and Niagara
+			TArray<UAudioComponent*> AudioComponents;
+			TArray<UNiagaraComponent*> NiagaraComponents;
+
+			// Spawn effects
+			ContextEffectsSubsystem->SpawnContextEffects_OneShot(GetOwner(),
+			                                             Location, Rotation, EffectName,
+			                                             AudioComponents, NiagaraComponents,TotalContexts, VFXScale, AudioVolume, AudioPitch);
+
+			// Append resultant effects
+			AudioComponentsToAdd.Append(AudioComponents);
+			NiagaraComponentsToAdd.Append(NiagaraComponents);
+		}
+	}
+
+	// Append Active Audio Components
+	ActiveAudioComponents.Empty();
+	ActiveAudioComponents.Append(AudioComponentsToAdd);
+
+	// Append Active
+	ActiveNiagaraComponents.Empty();
+	ActiveNiagaraComponents.Append(NiagaraComponentsToAdd);
+}
+
 void UGES_ContextEffectComponent::SetGameplayTagsProvider(UObject* Provider)
 {
 	if (!IsValid(Provider))

@@ -115,6 +115,11 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		{
 			if (Implementer)
 			{
+				IGES_ContextEffectsInterface::Execute_PlayContextEffectsAttached(Implementer,
+													   (bAttached ? SocketName : FName("None")),
+													   Effect, MeshComp, LocationOffset, RotationOffset,
+													   Animation, bHitSuccess, HitResult, Contexts, VFXProperties.Scale,
+													   AudioProperties.VolumeMultiplier, AudioProperties.PitchMultiplier);
 				// If the object is still valid, Execute the AnimMotionEffect Event on it, passing in relevant data
 				IGES_ContextEffectsInterface::Execute_AnimMotionEffect(Implementer,
 				                                                       (bAttached ? SocketName : FName("None")),
