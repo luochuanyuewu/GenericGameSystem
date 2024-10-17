@@ -17,19 +17,7 @@ class UNiagaraSystem;
 class USceneComponent;
 class USoundBase;
 
-void UGES_ContextEffectsSubsystem::SpawnContextEffects(
-	const AActor* SpawningActor
-	, USceneComponent* AttachToComponent
-	, const FName AttachPoint
-	, const FVector LocationOffset
-	, const FRotator RotationOffset
-	, FGameplayTag Effect
-	, FGameplayTagContainer Contexts
-	, TArray<UAudioComponent*>& AudioOut
-	, TArray<UNiagaraComponent*>& NiagaraOut
-	, FVector VFXScale
-	, float AudioVolume
-	, float AudioPitch)
+void UGES_ContextEffectsSubsystem::SpawnContextEffectsExt(const AActor* SpawningActor, const FGES_SpawnContextEffectsInput& Input, FGES_SpawnContextEffectsOutput& Output)
 {
 	// First determine if this Actor has a matching Set of Libraries
 	if (TObjectPtr<UGES_ContextEffectsSet>* EffectsLibrariesSetPtr = ActiveActorEffectsMap.Find(SpawningActor))
@@ -40,6 +28,7 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(
 			// Prepare Arrays for Sounds and Niagara Systems
 			TArray<USoundBase*> TotalSounds;
 			TArray<UNiagaraSystem*> TotalNiagaraSystems;
+			TArray<UParticleSystem*> TotalParticleSystems;
 
 			// Cycle through Effect Libraries
 			for (UGES_ContextEffectsLibrary* EffectLibrary : EffectsLibraries->ContextEffectsLibraries)
@@ -50,13 +39,15 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(
 					// Set up local list of Sounds and Niagara Systems
 					TArray<USoundBase*> Sounds;
 					TArray<UNiagaraSystem*> NiagaraSystems;
+					TArray<UParticleSystem*> ParticleSystems;
 
 					// Get Sounds and Niagara Systems
-					EffectLibrary->GetEffects(Effect, Contexts, Sounds, NiagaraSystems);
+					EffectLibrary->GetEffects(Input.EffectName, Input.SourceContext, Input.TargetContext, Sounds, NiagaraSystems, ParticleSystems);
 
 					// Append to accumulating array
 					TotalSounds.Append(Sounds);
 					TotalNiagaraSystems.Append(NiagaraSystems);
+					TotalParticleSystems.Append(ParticleSystems);
 				}
 				else if (EffectLibrary && EffectLibrary->GetContextEffectsLibraryLoadState() == EGES_ContextEffectsLibraryLoadState::Unloaded)
 				{
@@ -68,83 +59,63 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(
 			// Cycle through found Sounds
 			for (USoundBase* Sound : TotalSounds)
 			{
-				// Spawn Sounds Attached, add Audio Component to List of ACs
-				UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAttached(Sound, AttachToComponent, AttachPoint, LocationOffset, RotationOffset, EAttachLocation::KeepRelativeOffset,
-				                                                                       false, AudioVolume, AudioPitch, 0.0f, nullptr, nullptr, true);
-
-				AudioOut.Add(AudioComponent);
+				if (Input.bAttached)
+				{
+					// Spawn Sounds Attached, add Audio Component to List of ACs
+					UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAttached(Sound, Input.ComponentToAttach, Input.Bone, Input.LocationOffset, Input.RotationOffset,
+					                                                                       EAttachLocation::KeepRelativeOffset,
+					                                                                       false, Input.AudioVolume, Input.AudioPitch, 0.0f, nullptr, nullptr, true);
+					Output.AudioComponents.Add(AudioComponent);
+				}
+				else
+				{
+					UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAtLocation(SpawningActor, Sound, Input.Location, Input.Rotation, Input.AudioVolume, Input.AudioPitch, 0.0f, nullptr,
+					                                                                         nullptr, true);
+					Output.AudioComponents.Add(AudioComponent);
+				}
 			}
 
 			// Cycle through found Niagara Systems
 			for (UNiagaraSystem* NiagaraSystem : TotalNiagaraSystems)
 			{
-				// Spawn Niagara Systems Attached, add Niagara Component to List of NCs
-				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, AttachToComponent, AttachPoint, LocationOffset,
-				                                                                                   RotationOffset, VFXScale, EAttachLocation::KeepRelativeOffset, true, ENCPoolMethod::None, true,
-				                                                                                   true);
-
-				NiagaraOut.Add(NiagaraComponent);
-			}
-		}
-	}
-}
-
-void UGES_ContextEffectsSubsystem::SpawnContextEffects_OneShot(const AActor* SpawningActor, const FVector Location, const FRotator Rotation, FGameplayTag Effect, TArray<UAudioComponent*>& AudioOut,
-                                                               TArray<UNiagaraComponent*>& NiagaraOut,
-                                                               FGameplayTagContainer Contexts, FVector VFXScale, float AudioVolume, float AudioPitch)
-{
-	// First determine if this Actor has a matching Set of Libraries
-	if (TObjectPtr<UGES_ContextEffectsSet>* EffectsLibrariesSetPtr = ActiveActorEffectsMap.Find(SpawningActor))
-	{
-		// Validate the pointers from the Map Find
-		if (UGES_ContextEffectsSet* EffectsLibraries = *EffectsLibrariesSetPtr)
-		{
-			// Prepare Arrays for Sounds and Niagara Systems
-			TArray<USoundBase*> TotalSounds;
-			TArray<UNiagaraSystem*> TotalNiagaraSystems;
-
-			// Cycle through Effect Libraries
-			for (UGES_ContextEffectsLibrary* EffectLibrary : EffectsLibraries->ContextEffectsLibraries)
-			{
-				// Check if the Effect Library is valid and data Loaded
-				if (EffectLibrary && EffectLibrary->GetContextEffectsLibraryLoadState() == EGES_ContextEffectsLibraryLoadState::Loaded)
+				if (Input.bAttached)
 				{
-					// Set up local list of Sounds and Niagara Systems
-					TArray<USoundBase*> Sounds;
-					TArray<UNiagaraSystem*> NiagaraSystems;
-
-					// Get Sounds and Niagara Systems
-					EffectLibrary->GetEffects(Effect, Contexts, Sounds, NiagaraSystems);
-
-					// Append to accumulating array
-					TotalSounds.Append(Sounds);
-					TotalNiagaraSystems.Append(NiagaraSystems);
+					// Spawn Niagara Systems Attached, add Niagara Component to List of NCs
+					UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, Input.ComponentToAttach, Input.Bone, Input.LocationOffset,
+					                                                                                   Input.RotationOffset, Input.VFXScale, EAttachLocation::KeepRelativeOffset, true,
+					                                                                                   ENCPoolMethod::None,
+					                                                                                   true,
+					                                                                                   true);
+					Output.NiagaraComponents.Add(NiagaraComponent);
 				}
-				else if (EffectLibrary && EffectLibrary->GetContextEffectsLibraryLoadState() == EGES_ContextEffectsLibraryLoadState::Unloaded)
+				else
 				{
-					// Else load effects
-					EffectLibrary->LoadEffects();
+					UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(SpawningActor, NiagaraSystem, Input.Location,
+					                                                                                     Input.Rotation, Input.VFXScale, true, true,
+					                                                                                     ENCPoolMethod::None, true);
+
+					Output.NiagaraComponents.Add(NiagaraComponent);
 				}
 			}
 
-			// Cycle through found Sounds
-			for (USoundBase* Sound : TotalSounds)
+			// Cycle through found Particle Systems
+			for (UParticleSystem* ParticleSystem : TotalParticleSystems)
 			{
-				// Spawn Sounds Attached, add Audio Component to List of ACs
-				UAudioComponent* AudioComponent = UGameplayStatics::SpawnSoundAtLocation(SpawningActor, Sound, Location, Rotation, AudioVolume, AudioPitch, 0.0f, nullptr, nullptr, true);
-
-				AudioOut.Add(AudioComponent);
-			}
-
-			// Cycle through found Niagara Systems
-			for (UNiagaraSystem* NiagaraSystem : TotalNiagaraSystems)
-			{
-				// Spawn Niagara Systems Attached, add Niagara Component to List of NCs
-				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(SpawningActor,NiagaraSystem, Location,
-				                                                                                   Rotation, VFXScale, true, true,
-				                                                                                    ENCPoolMethod::None,true);
-
-				NiagaraOut.Add(NiagaraComponent);
+				if (Input.bAttached)
+				{
+					// Spawn Particle Systems Attached, add Niagara Component to List of NCs
+					UParticleSystemComponent* ParticleComponent = UGameplayStatics::SpawnEmitterAttached(ParticleSystem, Input.ComponentToAttach, Input.Bone, Input.LocationOffset,
+					                                                                                     Input.RotationOffset, Input.VFXScale, EAttachLocation::KeepRelativeOffset, true,
+					                                                                                     EPSCPoolMethod::None,
+					                                                                                     true);
+					Output.ParticlesComponents.Add(ParticleComponent);
+				}
+				else
+				{
+					UParticleSystemComponent* ParticleComponent = UGameplayStatics::SpawnEmitterAtLocation(SpawningActor, ParticleSystem, Input.Location, Input.Rotation, Input.VFXScale, true,
+					                                                                                       EPSCPoolMethod::None, true);
+					Output.ParticlesComponents.Add(ParticleComponent);
+				}
 			}
 		}
 	}

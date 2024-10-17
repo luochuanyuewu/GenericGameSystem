@@ -11,9 +11,17 @@
 #include "Feedback/GES_ContextEffectsLibrary.h"
 #include "Feedback/GES_ContextEffectsPreviewSetting.h"
 #include "Feedback/GES_ContextEffectsSubsystem.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GES_AnimNotify_ContextEffects)
 
+
+bool UGES_ContextEffectsSpawnParametersProvider::ProvideParameters_Implementation(USkeletalMeshComponent* InMeshComp, const UGES_AnimNotify_ContextEffects* InNotifyNotify,
+                                                                                  UAnimSequenceBase* InAnimation, FVector& OutSpawnLocation,
+                                                                                  FRotator& OutSpawnRotation) const
+{
+	return false;
+}
 
 UGES_AnimNotify_ContextEffects::UGES_AnimNotify_ContextEffects(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
@@ -55,6 +63,22 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		return;
 	}
 
+	FVector SpawnLocation;
+	FRotator SpawnRotation;
+
+	bool bValidProvider = !bAttached && IsValid(SpawnParametersProvider) && SpawnParametersProvider->ProvideParameters(MeshComp, this, Animation, SpawnLocation, SpawnRotation);
+
+	if (!bValidProvider)
+	{
+		SpawnRotation = MeshComp->GetOwner()->GetActorTransform().TransformRotation(RotationOffset.Quaternion()).Rotator();
+		SpawnLocation = MeshComp->GetOwner()->GetActorTransform().TransformPosition(LocationOffset);
+	}
+	// else
+	// {
+	// 	SpawnRotation = UKismetMathLibrary::ComposeRotators(SpawnRotation, RotationOffset);
+	// 	SpawnLocation = SpawnLocation + UKismetMathLibrary::Quat_RotateVector(SpawnRotation.Quaternion(), LocationOffset);
+	// }
+
 	// Make sure both MeshComp and Owning Actor is valid
 	if (AActor* OwningActor = MeshComp->GetOwner())
 	{
@@ -73,19 +97,21 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		if (bPerformTrace)
 		{
 			// If trace is needed, set up Start Location to Attached
-			FVector TraceStart = bAttached ? MeshComp->GetSocketLocation(SocketName) : MeshComp->GetComponentLocation();
+			FVector TraceStart = bAttached ? MeshComp->GetSocketLocation(SocketName) + LocationOffset : SpawnLocation;
 
 			// Make sure World is valid
 			if (UWorld* World = OwningActor->GetWorld())
 			{
 				// Call Line Trace, Pass in relevant properties
-				bHitSuccess = World->LineTraceSingleByChannel(HitResult, TraceStart, (TraceStart + TraceProperties.EndTraceLocationOffset),
+				bHitSuccess = World->LineTraceSingleByChannel(HitResult, TraceStart, (SpawnLocation + TraceProperties.EndTraceLocationOffset),
 				                                              TraceProperties.TraceChannel, QueryParams, FCollisionResponseParams::DefaultResponseParam);
 			}
 		}
 
 		// Prepare Contexts in advance
-		FGameplayTagContainer Contexts;
+		FGameplayTagContainer SourceContext;
+
+		FGameplayTagContainer TargetContext;
 
 		// Set up Array of Objects that implement the Context Effects Interface
 		TArray<UObject*> Implementers;
@@ -110,27 +136,36 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 			}
 		}
 
+		FGES_SpawnContextEffectsInput Input;
+		Input.EffectName = Effect;
+		Input.bAttached = bAttached;
+		Input.Bone = SocketName;
+		Input.ComponentToAttach = MeshComp;
+		Input.Location = SpawnLocation;
+		Input.Rotation = SpawnRotation;
+		Input.LocationOffset = LocationOffset;
+		Input.RotationOffset = RotationOffset;
+		Input.AnimationSequence = Animation;
+		Input.bHitSuccess = bHitSuccess;
+		Input.HitResult = HitResult;
+		Input.SourceContext = SourceContext;
+		Input.TargetContext = TargetContext;
+		Input.VFXScale = VFXProperties.Scale;
+		Input.AudioVolume = AudioProperties.VolumeMultiplier;
+		Input.AudioPitch = AudioProperties.PitchMultiplier;
+
 		// Cycle through all objects implementing the Context Effect Interface
 		for (UObject* Implementer : Implementers)
 		{
+			// If the object is still valid, Execute the AnimMotionEffect Event on it, passing in relevant data
 			if (Implementer)
 			{
-				IGES_ContextEffectsInterface::Execute_PlayContextEffectsAttached(Implementer,
-													   (bAttached ? SocketName : FName("None")),
-													   Effect, MeshComp, LocationOffset, RotationOffset,
-													   Animation, bHitSuccess, HitResult, Contexts, VFXProperties.Scale,
-													   AudioProperties.VolumeMultiplier, AudioProperties.PitchMultiplier);
-				// If the object is still valid, Execute the AnimMotionEffect Event on it, passing in relevant data
-				IGES_ContextEffectsInterface::Execute_AnimMotionEffect(Implementer,
-				                                                       (bAttached ? SocketName : FName("None")),
-				                                                       Effect, MeshComp, LocationOffset, RotationOffset,
-				                                                       Animation, bHitSuccess, HitResult, Contexts, VFXProperties.Scale,
-				                                                       AudioProperties.VolumeMultiplier, AudioProperties.PitchMultiplier);
+				IGES_ContextEffectsInterface::Execute_PlayContextEffectsWithInput(Implementer, Input);
 			}
 		}
 
 #if WITH_EDITORONLY_DATA
-		PerformEditorPreview(OwningActor, Contexts, MeshComp);
+		PerformEditorPreview(OwningActor, SourceContext, TargetContext, MeshComp);
 #endif
 	}
 }
@@ -159,8 +194,12 @@ void UGES_AnimNotify_ContextEffects::SetParameters(FGameplayTag EffectIn, FVecto
 	TraceProperties.bIgnoreActor = TracePropertiesIn.bIgnoreActor;
 }
 
-void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, FGameplayTagContainer& Contexts, USkeletalMeshComponent* MeshComp)
+void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, FGameplayTagContainer& SourceContext, FGameplayTagContainer& TargetContext, USkeletalMeshComponent* MeshComp)
 {
+	if (!bAttached)
+	{
+		return;
+	}
 	const UGES_ContextEffectsSettings* ContextEffectsSettings = GetDefault<UGES_ContextEffectsSettings>();
 	if (ContextEffectsSettings == nullptr)
 	{
@@ -186,7 +225,8 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 	}
 
 	// Add Preview contexts if necessary
-	Contexts.AppendTags(PreviewSetting->PreviewContexts);
+	SourceContext.AppendTags(PreviewSetting->PreviewSourceContext);
+	TargetContext.AppendTags(PreviewSetting->PreviewTargetContext);
 
 	// Convert given Surface Type to Context and Add it to the Contexts for this Preview
 	if (PreviewSetting->bPreviewPhysicalSurfaceAsContext)
@@ -197,11 +237,11 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 		{
 			FGameplayTag SurfaceContext = *SurfaceContextPtr;
 
-			Contexts.AddTag(SurfaceContext);
+			SourceContext.AddTag(SurfaceContext);
 		}
 	}
 
-  	for (int i = 0; i < PreviewSetting->PreviewContextEffectsLibraries.Num(); ++i)
+	for (int i = 0; i < PreviewSetting->PreviewContextEffectsLibraries.Num(); ++i)
 	{
 		// Libraries are soft referenced, so you will want to try to load them now
 		if (UObject* EffectsLibrariesObj = PreviewSetting->PreviewContextEffectsLibraries[i].TryLoad())
@@ -212,6 +252,8 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 				// Prepare Sounds and Niagara System Arrays
 				TArray<USoundBase*> TotalSounds;
 				TArray<UNiagaraSystem*> TotalNiagaraSystems;
+				TArray<UParticleSystem*> TotalParticleSystems;
+
 
 				// Attempt to load the Effect Library content (will cache in Transient data on the Effect Library Asset)
 				EffectLibrary->LoadEffects();
@@ -222,27 +264,37 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 					// Prepare local arrays
 					TArray<USoundBase*> Sounds;
 					TArray<UNiagaraSystem*> NiagaraSystems;
+					TArray<UParticleSystem*> ParticleSystems;
+
 
 					// Get the Effects
-					EffectLibrary->GetEffects(Effect, Contexts, Sounds, NiagaraSystems);
+					EffectLibrary->GetEffects(Effect, SourceContext, TargetContext, Sounds, NiagaraSystems, ParticleSystems);
 
 					// Append to the accumulating arrays
 					TotalSounds.Append(Sounds);
 					TotalNiagaraSystems.Append(NiagaraSystems);
+					TotalParticleSystems.Append(ParticleSystems);
 				}
 
 				// Cycle through Sounds and call Spawn Sound Attached, passing in relevant data
 				for (USoundBase* Sound : TotalSounds)
 				{
-					UGameplayStatics::SpawnSoundAttached(Sound, MeshComp, (bAttached ? SocketName : FName("None")), LocationOffset, RotationOffset, EAttachLocation::KeepRelativeOffset,
+					UGameplayStatics::SpawnSoundAttached(Sound, MeshComp, SocketName, LocationOffset, RotationOffset, EAttachLocation::KeepRelativeOffset,
 					                                     false, AudioProperties.VolumeMultiplier, AudioProperties.PitchMultiplier, 0.0f, nullptr, nullptr, true);
 				}
 
 				// Cycle through Niagara Systems and call Spawn System Attached, passing in relevant data
 				for (UNiagaraSystem* NiagaraSystem : TotalNiagaraSystems)
 				{
-					UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, MeshComp, (bAttached ? SocketName : FName("None")), LocationOffset,
+					UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, MeshComp, SocketName, LocationOffset,
 					                                             RotationOffset, VFXProperties.Scale, EAttachLocation::KeepRelativeOffset, true, ENCPoolMethod::None, true, true);
+				}
+
+				// Cycle through Particle Systems and call Spawn System Attached, passing in relevant data
+				for (UParticleSystem* ParticleSystem : TotalParticleSystems)
+				{
+					UGameplayStatics::SpawnEmitterAttached(ParticleSystem, MeshComp, SocketName, LocationOffset,
+					                                       RotationOffset, VFXProperties.Scale, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::None, true);
 				}
 			}
 		}

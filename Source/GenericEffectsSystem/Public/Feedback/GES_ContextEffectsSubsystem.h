@@ -5,6 +5,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "GameplayTagContainer.h"
 #include "GES_AnimNotify_ContextEffects.h"
+#include "GES_ContextEffectsStructLibrary.h"
 #include "Subsystems/WorldSubsystem.h"
 
 #include "GES_ContextEffectsSubsystem.generated.h"
@@ -38,7 +39,7 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="PreviewProperties")
 	uint32 bPreviewInEditor : 1;
 
-	UPROPERTY(config,EditAnywhere, Category="PreviewProperties", meta = (EditCondition = "bPreviewInEditor"))
+	UPROPERTY(config, EditAnywhere, Category="PreviewProperties", meta = (EditCondition = "bPreviewInEditor"))
 	TSoftObjectPtr<UGES_ContextEffectsPreviewSetting> PreviewSetting;
 #endif
 };
@@ -65,27 +66,20 @@ class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsSubsystem : public UWorldSubsy
 	GENERATED_BODY()
 
 public:
-	/** */
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
-	void SpawnContextEffects(
-		const AActor *SpawningActor, USceneComponent *AttachToComponent, const FName AttachPoint, const FVector LocationOffset, const FRotator RotationOffset, FGameplayTag Effect, FGameplayTagContainer Contexts, TArray<UAudioComponent *> &AudioOut, TArray<UNiagaraComponent *> &NiagaraOut, FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1);
-
-	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
-	void SpawnContextEffects_OneShot(
-		const AActor *SpawningActor,const FVector Location, const FRotator Rotation, FGameplayTag Effect,TArray<UAudioComponent *> &AudioOut, TArray<UNiagaraComponent *> &NiagaraOut, FGameplayTagContainer Contexts, FVector VFXScale = FVector(1), float AudioVolume = 1, float AudioPitch = 1);
-
-	
-	/** */
-	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
-	bool GetContextFromSurfaceType(TEnumAsByte<EPhysicalSurface> PhysicalSurface, FGameplayTag &Context);
+	void SpawnContextEffectsExt(const AActor* SpawningActor, const FGES_SpawnContextEffectsInput& Input, FGES_SpawnContextEffectsOutput& Output);
 
 	/** */
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
-	void LoadAndAddContextEffectsLibraries(AActor *OwningActor, TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> ContextEffectsLibraries);
+	bool GetContextFromSurfaceType(TEnumAsByte<EPhysicalSurface> PhysicalSurface, FGameplayTag& Context);
 
 	/** */
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
-	void UnloadAndRemoveContextEffectsLibraries(AActor *OwningActor);
+	void LoadAndAddContextEffectsLibraries(AActor* OwningActor, TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> ContextEffectsLibraries);
+
+	/** */
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
+	void UnloadAndRemoveContextEffectsLibraries(AActor* OwningActor);
 
 private:
 	UPROPERTY(Transient)

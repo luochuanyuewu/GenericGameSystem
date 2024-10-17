@@ -30,7 +30,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (AllowedClasses = "/Script/GenericEffectsSystem.GES_ContextEffectsLibrary"))
 	TArray<FSoftObjectPath> PreviewContextEffectsLibraries;
 
-	// Preview Context
+	// Preview Source Context
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
-	FGameplayTagContainer PreviewContexts;
+	FGameplayTagContainer PreviewSourceContext;
+
+	// Preview Target Context
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
+	FGameplayTagContainer PreviewTargetContext;
 };

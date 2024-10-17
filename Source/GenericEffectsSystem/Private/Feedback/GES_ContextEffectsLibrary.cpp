@@ -4,27 +4,33 @@
 #include "Feedback/GES_ContextEffectsLibrary.h"
 #include "NiagaraSystem.h"
 #include "Sound/SoundBase.h"
+#include "UObject/ObjectSaveContext.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GES_ContextEffectsLibrary)
 
 
-void UGES_ContextEffectsLibrary::GetEffects(const FGameplayTag Effect, const FGameplayTagContainer Context, 
-	TArray<USoundBase*>& Sounds, TArray<UNiagaraSystem*>& NiagaraSystems)
+void UGES_ContextEffectsLibrary::GetEffects(const FGameplayTag Effect, const FGameplayTagContainer& SourceContext, const FGameplayTagContainer& TargetContext,
+                                            TArray<USoundBase*>& Sounds, TArray<UNiagaraSystem*>& NiagaraSystems, TArray<UParticleSystem*>& ParticleSystems)
 {
 	// Make sure Effect is valid and Library is loaded
-	if (Effect.IsValid() && Context.IsValid() && EffectsLoadState == EGES_ContextEffectsLibraryLoadState::Loaded)
+	if (Effect.IsValid() && SourceContext.IsValid() && EffectsLoadState == EGES_ContextEffectsLibraryLoadState::Loaded)
 	{
 		// Loop through Context Effects
 		for (const auto& ActiveContextEffect : ActiveContextEffects)
 		{
+			bool bMatchesEffectTag = Effect.MatchesTagExact(ActiveContextEffect->EffectTag);
+			bool bMatchesSourceContext = SourceContext.HasAllExact(ActiveContextEffect->SourceContext) && (ActiveContextEffect->SourceContext.IsEmpty() == SourceContext.IsEmpty());
+
+			// Target context is optional
+			bool bMatchesTargetContext = ActiveContextEffect->TargetContext.IsEmpty() || TargetContext.HasAllExact(ActiveContextEffect->TargetContext);
+
 			// Make sure the Effect is an exact Tag Match and ensure the Context has all tags in the Effect (and neither or both are empty)
-			if (Effect.MatchesTagExact(ActiveContextEffect->EffectTag)
-				&& Context.HasAllExact(ActiveContextEffect->Context)
-				&& (ActiveContextEffect->Context.IsEmpty() == Context.IsEmpty()))
+			if (bMatchesEffectTag && bMatchesSourceContext && bMatchesTargetContext)
 			{
 				// Get all Matching Sounds and Niagara Systems
 				Sounds.Append(ActiveContextEffect->Sounds);
 				NiagaraSystems.Append(ActiveContextEffect->NiagaraSystems);
+				ParticleSystems.Append(ActiveContextEffect->ParticleSystems);
 			}
 		}
 	}
@@ -73,7 +79,9 @@ void UGES_ContextEffectsLibrary::LoadEffectsInternal()
 
 			// Pass relevant tag data
 			NewActiveContextEffects->EffectTag = ContextEffect.EffectTag;
-			NewActiveContextEffects->Context = ContextEffect.Context;
+			NewActiveContextEffects->SourceContext = ContextEffect.Context;
+			NewActiveContextEffects->TargetContext = ContextEffect.TargetContext;
+
 
 			// Try to load and add Effects to New Active Context Effects
 			for (const FSoftObjectPath& Effect : ContextEffect.Effects)
@@ -92,6 +100,13 @@ void UGES_ContextEffectsLibrary::LoadEffectsInternal()
 						if (UNiagaraSystem* NiagaraSystem = Cast<UNiagaraSystem>(Object))
 						{
 							NewActiveContextEffects->NiagaraSystems.Add(NiagaraSystem);
+						}
+					}
+					else if (Object->IsA(UParticleSystem::StaticClass()))
+					{
+						if (UParticleSystem* ParticleSystem = Cast<UParticleSystem>(Object))
+						{
+							NewActiveContextEffects->ParticleSystems.Add(ParticleSystem);
 						}
 					}
 				}
@@ -117,3 +132,19 @@ void UGES_ContextEffectsLibrary::OnContextEffectLibraryLoadingComplete(
 	ActiveContextEffects.Append(InActiveContextEffects);
 }
 
+#if WITH_EDITOR
+void UGES_ContextEffectsLibrary::PreSave(FObjectPreSaveContext SaveContext)
+{
+	for (FGES_ContextEffects& ContextEffect : ContextEffects)
+	{
+		ContextEffect.EditorFriendlyName = ContextEffect.EffectTag.IsValid()
+			                                   ? FString::Format(TEXT("Effect({0}) Source({1}) Target({2})"),
+			                                                     {
+				                                                     ContextEffect.EffectTag.GetTagName().ToString(), ContextEffect.Context.ToStringSimple(),
+				                                                     ContextEffect.TargetContext.ToStringSimple()
+			                                                     })
+			                                   : TEXT("Invalid Effect");
+	}
+	Super::PreSave(SaveContext);
+}
+#endif
