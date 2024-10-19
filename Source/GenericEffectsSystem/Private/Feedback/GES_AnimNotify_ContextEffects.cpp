@@ -68,7 +68,7 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 
 	bool bValidProvider = !bAttached && IsValid(SpawnParametersProvider) && SpawnParametersProvider->ProvideParameters(MeshComp, this, Animation, SpawnLocation, SpawnRotation);
 
-	if (!bValidProvider)
+	if (!bValidProvider && MeshComp->GetOwner())
 	{
 		SpawnRotation = MeshComp->GetOwner()->GetActorTransform().TransformRotation(RotationOffset.Quaternion()).Rotator();
 		SpawnLocation = MeshComp->GetOwner()->GetActorTransform().TransformPosition(LocationOffset);
