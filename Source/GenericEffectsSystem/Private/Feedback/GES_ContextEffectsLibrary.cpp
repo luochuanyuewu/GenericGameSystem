@@ -19,10 +19,10 @@ void UGES_ContextEffectsLibrary::GetEffects(const FGameplayTag Effect, const FGa
 		for (const auto& ActiveContextEffect : ActiveContextEffects)
 		{
 			bool bMatchesEffectTag = Effect.MatchesTagExact(ActiveContextEffect->EffectTag);
-			bool bMatchesSourceContext = SourceContext.HasAllExact(ActiveContextEffect->SourceContext) && (ActiveContextEffect->SourceContext.IsEmpty() == SourceContext.IsEmpty());
+			bool bMatchesSourceContext = ActiveContextEffect->SourceTagQuery.Matches(SourceContext) && (ActiveContextEffect->SourceTagQuery.IsEmpty() == SourceContext.IsEmpty());
 
 			// Target context is optional
-			bool bMatchesTargetContext = ActiveContextEffect->TargetContext.IsEmpty() || TargetContext.HasAllExact(ActiveContextEffect->TargetContext);
+			bool bMatchesTargetContext = ActiveContextEffect->TargetTagQuery.IsEmpty() || ActiveContextEffect->TargetTagQuery.Matches(TargetContext);
 
 			// Make sure the Effect is an exact Tag Match and ensure the Context has all tags in the Effect (and neither or both are empty)
 			if (bMatchesEffectTag && bMatchesSourceContext && bMatchesTargetContext)
@@ -72,15 +72,15 @@ void UGES_ContextEffectsLibrary::LoadEffectsInternal()
 	for (const FGES_ContextEffects& ContextEffect : LocalContextEffects)
 	{
 		// Make sure Tags are Valid
-		if (ContextEffect.EffectTag.IsValid() && ContextEffect.Context.IsValid())
+		if (ContextEffect.EffectTag.IsValid() && !ContextEffect.SourceTagQuery.IsEmpty())
 		{
 			// Create new Active Context Effect
 			UGES_ActiveContextEffects* NewActiveContextEffects = NewObject<UGES_ActiveContextEffects>(this);
 
 			// Pass relevant tag data
 			NewActiveContextEffects->EffectTag = ContextEffect.EffectTag;
-			NewActiveContextEffects->SourceContext = ContextEffect.Context;
-			NewActiveContextEffects->TargetContext = ContextEffect.TargetContext;
+			NewActiveContextEffects->SourceTagQuery = ContextEffect.SourceTagQuery;
+			NewActiveContextEffects->TargetTagQuery = ContextEffect.TargetTagQuery;
 
 
 			// Try to load and add Effects to New Active Context Effects
@@ -137,11 +137,18 @@ void UGES_ContextEffectsLibrary::PreSave(FObjectPreSaveContext SaveContext)
 {
 	for (FGES_ContextEffects& ContextEffect : ContextEffects)
 	{
+		if (!ContextEffect.Context.IsEmpty())
+		{
+			FGameplayTagQueryExpression Expression;
+			Expression.AllTagsMatch().AddTags(ContextEffect.Context);
+			ContextEffect.SourceTagQuery.Build(Expression, FString::Format(TEXT("Has all tags({0})"), {ContextEffect.Context.ToStringSimple()}));
+			ContextEffect.Context = FGameplayTagContainer();
+		}
 		ContextEffect.EditorFriendlyName = ContextEffect.EffectTag.IsValid()
 			                                   ? FString::Format(TEXT("Effect({0}) Source({1}) Target({2})"),
 			                                                     {
-				                                                     ContextEffect.EffectTag.GetTagName().ToString(), ContextEffect.Context.ToStringSimple(),
-				                                                     ContextEffect.TargetContext.ToStringSimple()
+				                                                     ContextEffect.EffectTag.GetTagName().ToString(), ContextEffect.SourceTagQuery.GetDescription(),
+				                                                     ContextEffect.TargetTagQuery.GetDescription()
 			                                                     })
 			                                   : TEXT("Invalid Effect");
 	}

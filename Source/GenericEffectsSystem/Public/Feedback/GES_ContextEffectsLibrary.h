@@ -30,10 +30,10 @@ public:
 	FGameplayTag EffectTag;
 
 	UPROPERTY(VisibleAnywhere, Category="GES")
-	FGameplayTagContainer SourceContext;
+	FGameplayTagQuery SourceTagQuery;
 
 	UPROPERTY(VisibleAnywhere, Category="GES")
-	FGameplayTagContainer TargetContext;
+	FGameplayTagQuery TargetTagQuery;
 
 	UPROPERTY(VisibleAnywhere, Category="GES")
 	TArray<TObjectPtr<USoundBase>> Sounds;

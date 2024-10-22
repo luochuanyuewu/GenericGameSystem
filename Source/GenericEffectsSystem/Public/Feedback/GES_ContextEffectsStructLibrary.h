@@ -22,14 +22,17 @@ struct GENERICEFFECTSSYSTEM_API FGES_ContextEffects
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES")
 	FGameplayTag EffectTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES", meta=(DisplayName="Source Contexts"))
-	FGameplayTagContainer Context;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES")
+	FGameplayTagQuery SourceTagQuery;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES", meta=(DisplayName="Target Contexts"))
-	FGameplayTagContainer TargetContext;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES")
+	FGameplayTagQuery TargetTagQuery;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GES", meta = (AllowedClasses = "/Script/Engine.SoundBase, /Script/Niagara.NiagaraSystem, /Script/Engine.ParticleSystem"))
 	TArray<FSoftObjectPath> Effects;
+
+	UPROPERTY(VisibleAnywhere, Category="GES", meta=(DisplayName="Context(Deprecated)"))
+	FGameplayTagContainer Context;
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, Category="GES", meta=(EditCondition=false, EditConditionHides))
