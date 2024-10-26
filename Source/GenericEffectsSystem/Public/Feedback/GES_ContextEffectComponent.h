@@ -89,7 +89,7 @@ private:
 	 * If checked, will look for owner or owner's components to find one which implements GameplayTagAssetInterface, and set it as TagsProvider.
 	 */
 	UPROPERTY(EditDefaultsOnly, Category="Settings")
-	bool bAutoSetupTagsProvider{false};
+	bool bAutoSetupTagsProvider{true};
 
 	/**
 	 * This is an optional UObject which implements GameplayTagAssetInterface.

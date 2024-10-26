@@ -103,7 +103,7 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 			if (UWorld* World = OwningActor->GetWorld())
 			{
 				// Call Line Trace, Pass in relevant properties
-				bHitSuccess = World->LineTraceSingleByChannel(HitResult, TraceStart, (SpawnLocation + TraceProperties.EndTraceLocationOffset),
+				bHitSuccess = World->LineTraceSingleByChannel(HitResult, TraceStart, (TraceStart + TraceProperties.EndTraceLocationOffset),
 				                                              TraceProperties.TraceChannel, QueryParams, FCollisionResponseParams::DefaultResponseParam);
 			}
 		}
