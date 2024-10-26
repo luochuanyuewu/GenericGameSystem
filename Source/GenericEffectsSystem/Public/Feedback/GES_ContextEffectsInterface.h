@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Engine/HitResult.h"
-#include "GameplayTagContainer.h"
 #include "GES_ContextEffectsStructLibrary.h"
 #include "UObject/Interface.h"
 

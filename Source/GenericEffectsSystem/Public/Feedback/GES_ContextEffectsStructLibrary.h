@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "GES_ContextEffectsEnumLibrary.h"
 #include "UObject/Object.h"
 #include "GES_ContextEffectsStructLibrary.generated.h"
 
@@ -111,9 +112,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES", meta=(EditCondition="!bAttached", EditConditionHides))
 	FRotator Rotation{ForceInit};
 
+	/**
+	 * The source context type determine how passed-in SourceContext will be used during the execution.
+	 * if ContextType==Merge, Will merge passed-in SourceContext to implementer's CurrentContexts as final source context for fx query.
+	 * if Context==Override, Will only use passed-in SourceContext as source context for fx query.
+	 * 源情景类型决定传入的SourceContext会被如何使用。
+	 * 如果等于Merge，则是将传入SourceContext与实现者的CurrentContexts合并，并将合并结果作为查询效果的依据。
+	 * 如果等于Override，则只会将传入的SourceContext作为查询效果的依据。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Context")
+	EGES_EffectsContextType SourceContextType{EGES_EffectsContextType::Merge};
+
+	/**
+	 * Optional SourceContext, usage will be depended on SourceContextType.
+	 * 可选的源情景，用法会取决于SourceContextType的类型。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Context")
 	FGameplayTagContainer SourceContext;
 
+	/**
+	 * Optional TargetContext.
+	 * 可选的目标情景。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Context")
 	FGameplayTagContainer TargetContext;
 

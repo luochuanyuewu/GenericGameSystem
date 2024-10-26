@@ -18,10 +18,9 @@ enum class EGES_ContextEffectsLibraryLoadState : uint8
 	Loaded = 2
 };
 
-
 UENUM()
-enum EGES_EffectsContextMatchType : int
+enum class EGES_EffectsContextType : uint8
 {
-	ExactMatch,
-	BestMatch
+	Merge,
+	Override
 };

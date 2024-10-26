@@ -46,7 +46,7 @@ protected:
 public:
 	virtual void PlayContextEffectsWithInput_Implementation(FGES_SpawnContextEffectsInput Input) override;
 
-	FGameplayTagContainer AggregateSourceContext(const FGameplayTagContainer& IncomingContexts) const;
+	void AggregateContexts(FGES_SpawnContextEffectsInput& Input) const;
 
 	void InjectPhysicalSurfaceToContexts(const FHitResult& InHitResult, FGameplayTagContainer& Contexts);
 

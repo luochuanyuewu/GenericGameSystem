@@ -81,8 +81,7 @@ void UGES_ContextEffectComponent::SetupTagsProvider()
 
 void UGES_ContextEffectComponent::PlayContextEffectsWithInput_Implementation(FGES_SpawnContextEffectsInput Input)
 {
-	Input.SourceContext = AggregateSourceContext(Input.SourceContext);
-
+	AggregateContexts(Input);
 	InjectPhysicalSurfaceToContexts(Input.HitResult, Input.SourceContext);
 
 	// Prep Components
@@ -149,20 +148,24 @@ void UGES_ContextEffectComponent::PlayContextEffectsWithInput_Implementation(FGE
 	ActiveParticleComponents.Append(ParticleComponentsToAdd);
 }
 
-FGameplayTagContainer UGES_ContextEffectComponent::AggregateSourceContext(const FGameplayTagContainer& IncomingContexts) const
+void UGES_ContextEffectComponent::AggregateContexts(FGES_SpawnContextEffectsInput& Input) const
 {
-	FGameplayTagContainer TotalContexts;
-	// Aggregate contexts
-	TotalContexts.AppendTags(IncomingContexts);
-	TotalContexts.AppendTags(CurrentContexts);
-	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(GameplayTagsProvider))
+	if (Input.SourceContextType == EGES_EffectsContextType::Merge)
 	{
-		FGameplayTagContainer RetTags;
-		TagAssetInterface->GetOwnedGameplayTags(RetTags);
-		TotalContexts.AppendTags(RetTags);
+		FGameplayTagContainer TotalContexts;
+		// Aggregate contexts
+		TotalContexts.AppendTags(Input.SourceContext);
+		TotalContexts.AppendTags(CurrentContexts);
+		if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(GameplayTagsProvider))
+		{
+			FGameplayTagContainer RetTags;
+			TagAssetInterface->GetOwnedGameplayTags(RetTags);
+			TotalContexts.AppendTags(RetTags);
+		}
+		Input.SourceContext = TotalContexts;
 	}
-	return TotalContexts;
 }
+
 
 void UGES_ContextEffectComponent::InjectPhysicalSurfaceToContexts(const FHitResult& InHitResult, FGameplayTagContainer& Contexts)
 {
