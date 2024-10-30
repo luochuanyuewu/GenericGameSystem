@@ -141,7 +141,7 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		Input.bAttached = bAttached;
 		Input.Bone = SocketName;
 		Input.ComponentToAttach = MeshComp;
-		Input.Location = SpawnLocation;
+		Input.Location = bHitSuccess?HitResult.Location:SpawnLocation;
 		Input.Rotation = SpawnRotation;
 		Input.LocationOffset = LocationOffset;
 		Input.RotationOffset = RotationOffset;
