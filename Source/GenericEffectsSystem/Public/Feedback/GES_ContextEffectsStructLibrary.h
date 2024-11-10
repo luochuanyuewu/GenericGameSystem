@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Engine/EngineTypes.h"
+#include "Engine/HitResult.h"
 #include "GES_ContextEffectsEnumLibrary.h"
 #include "UObject/Object.h"
 #include "GES_ContextEffectsStructLibrary.generated.h"
 
 class UNiagaraComponent;
 class UAudioComponent;
+class UAnimSequenceBase;
 class UParticleSystemComponent;
 
 /**
