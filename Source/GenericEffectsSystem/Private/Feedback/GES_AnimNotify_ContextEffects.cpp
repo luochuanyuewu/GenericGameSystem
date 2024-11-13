@@ -63,8 +63,8 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		return;
 	}
 
-	FVector SpawnLocation;
-	FRotator SpawnRotation;
+	FVector SpawnLocation = FVector::ZeroVector;
+	FRotator SpawnRotation = FRotator::ZeroRotator;
 
 	bool bValidProvider = !bAttached && IsValid(SpawnParametersProvider) && SpawnParametersProvider->ProvideParameters(MeshComp, this, Animation, SpawnLocation, SpawnRotation);
 
