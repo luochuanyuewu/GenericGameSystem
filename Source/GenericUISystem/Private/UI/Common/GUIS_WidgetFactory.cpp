@@ -1,0 +1,30 @@
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
+
+
+#include "UI/Common/GUIS_WidgetFactory.h"
+
+#include "Misc/DataValidation.h"
+
+
+TSubclassOf<UUserWidget> UGUIS_WidgetFactory::FindWidgetClassForData_Implementation(const UObject* Data) const
+{
+	return TSubclassOf<UUserWidget>();
+}
+
+bool UGUIS_WidgetFactory::OnDataValidation_Implementation(FText& ValidationMessage) const
+{
+	return true;
+}
+
+#if WITH_EDITOR
+EDataValidationResult UGUIS_WidgetFactory::IsDataValid(FDataValidationContext& Context) const
+{
+	FText ValidationMessage;
+	if (!OnDataValidation(ValidationMessage))
+	{
+		Context.AddError(ValidationMessage);
+		return EDataValidationResult::Invalid;
+	}
+	return Super::IsDataValid(Context);
+}
+#endif

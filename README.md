@@ -1,6 +1,12 @@
-﻿# Generic Effects System(通用效果系统)
+﻿# Generic Game System(通用游戏系统)
 
-## Introduction(介绍)
+This plugin was renamed from Generic Effects System to Generic Game System and contains two more new free modules(Camera and UI).
+
+Home Page: https://k12oekrxfs.larksuite.com/wiki/FPR0winoWicfXpkHdFIue7Eoskf
+
+## Generic Effects System (通用效果系统)
+
+### Introduction(介绍)
 
 This is an Unreal Engine 5 code plugin which helps you to:
 
@@ -15,18 +21,14 @@ This is an Unreal Engine 5 code plugin which helps you to:
     3.自动化检测脚步并配置脚步声效/特效的播放。
     
 
-This plugin is mainly used for footstep vfx/sfx， But you can also use this plugin to play sfx/vfx based on other gameplay event such as melee hit,
+This module is mainly used for footstep vfx/sfx， But you can also use this plugin to play sfx/vfx based on other gameplay event such as melee hit,
 bullet impacts etc.
 
 此插件主要用于脚步系统，但是你完全可以可以基于游戏中的其他事件进行声效/特效的播放，比如近战碰撞效果，或者远程子弹碰撞效果。
 
-## Documentation(文档)
-Go to documentations for fully detailed usage guide.
-[English Documentation]()
+## Generic Camera System
+Doc:https://k12oekrxfs.larksuite.com/wiki/KfnGwXQx6i1Ls4kmeCGuZJj0she
 
-去文档网站以查询更细致的教学内容。
-[中文文档]()
+## Generic UI System
 
-## Community(社区)
-
-
+Doc:https://k12oekrxfs.larksuite.com/wiki/CYktwi6GliabXZkAvsfuqh9rsNb
