@@ -144,7 +144,7 @@ public:
 	FName Bone{NAME_None};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Attachment", meta=(EditCondition="bAttached", EditConditionHides))
-	USceneComponent* ComponentToAttach{nullptr};
+	TObjectPtr<USceneComponent> ComponentToAttach{nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Attachment", meta=(EditCondition="bAttached", EditConditionHides))
 	FVector LocationOffset{FVector::ZeroVector};
@@ -156,7 +156,7 @@ public:
 	 * Optional source animation which triggered this context effects.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES")
-	const UAnimSequenceBase* AnimationSequence{nullptr};
+	TObjectPtr<const UAnimSequenceBase> AnimationSequence{nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GES|Vfx")
 	FVector VFXScale = FVector(1);
