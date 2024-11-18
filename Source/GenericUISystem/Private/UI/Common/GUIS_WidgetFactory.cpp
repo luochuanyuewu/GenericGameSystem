@@ -2,7 +2,7 @@
 
 
 #include "UI/Common/GUIS_WidgetFactory.h"
-
+#include "Blueprint/UserWidget.h"
 #include "Misc/DataValidation.h"
 
 

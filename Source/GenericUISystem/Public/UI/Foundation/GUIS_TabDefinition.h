@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Styling/SlateBrush.h"
 #include "GUIS_TabDefinition.generated.h"
 
 class UCommonActivatableWidget;

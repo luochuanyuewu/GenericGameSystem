@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "GUIS_UIAction.generated.h"
 
 class UGUIS_UIAction;

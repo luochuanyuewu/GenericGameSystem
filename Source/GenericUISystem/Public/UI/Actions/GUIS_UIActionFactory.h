@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GUIS_UIAction.h"
 #include "UObject/Object.h"
+#include "Engine/DataAsset.h"
 #include "GUIS_UIActionFactory.generated.h"
 
 /**

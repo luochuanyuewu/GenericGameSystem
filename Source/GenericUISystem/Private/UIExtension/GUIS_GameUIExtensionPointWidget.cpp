@@ -2,6 +2,7 @@
 
 #include "UIExtension/GUIS_GameUIExtensionPointWidget.h"
 #include "Widgets/SOverlay.h"
+#include "TimerManager.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Editor/WidgetCompilerLog.h"
 #include "Misc/UObjectToken.h"

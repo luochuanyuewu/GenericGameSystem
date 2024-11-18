@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Engine/DeveloperSettings.h"
 #include "GUIS_GenericUISystemSettings.generated.h"
 
 class UGUIS_GameUIData;

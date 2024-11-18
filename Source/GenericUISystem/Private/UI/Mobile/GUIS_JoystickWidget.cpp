@@ -1,7 +1,7 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 
-#include "GUIS_JoystickWidget.h"
+#include "UI/Mobile/GUIS_JoystickWidget.h"
 
 #include "CommonHardwareVisibilityBorder.h"
 #include "Components/Image.h"

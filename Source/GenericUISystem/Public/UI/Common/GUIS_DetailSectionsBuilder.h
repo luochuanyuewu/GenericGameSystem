@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataAsset.h"
 #include "GUIS_DetailSectionsBuilder.generated.h"
 
 class UGUIS_ListEntryDetailSection;

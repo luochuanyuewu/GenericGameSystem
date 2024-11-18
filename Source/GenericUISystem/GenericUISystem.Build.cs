@@ -1,4 +1,7 @@
-﻿using UnrealBuildTool;
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
+
+
+using UnrealBuildTool;
 
 public class GenericUISystem : ModuleRules
 {

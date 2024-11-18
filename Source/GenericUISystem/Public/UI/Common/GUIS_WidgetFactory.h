@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Engine/DataAsset.h"
 #include "GUIS_WidgetFactory.generated.h"
+
+class UUserWidget;
 
 /**
  *  提供一种通用的方式为任意对象选择合适的WidgetClass。

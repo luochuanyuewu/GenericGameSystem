@@ -4,7 +4,7 @@
 
 #include "GameplayTagContainer.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
-
+#include "Engine/DataTable.h"
 #include "GUIS_GameModalTypes.generated.h"
 
 class UGUIS_ButtonBase;

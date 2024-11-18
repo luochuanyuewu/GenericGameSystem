@@ -4,15 +4,12 @@
 
 #include "GameplayTagContainer.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
-
+#include "UI/Modal/GUIS_GameModal.h"
 #include "UObject/ObjectPtr.h"
 #include "GUIS_AsyncAction_ShowModel.generated.h"
 
-class UGUIS_GameModalWidget;
 enum class EGGF_DialogMessagingResult : uint8;
-
 class FText;
-class UGUIS_ModalDefinition;
 class ULocalPlayer;
 struct FFrame;
 

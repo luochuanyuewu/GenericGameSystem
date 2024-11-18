@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/Mobile/GUIS_SimulatedInputWidget.h"
 #include "EnhancedInputSubsystems.h"

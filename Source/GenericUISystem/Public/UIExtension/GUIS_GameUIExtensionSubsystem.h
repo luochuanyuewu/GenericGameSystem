@@ -172,19 +172,19 @@ struct FGUIS_GameUIExtRequest
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	FGUIS_GameUIExtHandle ExtensionHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
 	FGameplayTag ExtensionPointTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
 	int32 Priority = INDEX_NONE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
 	TObjectPtr<UObject> Data = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
 	TObjectPtr<UObject> ContextObject = nullptr;
 };
 
@@ -200,9 +200,9 @@ class GENERICUISYSTEM_API UUIExtensionSubsystem : public UWorldSubsystem
 
 public:
 	FGUIS_GameUIExtPointHandle RegisterExtensionPoint(const FGameplayTag& ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<UClass*>& AllowedDataClasses,
-	                                               FExtendExtensionPointDelegate ExtensionCallback);
+	                                                  FExtendExtensionPointDelegate ExtensionCallback);
 	FGUIS_GameUIExtPointHandle RegisterExtensionPointForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
-	                                                         const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback);
+	                                                            const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback);
 
 	FGUIS_GameUIExtHandle RegisterExtensionAsWidget(const FGameplayTag& ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority);
 	FGUIS_GameUIExtHandle RegisterExtensionAsWidgetForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, TSubclassOf<UUserWidget> WidgetClass, int32 Priority);
@@ -225,7 +225,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="UI Extension", meta = (DisplayName = "Register Extension Point"))
 	FGUIS_GameUIExtPointHandle K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<UClass*>& AllowedDataClasses,
-	                                                  FExtendExtensionPointDynamicDelegate ExtensionCallback);
+	                                                     FExtendExtensionPointDynamicDelegate ExtensionCallback);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension", meta = (DisplayName = "Register Extension (Widget)"))
 	FGUIS_GameUIExtHandle K2_RegisterExtensionAsWidget(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority = -1);

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "UObject/Object.h"
+#include "Engine/DataAsset.h"
 #include "GUIS_GameUIData.generated.h"
 
 class UGUIS_GameModalWidget;

@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #pragma once
 
@@ -50,19 +50,19 @@ protected:
 	void StopInputSimulation();
 
 	/** How far can the inner image of the joystick be moved? */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="GUIS")
 	float StickRange = 50.0f;
 
 	/** Image to be used as the background of the joystick */
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, Category="GUIS", meta = (BindWidget))
 	TObjectPtr<UImage> JoystickBackground;
 
 	/** Image to be used as the foreground of the joystick */
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, Category="GUIS", meta = (BindWidget))
 	TObjectPtr<UImage> JoystickForeground;
 
 	/** Should we negate the Y-axis value of the joystick? This is common for "movement" sticks */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, Category="GUIS", EditAnywhere)
 	bool bNegateYAxis = false;
 
 	/** The origin of the touch. Set on NativeOnTouchStarted */

@@ -1,7 +1,9 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #pragma once
 
+#include "CommonUserWidget.h"
+#include "InputCoreTypes.h"
 #include "CommonUserWidget.h"
 #include "GUIS_SimulatedInputWidget.generated.h"
 

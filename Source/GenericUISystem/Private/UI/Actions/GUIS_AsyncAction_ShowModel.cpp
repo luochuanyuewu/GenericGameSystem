@@ -1,14 +1,12 @@
 ﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/Actions/GUIS_AsyncAction_ShowModel.h"
-
 #include "GUIS_GenericUISystemSettings.h"
 #include "Engine/GameInstance.h"
 #include "UI/GUIS_GameUIData.h"
 #include "UI/GUIS_GameUIFunctionLibrary.h"
 #include "UI/GUIS_GameUILayout.h"
 #include "UI/GUIS_GameplayTags.h"
-#include "UI/Modal/GUIS_GameModal.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIS_AsyncAction_ShowModel)
 

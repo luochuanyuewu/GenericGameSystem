@@ -77,7 +77,7 @@ protected:
 	void OnItemScrolledIntoView(UObject* Item, UUserWidget* EntryWidget);
 
 	/** Image to be used as the background of the joystick */
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidgetOptional))
+	UPROPERTY(BlueprintReadWrite, Category="GUIS|ViewContainer", meta = (BindWidgetOptional))
 	TObjectPtr<UListView> ListView;
 
 protected:
