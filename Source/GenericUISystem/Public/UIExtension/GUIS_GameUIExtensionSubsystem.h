@@ -48,7 +48,7 @@ public:
 	FGameplayTag ExtensionPointTag;
 	int32 Priority = INDEX_NONE;
 	TWeakObjectPtr<UObject> ContextObject;
-	//Kept alive by UUIExtensionSubsystem::AddReferencedObjects
+	//Kept alive by UGUIS_ExtensionSubsystem::AddReferencedObjects
 	TObjectPtr<UObject> Data = nullptr;
 };
 
@@ -95,13 +95,13 @@ public:
 	}
 
 private:
-	TWeakObjectPtr<UUIExtensionSubsystem> ExtensionSource;
+	TWeakObjectPtr<UGUIS_ExtensionSubsystem> ExtensionSource;
 
 	TSharedPtr<FGUIS_GameUIExtPoint> DataPtr;
 
-	friend UUIExtensionSubsystem;
+	friend UGUIS_ExtensionSubsystem;
 
-	FGUIS_GameUIExtPointHandle(UUIExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExtPoint>& InDataPtr) : ExtensionSource(InExtensionSource), DataPtr(InDataPtr)
+	FGUIS_GameUIExtPointHandle(UGUIS_ExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExtPoint>& InDataPtr) : ExtensionSource(InExtensionSource), DataPtr(InDataPtr)
 	{
 	}
 };
@@ -142,13 +142,13 @@ public:
 	}
 
 private:
-	TWeakObjectPtr<UUIExtensionSubsystem> ExtensionSource;
+	TWeakObjectPtr<UGUIS_ExtensionSubsystem> ExtensionSource;
 
 	TSharedPtr<FGUIS_GameUIExt> DataPtr;
 
-	friend UUIExtensionSubsystem;
+	friend UGUIS_ExtensionSubsystem;
 
-	FGUIS_GameUIExtHandle(UUIExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExt>& InDataPtr) : ExtensionSource(InExtensionSource), DataPtr(InDataPtr)
+	FGUIS_GameUIExtHandle(UGUIS_ExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExt>& InDataPtr) : ExtensionSource(InExtensionSource), DataPtr(InDataPtr)
 	{
 	}
 };
@@ -194,7 +194,7 @@ DECLARE_DYNAMIC_DELEGATE_TwoParams(FExtendExtensionPointDynamicDelegate, EGUIS_G
  * 
  */
 UCLASS()
-class GENERICUISYSTEM_API UUIExtensionSubsystem : public UWorldSubsystem
+class GENERICUISYSTEM_API UGUIS_ExtensionSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
@@ -261,12 +261,12 @@ private:
 
 
 UCLASS()
-class GENERICUISYSTEM_API UUIExtensionHandleFunctions : public UBlueprintFunctionLibrary
+class GENERICUISYSTEM_API UGUIS_ExtensionHandleFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	UUIExtensionHandleFunctions()
+	UGUIS_ExtensionHandleFunctionLibrary()
 	{
 	}
 
@@ -278,12 +278,12 @@ public:
 };
 
 UCLASS()
-class GENERICUISYSTEM_API UUIExtensionPointHandleFunctions : public UBlueprintFunctionLibrary
+class GENERICUISYSTEM_API UGUIS_ExtensionPointHandleFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	UUIExtensionPointHandleFunctions()
+	UGUIS_ExtensionPointHandleFunctionLibrary()
 	{
 	}
 

@@ -14,7 +14,7 @@ class FSubsystemCollectionBase;
 
 void FGUIS_GameUIExtPointHandle::Unregister()
 {
-	if (UUIExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
+	if (UGUIS_ExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
 	{
 		ExtensionSourcePtr->UnregisterExtensionPoint(*this);
 	}
@@ -24,7 +24,7 @@ void FGUIS_GameUIExtPointHandle::Unregister()
 
 void FGUIS_GameUIExtHandle::Unregister()
 {
-	if (UUIExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
+	if (UGUIS_ExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
 	{
 		ExtensionSourcePtr->UnregisterExtension(*this);
 	}
@@ -60,9 +60,9 @@ bool FGUIS_GameUIExtPoint::DoesExtensionPassContract(const FGUIS_GameUIExt* Exte
 
 //=========================================================
 
-void UUIExtensionSubsystem::AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector)
+void UGUIS_ExtensionSubsystem::AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector)
 {
-	if (UUIExtensionSubsystem* ExtensionSubsystem = Cast<UUIExtensionSubsystem>(InThis))
+	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = Cast<UGUIS_ExtensionSubsystem>(InThis))
 	{
 		for (auto MapIt = ExtensionSubsystem->ExtensionPointMap.CreateIterator(); MapIt; ++MapIt)
 		{
@@ -82,23 +82,23 @@ void UUIExtensionSubsystem::AddReferencedObjects(UObject* InThis, FReferenceColl
 	}
 }
 
-void UUIExtensionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UGUIS_ExtensionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 }
 
-void UUIExtensionSubsystem::Deinitialize()
+void UGUIS_ExtensionSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 }
 
-FGUIS_GameUIExtPointHandle UUIExtensionSubsystem::RegisterExtensionPoint(const FGameplayTag& ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
+FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPoint(const FGameplayTag& ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
                                                                       const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
 {
 	return RegisterExtensionPointForContext(ExtensionPointTag, nullptr, ExtensionPointTagMatchType, AllowedDataClasses, ExtensionCallback);
 }
 
-FGUIS_GameUIExtPointHandle UUIExtensionSubsystem::RegisterExtensionPointForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
+FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPointForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
                                                                                 const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
 {
 	if (!ExtensionPointTag.IsValid())
@@ -135,17 +135,17 @@ FGUIS_GameUIExtPointHandle UUIExtensionSubsystem::RegisterExtensionPointForConte
 	return FGUIS_GameUIExtPointHandle(this, Entry);
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::RegisterExtensionAsWidget(const FGameplayTag& ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::RegisterExtensionAsWidget(const FGameplayTag& ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
 {
 	return RegisterExtensionAsData(ExtensionPointTag, nullptr, WidgetClass, Priority);
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::RegisterExtensionAsWidgetForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::RegisterExtensionAsWidgetForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
 {
 	return RegisterExtensionAsData(ExtensionPointTag, ContextObject, WidgetClass, Priority);
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::RegisterExtensionAsData(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, UObject* Data, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::RegisterExtensionAsData(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, UObject* Data, int32 Priority)
 {
 	if (!ExtensionPointTag.IsValid())
 	{
@@ -181,7 +181,7 @@ FGUIS_GameUIExtHandle UUIExtensionSubsystem::RegisterExtensionAsData(const FGame
 	return FGUIS_GameUIExtHandle(this, Entry);
 }
 
-void UUIExtensionSubsystem::NotifyExtensionPointOfExtensions(TSharedPtr<FGUIS_GameUIExtPoint>& ExtensionPoint)
+void UGUIS_ExtensionSubsystem::NotifyExtensionPointOfExtensions(TSharedPtr<FGUIS_GameUIExtPoint>& ExtensionPoint)
 {
 	for (FGameplayTag Tag = ExtensionPoint->ExtensionPointTag; Tag.IsValid(); Tag = Tag.RequestDirectParent())
 	{
@@ -207,7 +207,7 @@ void UUIExtensionSubsystem::NotifyExtensionPointOfExtensions(TSharedPtr<FGUIS_Ga
 	}
 }
 
-void UUIExtensionSubsystem::NotifyExtensionPointsOfExtension(EGUIS_GameUIExtAction Action, TSharedPtr<FGUIS_GameUIExt>& Extension)
+void UGUIS_ExtensionSubsystem::NotifyExtensionPointsOfExtension(EGUIS_GameUIExtAction Action, TSharedPtr<FGUIS_GameUIExt>& Extension)
 {
 	bool bOnInitialTag = true;
 	for (FGameplayTag Tag = Extension->ExtensionPointTag; Tag.IsValid(); Tag = Tag.RequestDirectParent())
@@ -234,7 +234,7 @@ void UUIExtensionSubsystem::NotifyExtensionPointsOfExtension(EGUIS_GameUIExtActi
 	}
 }
 
-void UUIExtensionSubsystem::UnregisterExtension(const FGUIS_GameUIExtHandle& ExtensionHandle)
+void UGUIS_ExtensionSubsystem::UnregisterExtension(const FGUIS_GameUIExtHandle& ExtensionHandle)
 {
 	if (ExtensionHandle.IsValid())
 	{
@@ -269,7 +269,7 @@ void UUIExtensionSubsystem::UnregisterExtension(const FGUIS_GameUIExtHandle& Ext
 	}
 }
 
-void UUIExtensionSubsystem::UnregisterExtensionPoint(const FGUIS_GameUIExtPointHandle& ExtensionPointHandle)
+void UGUIS_ExtensionSubsystem::UnregisterExtensionPoint(const FGUIS_GameUIExtPointHandle& ExtensionPointHandle)
 {
 	if (ExtensionPointHandle.IsValid())
 	{
@@ -293,7 +293,7 @@ void UUIExtensionSubsystem::UnregisterExtensionPoint(const FGUIS_GameUIExtPointH
 	}
 }
 
-FGUIS_GameUIExtRequest UUIExtensionSubsystem::CreateExtensionRequest(const TSharedPtr<FGUIS_GameUIExt>& Extension)
+FGUIS_GameUIExtRequest UGUIS_ExtensionSubsystem::CreateExtensionRequest(const TSharedPtr<FGUIS_GameUIExt>& Extension)
 {
 	FGUIS_GameUIExtRequest Request;
 	Request.ExtensionHandle = FGUIS_GameUIExtHandle(this, Extension);
@@ -305,7 +305,7 @@ FGUIS_GameUIExtRequest UUIExtensionSubsystem::CreateExtensionRequest(const TShar
 	return Request;
 }
 
-FGUIS_GameUIExtPointHandle UUIExtensionSubsystem::K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<UClass*>& AllowedDataClasses,
+FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<UClass*>& AllowedDataClasses,
                                                                          FExtendExtensionPointDynamicDelegate ExtensionCallback)
 {
 	return RegisterExtensionPoint(ExtensionPointTag, ExtensionPointTagMatchType, AllowedDataClasses, FExtendExtensionPointDelegate::CreateWeakLambda(
@@ -315,12 +315,12 @@ FGUIS_GameUIExtPointHandle UUIExtensionSubsystem::K2_RegisterExtensionPoint(FGam
 		                              }));
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsWidget(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsWidget(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority)
 {
 	return RegisterExtensionAsWidget(ExtensionPointTag, WidgetClass, Priority);
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsWidgetForContext(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, UObject* ContextObject, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsWidgetForContext(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, UObject* ContextObject, int32 Priority)
 {
 	if (ContextObject)
 	{
@@ -333,12 +333,12 @@ FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsWidgetForCont
 	}
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsData(FGameplayTag ExtensionPointTag, UObject* Data, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsData(FGameplayTag ExtensionPointTag, UObject* Data, int32 Priority)
 {
 	return RegisterExtensionAsData(ExtensionPointTag, nullptr, Data, Priority);
 }
 
-FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsDataForContext(FGameplayTag ExtensionPointTag, UObject* ContextObject, UObject* Data, int32 Priority)
+FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsDataForContext(FGameplayTag ExtensionPointTag, UObject* ContextObject, UObject* Data, int32 Priority)
 {
 	if (ContextObject)
 	{
@@ -353,24 +353,24 @@ FGUIS_GameUIExtHandle UUIExtensionSubsystem::K2_RegisterExtensionAsDataForContex
 
 //=========================================================
 
-void UUIExtensionHandleFunctions::Unregister(FGUIS_GameUIExtHandle& Handle)
+void UGUIS_ExtensionHandleFunctionLibrary::Unregister(FGUIS_GameUIExtHandle& Handle)
 {
 	Handle.Unregister();
 }
 
-bool UUIExtensionHandleFunctions::IsValid(FGUIS_GameUIExtHandle& Handle)
+bool UGUIS_ExtensionHandleFunctionLibrary::IsValid(FGUIS_GameUIExtHandle& Handle)
 {
 	return Handle.IsValid();
 }
 
 //=========================================================
 
-void UUIExtensionPointHandleFunctions::Unregister(FGUIS_GameUIExtPointHandle& Handle)
+void UGUIS_ExtensionPointHandleFunctionLibrary::Unregister(FGUIS_GameUIExtPointHandle& Handle)
 {
 	Handle.Unregister();
 }
 
-bool UUIExtensionPointHandleFunctions::IsValid(FGUIS_GameUIExtPointHandle& Handle)
+bool UGUIS_ExtensionPointHandleFunctionLibrary::IsValid(FGUIS_GameUIExtPointHandle& Handle)
 {
 	return Handle.IsValid();
 }

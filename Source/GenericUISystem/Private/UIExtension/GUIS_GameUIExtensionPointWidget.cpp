@@ -124,7 +124,7 @@ void UGUIS_GameUIExtensionPointWidget::ResetExtensionPoint()
 
 void UGUIS_GameUIExtensionPointWidget::RegisterExtensionPoint()
 {
-	if (UUIExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UUIExtensionSubsystem>())
+	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UGUIS_ExtensionSubsystem>())
 	{
 		TArray<UClass*> AllowedDataClasses;
 		AllowedDataClasses.Add(UUserWidget::StaticClass());
@@ -144,7 +144,7 @@ void UGUIS_GameUIExtensionPointWidget::RegisterExtensionPoint()
 
 void UGUIS_GameUIExtensionPointWidget::RegisterExtensionPointForPlayerState(ULocalPlayer* LocalPlayer, APlayerState* PlayerState)
 {
-	if (UUIExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UUIExtensionSubsystem>())
+	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UGUIS_ExtensionSubsystem>())
 	{
 		TArray<UClass*> AllowedDataClasses;
 		AllowedDataClasses.Add(UUserWidget::StaticClass());
