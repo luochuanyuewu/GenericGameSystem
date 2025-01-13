@@ -4,6 +4,8 @@
 #include "UI/Actions/GUIS_UIActionWidget.h"
 
 #include "Input/CommonUIInputTypes.h"
+#include "UI/GUIS_GameplayTags.h"
+#include "UI/Actions/GUIS_AsyncAction_ShowModel.h"
 #include "UI/Actions/GUIS_UIActionFactory.h"
 
 void UGUIS_UIActionWidget::SetAssociatedData(UObject* Data)
@@ -56,6 +58,18 @@ void UGUIS_UIActionWidget::UnregisterActions()
 	}
 
 	ActionBindings.Empty();
+	CancelAction();
+}
+
+void UGUIS_UIActionWidget::CancelAction()
+{
+	if (ModalTask)
+	{
+		ModalTask->OnModalAction.RemoveDynamic(this,&ThisClass::HandleModalAction);
+		ModalTask->Cancel();
+		ModalTask = nullptr;
+	}
+	CurrentDefinition = FGUIS_UIActionDefinition();
 }
 
 #if WITH_EDITOR
@@ -67,11 +81,43 @@ const FText UGUIS_UIActionWidget::GetPaletteCategory()
 
 void UGUIS_UIActionWidget::HandleUIAction(const FGUIS_UIActionDefinition& Definition)
 {
+	if (ModalTask && ModalTask->IsActive())
+	{
+		return;
+	}
 	if (AssociatedData.IsValid())
 	{
-		if (Definition.EntryAction->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
+		if (Definition.bRequiresConfirm && !Definition.Confirmation.IsNull())
 		{
-			Definition.EntryAction->InvokeAction(AssociatedData.Get(), GetOwningPlayer());
+			ModalTask = UGUIS_AsyncAction_ShowModel::ShowModal(GetWorld(), Definition.Confirmation);
+			CurrentDefinition = Definition;
+			ModalTask->OnModalAction.AddDynamic(this,&ThisClass::HandleModalAction);
+			ModalTask->Activate();
 		}
+		else
+		{
+			HandleUIActionImmediately(Definition);
+		}
+	}
+}
+
+void UGUIS_UIActionWidget::HandleUIActionImmediately(const FGUIS_UIActionDefinition& Definition)
+{
+	if (Definition.EntryAction->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
+	{
+		Definition.EntryAction->InvokeAction(AssociatedData.Get(), GetOwningPlayer());
+	}
+}
+
+void UGUIS_UIActionWidget::HandleModalAction(FGameplayTag ActionTag)
+{
+	if (ActionTag == GUIS_GameModalActionTags::Yes || ActionTag == GUIS_GameModalActionTags::Ok)
+	{
+		HandleUIActionImmediately(CurrentDefinition);
+		CancelAction();
+	}
+	if (ActionTag == GUIS_GameModalActionTags::No)
+	{
+		CancelAction();
 	}
 }

@@ -20,7 +20,13 @@ void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (!CurrentPolicy && !UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.IsNull())
 	{
 		TSubclassOf<UGUIS_GameUIPolicy> PolicyClass = UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.LoadSynchronous();
-		SwitchToPolicy(NewObject<UGUIS_GameUIPolicy>(this, PolicyClass));
+		if (PolicyClass)
+		{
+			SwitchToPolicy(NewObject<UGUIS_GameUIPolicy>(this, PolicyClass));
+		}else
+		{
+			UE_LOG(LogGUIS,Error,TEXT("GUIS_GameUISubsystem::Initialize Failed, Missing GameUIPolicyClass in GenericUISystemSettings!!!"));
+		}
 	}
 }
 

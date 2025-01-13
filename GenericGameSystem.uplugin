@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 4,
-	"VersionName": "1.3",
+	"Version": 5,
+	"VersionName": "1.4",
 	"FriendlyName": "GenericGameSystem",
 	"Description": "Common functionalities for context based svf/vfx play, Camera modes management, and CommonUI extensions.",
 	"Category": "Gameplay",
@@ -45,7 +45,12 @@
 				"Linux",
 				"LinuxArm64"
 			]
-		}				
+		},
+		{
+			"Name": "GenericGameSystem",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
 	],
 	"Plugins": [
 		{
@@ -62,6 +67,22 @@
 		},
 		{
 			"Name": "ModularGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "TargetingSystem",
+			"Enabled": true
+		},
+		{
+			"Name": "SmartObjects",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayBehaviors",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayBehaviorSmartObjects",
 			"Enabled": true
 		}
 	]

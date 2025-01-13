@@ -1,0 +1,21 @@
+﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
+
+
+#include "Interaction/GGS_GameplayBehaviorConfig_InteractionWithAbility.h"
+#include "Interaction/GGS_GameplayBehavior_InteractionWithAbility.h"
+
+UGGS_GameplayBehaviorConfig_InteractionWithAbility::UGGS_GameplayBehaviorConfig_InteractionWithAbility()
+{
+	BehaviorClass = UGGS_GameplayBehavior_InteractionWithAbility::StaticClass();
+}
+
+#if WITH_EDITORONLY_DATA
+EDataValidationResult UGGS_GameplayBehaviorConfig_InteractionWithAbility::IsDataValid(class FDataValidationContext& Context) const
+{
+	if (BehaviorClass == nullptr || !BehaviorClass->GetClass()->IsChildOf(UGGS_GameplayBehavior_InteractionWithAbility::StaticClass()))
+	{
+		return EDataValidationResult::Invalid;
+	}
+	return Super::IsDataValid(Context);
+}
+#endif

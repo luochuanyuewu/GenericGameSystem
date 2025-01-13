@@ -3,6 +3,7 @@
 #include "UI/Modal/GUIS_GameModal.h"
 
 #include "CommonButtonBase.h"
+#include "CommonTextBlock.h"
 #include "Components/DynamicEntryBox.h"
 #include "UI/Foundation/GUIS_ButtonBase.h"
 #include "UI/Modal/GUIS_GameModalTypes.h"
@@ -13,6 +14,7 @@
 
 UGUIS_GameModalWidget::UGUIS_GameModalWidget()
 {
+	bIsModal = true;
 }
 
 void UGUIS_GameModalWidget::SetupModal(const UGUIS_ModalDefinition* ModalDefinition, FGUIS_ModalActionResultSignature ModalActionCallback)
@@ -23,6 +25,9 @@ void UGUIS_GameModalWidget::SetupModal(const UGUIS_ModalDefinition* ModalDefinit
 	{
 		Button.OnClicked().Clear();
 	});
+
+	Text_Header->SetText(ModalDefinition->Header);
+	Text_Body->SetText(ModalDefinition->Body);
 
 	for (const auto& Pair : ModalDefinition->ModalActions)
 	{

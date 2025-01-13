@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "Engine/CancellableAsyncAction.h"
 #include "UI/Modal/GUIS_GameModal.h"
 #include "UObject/ObjectPtr.h"
 #include "GUIS_AsyncAction_ShowModel.generated.h"
@@ -19,7 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGUIS_ModalResultSignature, FGamepla
  * Allows easily triggering an async confirmation dialog in blueprints that you can then wait on the result.
  */
 UCLASS()
-class UGUIS_AsyncAction_ShowModel : public UBlueprintAsyncActionBase
+class UGUIS_AsyncAction_ShowModel : public UCancellableAsyncAction
 {
 	GENERATED_UCLASS_BODY()
 
@@ -27,6 +27,9 @@ public:
 	// UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="GUIS", meta = (BlueprintInternalUseOnly = "true", WorldContext = "InWorldContextObject"))
 	static UGUIS_AsyncAction_ShowModel* ShowModal(UObject* InWorldContextObject, FGameplayTag ModalTag, UGUIS_ModalDefinition* ModalDefinition);
 
+	/**
+	 * 给定一个Modal定义，然后显示该Modal。 
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="GUIS", meta = (BlueprintInternalUseOnly = "true", WorldContext = "InWorldContextObject"))
 	static UGUIS_AsyncAction_ShowModel* ShowModal(UObject* InWorldContextObject, TSoftClassPtr<UGUIS_ModalDefinition> ModalDefinition);
 

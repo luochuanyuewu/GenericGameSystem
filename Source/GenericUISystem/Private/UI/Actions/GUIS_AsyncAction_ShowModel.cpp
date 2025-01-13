@@ -39,6 +39,13 @@ UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InW
 
 UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InWorldContextObject, TSoftClassPtr<UGUIS_ModalDefinition> ModalDefinition)
 {
+	if (ModalDefinition.IsNull())
+	{
+		return nullptr;
+	}
+
+	ModalDefinition.LoadSynchronous();
+	
 	const UGUIS_ModalDefinition* Modal = ModalDefinition->GetDefaultObject<UGUIS_ModalDefinition>();
 	if (Modal == nullptr)
 		return nullptr;

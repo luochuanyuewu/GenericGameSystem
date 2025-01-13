@@ -6,6 +6,7 @@
 #include "Engine/DataTable.h"
 #include "GUIS_UIAction.generated.h"
 
+class UGUIS_ModalDefinition;
 class UGUIS_UIAction;
 
 USTRUCT(BlueprintType)
@@ -20,7 +21,13 @@ struct FGUIS_UIActionDefinition
 	bool bShouldDisplayInActionBar{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", Instanced)
-	TObjectPtr<UGUIS_UIAction> EntryAction;
+	TObjectPtr<const UGUIS_UIAction> EntryAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
+	bool bRequiresConfirm{true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
+	TSoftClassPtr<UGUIS_ModalDefinition> Confirmation{nullptr};
 
 	bool operator ==(const FName& OtherActionId) const;
 };

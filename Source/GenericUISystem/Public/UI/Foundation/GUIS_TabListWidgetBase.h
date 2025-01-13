@@ -89,7 +89,7 @@ public:
 	/**
 	 * 找到其中一个预注册的选项卡信息。
 	 */
-	UFUNCTION(BlueprintCallable, Category = "TabList")
+	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
 	bool GetTabDefinition(const FName TabNameId, UGUIS_TabDefinition *&OutTabDefinition);
 
 	/** Helper method to get at all the preregistered tab infos */
@@ -100,7 +100,7 @@ public:
 	 * @param TabNameId 哪一个选项卡Id
 	 * @param bHidden 是否隐藏？
 	 */
-	UFUNCTION(BlueprintCallable, Category = "TabList")
+	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
 	void SetTabHiddenState(FName TabNameId, bool bHidden);
 
 	/**
@@ -165,7 +165,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
 	void SetupTabs();
 
-	UPROPERTY(EditAnywhere, Category="GUIS|TabList", Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
+	UPROPERTY(EditAnywhere, Category="TabList", Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
 	TArray<TObjectPtr<UGUIS_TabDefinition>> TabDefinitions;
 
 	/**
