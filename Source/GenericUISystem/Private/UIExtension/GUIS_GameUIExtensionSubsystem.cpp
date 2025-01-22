@@ -62,6 +62,7 @@ bool FGUIS_GameUIExtPoint::DoesExtensionPassContract(const FGUIS_GameUIExt* Exte
 
 void UGUIS_ExtensionSubsystem::AddReferencedObjects(UObject* InThis, FReferenceCollector& Collector)
 {
+	Super::AddReferencedObjects(InThis, Collector);
 	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = Cast<UGUIS_ExtensionSubsystem>(InThis))
 	{
 		for (auto MapIt = ExtensionSubsystem->ExtensionPointMap.CreateIterator(); MapIt; ++MapIt)
