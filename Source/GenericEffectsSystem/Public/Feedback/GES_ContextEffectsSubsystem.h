@@ -65,6 +65,12 @@ class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsSubsystem : public UWorldSubsy
 	GENERATED_BODY()
 
 public:
+	/**
+	 * EffectsLibrary Play ctx vsx/vfx  within single effects library.
+	 */
+	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects", meta=(WorldContext = "WorldContextObject"))
+	void SpawnContextEffects(UObject* WorldContextObject, TSoftObjectPtr<UGES_ContextEffectsLibrary> EffectsLibrary, FGES_SpawnContextEffectsInput Input, FGES_SpawnContextEffectsOutput& Output);
+
 	UFUNCTION(BlueprintCallable, Category="GES|ContextEffects")
 	void SpawnContextEffectsExt(const AActor* SpawningActor, const FGES_SpawnContextEffectsInput& Input, FGES_SpawnContextEffectsOutput& Output);
 
