@@ -79,7 +79,7 @@ public:
 	int32 SlotIndex{-1};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
-	ESmartObjectSlotState SlotState;
+	ESmartObjectSlotState SlotState{ESmartObjectSlotState::Free};
 
 	FDelegateHandle DelegateHandle;
 
