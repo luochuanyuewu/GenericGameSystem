@@ -4,7 +4,6 @@
 
 #include "GUIS_GameUIExtensionSubsystem.h"
 #include "Components/DynamicEntryBoxBase.h"
-
 #include "GUIS_GameUIExtensionPointWidget.generated.h"
 
 class IWidgetCompilerLog;
@@ -12,6 +11,7 @@ class IWidgetCompilerLog;
 
 /**
  * A slot that defines a location in a layout, where content can be added later
+ * 槽位定义了布局中的一个位置（占位符），以后可以在该位置添加内容。
  */
 UCLASS()
 class GENERICUISYSTEM_API UGUIS_GameUIExtensionPointWidget : public UDynamicEntryBoxBase
@@ -53,7 +53,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
 	FGameplayTag ExtensionPointTag;
 
-	/** How exactly does the extension need to match the extension point tag. */
+	/**
+	 * How exactly does the extension need to match the extension point tag.
+	 * 扩展名究竟需要如何与扩展点标签相匹配。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
 	EGUIS_GameUIExtPointMatchType ExtensionPointTagMatch = EGUIS_GameUIExtPointMatchType::ExactMatch;
 

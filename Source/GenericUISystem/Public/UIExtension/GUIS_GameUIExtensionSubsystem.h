@@ -28,7 +28,9 @@ enum class EGUIS_GameUIExtPointMatchType : uint8
 	PartialMatch
 };
 
-// Match rule for extension points
+/**
+ * Match rule for extension points
+ */
 UENUM(BlueprintType)
 enum class EGUIS_GameUIExtAction : uint8
 {
@@ -164,7 +166,7 @@ struct TStructOpsTypeTraits<FGUIS_GameUIExtHandle> : public TStructOpsTypeTraits
 };
 
 /**
- * 
+ * A request to add UI Extension.
  */
 USTRUCT(BlueprintType)
 struct FGUIS_GameUIExtRequest
@@ -191,7 +193,7 @@ public:
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FExtendExtensionPointDynamicDelegate, EGUIS_GameUIExtAction, Action, const FGUIS_GameUIExtRequest&, ExtensionRequest);
 
 /**
- * 
+ * UI Extension Subsystem
  */
 UCLASS()
 class GENERICUISYSTEM_API UGUIS_ExtensionSubsystem : public UWorldSubsystem
