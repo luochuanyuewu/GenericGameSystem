@@ -27,17 +27,17 @@ public:
 	 * The ability to grant and activate when interaction begin.
 	 * The ability has to be ServerOnly/ServerInitiated, and triggered from event.
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="Interaction")
 	TSoftClassPtr<UGameplayAbility> AbilityToGrant;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	int32 AbilityLevel{0};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag AbilityTriggeringTag;
 
 	/** The widget to show for this kind of interaction. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	TSoftClassPtr<UUserWidget> InteractionWidgetClass;
 
 #if WITH_EDITORONLY_DATA

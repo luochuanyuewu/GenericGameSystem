@@ -5,6 +5,7 @@
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
 #include "GameplayBehaviorConfig.h"
 #include "SmartObjectDefinition.h"
+#include "Engine/World.h"
 #include "SmartObjectSubsystem.h"
 
 UGameplayBehaviorConfig* UGGS_SmartObjectFunctionLibrary::GetGameplayBehaviorConfig(const USmartObjectBehaviorDefinition* BehaviorDefinition)

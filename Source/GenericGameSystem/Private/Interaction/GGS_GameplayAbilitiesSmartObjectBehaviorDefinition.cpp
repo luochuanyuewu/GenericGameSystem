@@ -2,3 +2,4 @@
 
 
 #include "Interaction/GGS_GameplayAbilitiesSmartObjectBehaviorDefinition.h"
+#include "Blueprint/UserWidget.h"

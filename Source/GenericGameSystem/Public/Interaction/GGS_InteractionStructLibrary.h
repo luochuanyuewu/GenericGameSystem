@@ -7,6 +7,7 @@
 #include "SmartObjectRuntime.h"
 #include "SmartObjectSubsystem.h"
 #include "SmartObjectTypes.h"
+#include "Engine/DataTable.h"
 #include "UObject/Object.h"
 #include "GGS_InteractionStructLibrary.generated.h"
 
@@ -31,7 +32,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Interaction", meta = (RowType = "/Script/CommonUI.CommonInputActionDataBase"))
 	FDataTableRowHandle TriggeringInputAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag TriggeringTag;
 
 	friend bool operator==(const FGGS_SmartObjectInteractionEntryData& Lhs, const FGGS_SmartObjectInteractionEntryData& RHS)

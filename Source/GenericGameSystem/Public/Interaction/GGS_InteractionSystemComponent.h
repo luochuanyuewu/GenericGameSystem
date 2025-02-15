@@ -124,10 +124,10 @@ protected:
 	TArray<TObjectPtr<AActor>> PotentialActors;
 
 	/** 玩家交互的Actor */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnInteractActorChanged)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnInteractActorChanged)
 	TObjectPtr<AActor> InteractActor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnPotentialActorsNumChanged)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnPotentialActorsNumChanged)
 	int32 PotentialActorsNum;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")

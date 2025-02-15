@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "SmartObjectDefinition.h"
+#include "Engine/DataTable.h"
 #include "GGS_GameplayAbilitiesSmartObjectBehaviorDefinition.generated.h"
 
 class UGameplayAbility;
+class UUserWidget;
 
 /**
  * SmartObject behavior definition for the GameplayAbilities framework

@@ -2,9 +2,9 @@
 
 
 #include "Interaction/GGS_InteractionSystemComponent.h"
-
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Engine/World.h"
 #include "GameplayBehavior.h"
 #include "GameplayBehaviorConfig.h"
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
