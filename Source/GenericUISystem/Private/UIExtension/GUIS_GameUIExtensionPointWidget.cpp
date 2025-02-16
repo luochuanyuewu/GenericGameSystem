@@ -126,9 +126,7 @@ void UGUIS_GameUIExtensionPointWidget::RegisterExtensionPoint()
 {
 	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UGUIS_ExtensionSubsystem>())
 	{
-		TArray<UClass*> AllowedDataClasses;
-		AllowedDataClasses.Add(UUserWidget::StaticClass());
-		AllowedDataClasses.Append(DataClasses);
+		TArray<UClass*> AllowedDataClasses = LoadAllowedDataClasses();
 
 		ExtensionPointHandles.Add(ExtensionSubsystem->RegisterExtensionPoint(
 			ExtensionPointTag, ExtensionPointTagMatch, AllowedDataClasses,
@@ -146,15 +144,28 @@ void UGUIS_GameUIExtensionPointWidget::RegisterExtensionPointForPlayerState(ULoc
 {
 	if (UGUIS_ExtensionSubsystem* ExtensionSubsystem = GetWorld()->GetSubsystem<UGUIS_ExtensionSubsystem>())
 	{
-		TArray<UClass*> AllowedDataClasses;
-		AllowedDataClasses.Add(UUserWidget::StaticClass());
-		AllowedDataClasses.Append(DataClasses);
+		TArray<UClass*> AllowedDataClasses = LoadAllowedDataClasses();
 
 		ExtensionPointHandles.Add(ExtensionSubsystem->RegisterExtensionPointForContext(
 			ExtensionPointTag, PlayerState, ExtensionPointTagMatch, AllowedDataClasses,
 			FExtendExtensionPointDelegate::CreateUObject(this, &ThisClass::OnAddOrRemoveExtension)
 		));
 	}
+}
+
+TArray<UClass*> UGUIS_GameUIExtensionPointWidget::LoadAllowedDataClasses() const
+{
+	TArray<UClass*> AllowedDataClasses;
+	AllowedDataClasses.Add(UUserWidget::StaticClass());
+
+	for (const TSoftClassPtr<UClass>& DataClass : DataClasses)
+	{
+		if (!DataClass.IsNull())
+		{
+			AllowedDataClasses.Add(DataClass.LoadSynchronous());
+		}
+	}
+	return AllowedDataClasses;
 }
 
 void UGUIS_GameUIExtensionPointWidget::OnAddOrRemoveExtension(EGUIS_GameUIExtAction Action, const FGUIS_GameUIExtRequest& Request)
@@ -208,7 +219,8 @@ void UGUIS_GameUIExtensionPointWidget::ValidateCompiledDefaults(IWidgetCompilerL
 		if (!ExtensionPointTag.IsValid())
 		{
 			TSharedRef<FTokenizedMessage> Message = CompileLog.Error(FText::Format(
-				LOCTEXT("UGUIS_GameUIExtensionPointWidget_NoTag", "{0} has no ExtensionPointTag specified - All extension points must specify a tag so they can be located."), FText::FromString(GetName())));
+				LOCTEXT("UGUIS_GameUIExtensionPointWidget_NoTag", "{0} has no ExtensionPointTag specified - All extension points must specify a tag so they can be located."),
+				FText::FromString(GetName())));
 			Message->AddToken(FUObjectToken::Create(this));
 		}
 	}

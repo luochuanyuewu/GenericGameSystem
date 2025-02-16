@@ -46,6 +46,7 @@ private:
 	void ResetExtensionPoint();
 	void RegisterExtensionPoint();
 	void RegisterExtensionPointForPlayerState(ULocalPlayer* LocalPlayer, APlayerState* PlayerState);
+	TArray<UClass*> LoadAllowedDataClasses() const;
 	void OnAddOrRemoveExtension(EGUIS_GameUIExtAction Action, const FGUIS_GameUIExtRequest& Request);
 
 protected:
@@ -61,7 +62,7 @@ protected:
 	EGUIS_GameUIExtPointMatchType ExtensionPointTagMatch = EGUIS_GameUIExtPointMatchType::ExactMatch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
-	TArray<TObjectPtr<UClass>> DataClasses;
+	TArray<TSoftClassPtr<UClass>> DataClasses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Extension", meta=( IsBindableEvent="True" ))
 	FOnGetWidgetClassForData GetWidgetClassForData;

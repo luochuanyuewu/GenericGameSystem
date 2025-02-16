@@ -10,7 +10,8 @@
 struct FGUIS_GameUIExtRequest;
 template <typename T>
 class TSubclassOf;
-
+template <typename T>
+class TSoftClassPtr;
 class FSubsystemCollectionBase;
 class UUserWidget;
 struct FFrame;
@@ -223,21 +224,22 @@ protected:
 	virtual void Deinitialize() override;
 
 	void NotifyExtensionPointOfExtensions(TSharedPtr<FGUIS_GameUIExtPoint>& ExtensionPoint);
+	
 	void NotifyExtensionPointsOfExtension(EGUIS_GameUIExtAction Action, TSharedPtr<FGUIS_GameUIExt>& Extension);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="UI Extension", meta = (DisplayName = "Register Extension Point"))
-	FGUIS_GameUIExtPointHandle K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<UClass*>& AllowedDataClasses,
+	FGUIS_GameUIExtPointHandle K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<TSoftClassPtr<UClass>>& AllowedDataClasses,
 	                                                     FExtendExtensionPointDynamicDelegate ExtensionCallback);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension", meta = (DisplayName = "Register Extension (Widget)"))
-	FGUIS_GameUIExtHandle K2_RegisterExtensionAsWidget(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, int32 Priority = -1);
+	FGUIS_GameUIExtHandle K2_RegisterExtensionAsWidget(FGameplayTag ExtensionPointTag, TSoftClassPtr<UUserWidget> WidgetClass, int32 Priority = -1);
 
 	/**
 	 * Registers the widget (as data) for a specific player.  This means the extension points will receive a UIExtensionForPlayer data object
 	 * that they can look at to determine if it's for whatever they consider their player.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension", meta = (DisplayName = "Register Extension (Widget For Context)"))
-	FGUIS_GameUIExtHandle K2_RegisterExtensionAsWidgetForContext(FGameplayTag ExtensionPointTag, TSubclassOf<UUserWidget> WidgetClass, UObject* ContextObject, int32 Priority = -1);
+	FGUIS_GameUIExtHandle K2_RegisterExtensionAsWidgetForContext(FGameplayTag ExtensionPointTag, TSoftClassPtr<UUserWidget> WidgetClass, UObject* ContextObject, int32 Priority = -1);
 
 	/**
 	 * Registers the extension as data for any extension point that can make use of it.
@@ -263,35 +265,25 @@ private:
 
 
 UCLASS()
-class GENERICUISYSTEM_API UGUIS_ExtensionHandleFunctionLibrary : public UBlueprintFunctionLibrary
+class GENERICUISYSTEM_API UGUIS_ExtensionFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	UGUIS_ExtensionHandleFunctionLibrary()
+	UGUIS_ExtensionFunctionLibrary()
 	{
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
-	static void Unregister(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
+	static void UnregisterExtension(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
-	static bool IsValid(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
+	static bool IsValidExtension(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
+	static void UnregisterExtensionPoint(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
+	static bool IsValidExtensionPoint(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
 };
 
-UCLASS()
-class GENERICUISYSTEM_API UGUIS_ExtensionPointHandleFunctionLibrary : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-	UGUIS_ExtensionPointHandleFunctionLibrary()
-	{
-	}
-
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
-	static void Unregister(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
-
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
-	static bool IsValid(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
-};
