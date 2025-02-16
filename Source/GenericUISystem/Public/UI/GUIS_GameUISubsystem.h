@@ -34,7 +34,9 @@ public:
 	virtual void Deinitialize() override;
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS")
 	const UGUIS_GameUIPolicy* GetCurrentUIPolicy() const { return CurrentPolicy; }
+
 	UGUIS_GameUIPolicy* GetCurrentUIPolicy() { return CurrentPolicy; }
 
 	/**

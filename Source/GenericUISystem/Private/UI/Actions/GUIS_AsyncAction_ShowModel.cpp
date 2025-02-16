@@ -3,7 +3,6 @@
 #include "UI/Actions/GUIS_AsyncAction_ShowModel.h"
 #include "GUIS_GenericUISystemSettings.h"
 #include "Engine/GameInstance.h"
-#include "UI/GUIS_GameUIData.h"
 #include "UI/GUIS_GameUIFunctionLibrary.h"
 #include "UI/GUIS_GameUILayout.h"
 #include "UI/GUIS_GameplayTags.h"
@@ -15,27 +14,27 @@ UGUIS_AsyncAction_ShowModel::UGUIS_AsyncAction_ShowModel(const FObjectInitialize
 {
 }
 
-UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InWorldContextObject, FGameplayTag ModalTag, UGUIS_ModalDefinition* ModalDefinition)
-{
-	const UGUIS_GameUIData* UIData = UGUIS_GenericUISystemSettings::GetGameUIData();
-	if (!UIData)
-		return nullptr;
-
-	const TSoftClassPtr<UGUIS_GameModalWidget> SoftModalWidgetClass = UIData->FindWidgetClassForModal(ModalTag);
-	if (SoftModalWidgetClass.IsNull())
-		return nullptr;
-	const TSubclassOf<UGUIS_GameModalWidget> ModalWidgetClass = SoftModalWidgetClass.LoadSynchronous();
-	if (ModalWidgetClass == nullptr)
-		return nullptr;
-
-	UGUIS_AsyncAction_ShowModel* Action = NewObject<UGUIS_AsyncAction_ShowModel>();
-	Action->ModalWidgetClass = ModalWidgetClass;
-	Action->WorldContextObject = InWorldContextObject;
-	Action->ModalDefinition = ModalDefinition;
-	Action->RegisterWithGameInstance(InWorldContextObject);
-
-	return Action;
-}
+// UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InWorldContextObject, FGameplayTag ModalTag, UGUIS_ModalDefinition* ModalDefinition)
+// {
+// 	const UGUIS_GameUIData* UIData = UGUIS_GenericUISystemSettings::GetGameUIData();
+// 	if (!UIData)
+// 		return nullptr;
+//
+// 	const TSoftClassPtr<UGUIS_GameModalWidget> SoftModalWidgetClass = UIData->FindWidgetClassForModal(ModalTag);
+// 	if (SoftModalWidgetClass.IsNull())
+// 		return nullptr;
+// 	const TSubclassOf<UGUIS_GameModalWidget> ModalWidgetClass = SoftModalWidgetClass.LoadSynchronous();
+// 	if (ModalWidgetClass == nullptr)
+// 		return nullptr;
+//
+// 	UGUIS_AsyncAction_ShowModel* Action = NewObject<UGUIS_AsyncAction_ShowModel>();
+// 	Action->ModalWidgetClass = ModalWidgetClass;
+// 	Action->WorldContextObject = InWorldContextObject;
+// 	Action->ModalDefinition = ModalDefinition;
+// 	Action->RegisterWithGameInstance(InWorldContextObject);
+//
+// 	return Action;
+// }
 
 UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InWorldContextObject, TSoftClassPtr<UGUIS_ModalDefinition> ModalDefinition)
 {

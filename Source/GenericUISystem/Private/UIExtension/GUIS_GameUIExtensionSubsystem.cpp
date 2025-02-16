@@ -120,23 +120,13 @@ FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPointForCo
 		return FGUIS_GameUIExtPointHandle();
 	}
 
-	TArray<UClass*> AllowedClasses;
-
-	for (const TSoftClassPtr<UClass>& AllowedDataClass : AllowedDataClasses)
-	{
-		if (!AllowedDataClass.IsNull())
-		{
-			AllowedClasses.Add(AllowedDataClass.LoadSynchronous());
-		}
-	}
-
 	FExtensionPointList& List = ExtensionPointMap.FindOrAdd(ExtensionPointTag);
 
 	TSharedPtr<FGUIS_GameUIExtPoint>& Entry = List.Add_GetRef(MakeShared<FGUIS_GameUIExtPoint>());
 	Entry->ExtensionPointTag = ExtensionPointTag;
 	Entry->ContextObject = ContextObject;
 	Entry->ExtensionPointTagMatchType = ExtensionPointTagMatchType;
-	Entry->AllowedDataClasses = AllowedClasses;
+	Entry->AllowedDataClasses = AllowedDataClasses;
 	Entry->Callback = MoveTemp(ExtensionCallback);
 
 	UE_LOG(LogGUIS_Extension, Verbose, TEXT("Extension Point [%s] Registered"), *ExtensionPointTag.ToString());

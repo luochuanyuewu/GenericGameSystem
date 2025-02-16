@@ -40,9 +40,9 @@ protected:
 
 protected:
 	// 不勾选的情况下，会使用来自InputActionWidget的显示文字。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (ExposeOnSpawn = true, InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button", meta = (ExposeOnSpawn = true, InlineEditConditionToggle))
 	uint8 bOverride_ButtonText : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (ExposeOnSpawn = true, editcondition = "bOverride_ButtonText"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button", meta = (ExposeOnSpawn = true, editcondition = "bOverride_ButtonText"))
 	FText ButtonText;
 };

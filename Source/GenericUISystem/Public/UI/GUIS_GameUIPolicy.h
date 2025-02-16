@@ -54,6 +54,9 @@ public:
 	bool operator==(const ULocalPlayer *OtherLocalPlayer) const { return LocalPlayer == OtherLocalPlayer; }
 };
 
+/**
+ * 
+ */
 UCLASS(Abstract, Blueprintable, Within = GUIS_GameUISubsystem)
 class GENERICUISYSTEM_API UGUIS_GameUIPolicy : public UObject
 {

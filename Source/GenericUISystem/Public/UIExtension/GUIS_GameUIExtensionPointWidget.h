@@ -10,8 +10,10 @@ class IWidgetCompilerLog;
 
 
 /**
- * A slot that defines a location in a layout, where content can be added later
+ * A slot that defines a location in a layout, where content can be added later.
+ * @attention Context will be LocalPlayer.
  * 槽位定义了布局中的一个位置（占位符），以后可以在该位置添加内容。
+ * @注意 Context是LocalPlayer.
  */
 UCLASS()
 class GENERICUISYSTEM_API UGUIS_GameUIExtensionPointWidget : public UDynamicEntryBoxBase
