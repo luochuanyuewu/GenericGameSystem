@@ -29,14 +29,14 @@ UGUIS_GameUIPolicy* UGUIS_GameUIPolicy::GetGameUIPolicy(const UObject* WorldCont
 
 UGUIS_GameUISubsystem* UGUIS_GameUIPolicy::GetOwningUIManager() const
 {
-	return CastChecked<UGUIS_GameUISubsystem>(GetOuter());
+	return Cast<UGUIS_GameUISubsystem>(GetOuter());
 }
 
 UWorld* UGUIS_GameUIPolicy::GetWorld() const
 {
-	if (GetOwningUIManager())
+	if (UGUIS_GameUISubsystem* Subsystem = GetOwningUIManager())
 	{
-		return GetOwningUIManager()->GetGameInstance()->GetWorld();
+		return Subsystem->GetGameInstance()->GetWorld();
 	}
 	return nullptr;
 }

@@ -26,7 +26,7 @@ struct FGUIS_UIActionDefinition
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
 	bool bRequiresConfirm{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS",meta=(EditCondition="bRequiresConfirm"))
 	TSoftClassPtr<UGUIS_ModalDefinition> Confirmation{nullptr};
 
 	bool operator ==(const FName& OtherActionId) const;

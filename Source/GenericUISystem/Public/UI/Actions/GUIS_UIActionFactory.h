@@ -21,7 +21,7 @@ public:
 	TArray<FGUIS_UIActionDefinition> FindUIActionsForData(const UObject *Data) const;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS|UIAction")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS|UIAction",meta=(TitleProperty="ActionId"))
 	TArray<FGUIS_UIActionDefinition> UIActionDefinitions;
 
 #if WITH_EDITOR
