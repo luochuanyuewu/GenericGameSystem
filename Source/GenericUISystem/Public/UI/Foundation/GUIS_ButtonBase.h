@@ -60,6 +60,6 @@ protected:
 	FText ButtonText;
 
 #if WITH_EDITOR
-	COMMONUI_API virtual const FText GetPaletteCategory() override;
+	virtual const FText GetPaletteCategory() override;
 #endif // WITH_EDITOR
 };
