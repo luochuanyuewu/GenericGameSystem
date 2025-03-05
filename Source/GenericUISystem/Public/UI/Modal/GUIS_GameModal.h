@@ -56,7 +56,7 @@ public:
  * 游戏Modal基础UI
  * @注意 Widget必须添加一个名为EntryBox_Buttons的"DynamicEntryBox"来展示按钮。
  */
-UCLASS(Abstract, meta = (Category = "Generic UI System"))
+UCLASS(Abstract, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_GameModalWidget : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
@@ -64,7 +64,7 @@ class GENERICUISYSTEM_API UGUIS_GameModalWidget : public UCommonActivatableWidge
 public:
 	UGUIS_GameModalWidget();
 
-	virtual void SetupModal(const UGUIS_ModalDefinition *ModalDefinition, FGUIS_ModalActionResultSignature ModalActionCallback);
+	virtual void SetupModal(const UGUIS_ModalDefinition* ModalDefinition, FGUIS_ModalActionResultSignature ModalActionCallback);
 
 	/**
 	 * Close current modal with result. 以指定结果关闭此Modal
@@ -81,7 +81,7 @@ protected:
 	 * @param ModalDefinition The object contains required information about this modal. 包含了这个Modal所需信息的对象。
 	 */
 	UFUNCTION(BlueprintImplementableEvent, Category="GUIS")
-	void OnSetupModal(const UGUIS_ModalDefinition *ModalDefinition);
+	void OnSetupModal(const UGUIS_ModalDefinition* ModalDefinition);
 
 	FGUIS_ModalActionResultSignature OnModalActionCallback;
 

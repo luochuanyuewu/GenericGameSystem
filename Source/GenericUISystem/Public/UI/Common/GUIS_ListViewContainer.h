@@ -13,7 +13,7 @@
  * 列表视图容器是(ListView,TileView,CommonListView,CommonTitle)的包装，
  * 此包装的主要目的是抽象出任何类列表项操作的通用逻辑。
  */
-UCLASS(Abstract)
+UCLASS(Abstract, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_ListViewContainer : public UCommonUserWidget
 {
 	GENERATED_BODY()
@@ -80,7 +80,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category="GUIS|ViewContainer", meta = (BindWidgetOptional))
 	TObjectPtr<UListView> ListView;
 
-protected:
 #if WITH_EDITOR
 	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif

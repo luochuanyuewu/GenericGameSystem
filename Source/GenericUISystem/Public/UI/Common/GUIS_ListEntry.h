@@ -17,7 +17,6 @@ struct FGUIS_UIActionBindingHandle
 {
 	GENERATED_BODY()
 
-public:
 	FName Id;
 
 	FUIActionBindingHandle Handle;
@@ -26,23 +25,23 @@ public:
 /**
  * ListEntry will represent a list item(Item of ListView/TileView)
  */
-UCLASS(Abstract, meta = (Category = "Generic UI System", DisableNativeTick))
+UCLASS(Abstract, meta = (Category = "Generic UI", DisableNativeTick))
 class GENERICUISYSTEM_API UGUIS_ListEntry : public UCommonUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
-	void Bp_RegisterUIActionBinding(FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate &Callback, FGUIS_UIActionBindingHandle &BindingHandle);
+	void Bp_RegisterUIActionBinding(FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback, FGUIS_UIActionBindingHandle& BindingHandle);
 
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
-	void Bp_RegisterEntryActionBinding(UGUIS_UIAction *EntryAction, bool bShouldDisplayInActionBar, const FGUIS_UIEntryActionExecutedDelegate &Callback, FGUIS_UIActionBindingHandle &BindingHandle);
+	void Bp_RegisterEntryActionBinding(UGUIS_UIAction* EntryAction, bool bShouldDisplayInActionBar, const FGUIS_UIEntryActionExecutedDelegate& Callback, FGUIS_UIActionBindingHandle& BindingHandle);
 
 	// UFUNCTION(BlueprintNativeEvent, Category = ExtendedActivatableWidget)
 	// void HandleEntryAction(const UGUIS_EntryAction* EntryAction) ;
 
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
-	void UnregisterBinding(UPARAM(ref) FGUIS_UIActionBindingHandle &BindingHandle);
+	void UnregisterBinding(UPARAM(ref) FGUIS_UIActionBindingHandle& BindingHandle);
 
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
 	void UnregisterAllBindings();
@@ -52,7 +51,6 @@ protected:
 private:
 	TArray<FUIActionBindingHandle> BindingHandles;
 
-protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = ExtendedActivatableWidget)
 	// TArray<TObjectPtr<UGUIS_EntryAction>> EntryActionsWhenSelected;
 	// UPROPERTY(EditAnywhere, Instanced, Category = ExtendedActivatableWidget)

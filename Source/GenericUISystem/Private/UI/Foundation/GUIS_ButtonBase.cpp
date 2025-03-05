@@ -35,7 +35,7 @@ void UGUIS_ButtonBase::RefreshButtonText()
 	{
 		if (InputActionWidget)
 		{
-			const FText ActionDisplayText = InputActionWidget->GetDisplayText();	
+			const FText ActionDisplayText = InputActionWidget->GetDisplayText();
 			if (!ActionDisplayText.IsEmpty())
 			{
 				OnUpdateButtonText(ActionDisplayText);
@@ -43,9 +43,10 @@ void UGUIS_ButtonBase::RefreshButtonText()
 			}
 		}
 	}
-	
-	OnUpdateButtonText(ButtonText);	
+
+	OnUpdateButtonText(ButtonText);
 }
+
 
 void UGUIS_ButtonBase::OnInputMethodChanged(ECommonInputType CurrentInputType)
 {
@@ -53,3 +54,10 @@ void UGUIS_ButtonBase::OnInputMethodChanged(ECommonInputType CurrentInputType)
 
 	OnUpdateButtonStyle();
 }
+
+#if WITH_EDITOR
+const FText UGUIS_ButtonBase::GetPaletteCategory()
+{
+	return PaletteCategory;
+}
+#endif

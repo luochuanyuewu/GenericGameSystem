@@ -17,7 +17,7 @@ struct FStreamableHandle;
  * 
  * 一个细节视图包含多个细节Section来展示一个项（可以是任意UObject类型.）
  */
-UCLASS(Abstract)
+UCLASS(Abstract, meta=(Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_ListEntryDetailView : public UCommonUserWidget
 {
 	GENERATED_BODY()
@@ -47,10 +47,9 @@ protected:
 
 	void CreateDetailsExtension(UObject* InData, TSubclassOf<UGUIS_ListEntryDetailSection> SectionClass);
 
-protected:
 	/**
-	 * 细节部分构建器，会根据此数据资产中指定的Widget来展示所呈现的数据。
-	 */
+		 * 细节部分构建器，会根据此数据资产中指定的Widget来展示所呈现的数据。
+		 */
 	UPROPERTY(EditAnywhere, Category="GUIS", meta = (AllowAbstract = false))
 	TObjectPtr<UGUIS_DetailSectionsBuilder> SectionsBuilder;
 

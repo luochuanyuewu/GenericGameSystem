@@ -12,15 +12,15 @@ class UGUIS_ListEntry;
 /**
  * 继承此类，以自定义如何为一个Object，搜集出所需的
  */
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_DetailSectionsBuilder : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(Blueprintable, BlueprintNativeEvent)
-	TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections(const UObject *Data);
-	virtual TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections_Implementation(const UObject *Data);
+	TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections(const UObject* Data);
+	virtual TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections_Implementation(const UObject* Data);
 };
 
 USTRUCT()
@@ -28,7 +28,6 @@ struct FGUIS_EntryDetailsClassSections
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, Category="GUIS")
 	TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> Sections;
 };
@@ -40,7 +39,7 @@ class GENERICUISYSTEM_API UGUIS_DetailSectionBuilder_Class : public UGUIS_Detail
 	GENERATED_BODY()
 
 public:
-	virtual TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections_Implementation(const UObject *Data) override;
+	virtual TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> GatherDetailSections_Implementation(const UObject* Data) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="GUIS", meta = (AllowAbstract))

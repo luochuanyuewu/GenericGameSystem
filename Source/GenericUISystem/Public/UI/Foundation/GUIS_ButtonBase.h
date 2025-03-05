@@ -7,16 +7,20 @@
 #include "GUIS_ButtonBase.generated.h"
 
 /**
+ * Base Button
  * 基础按钮
  */
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, meta=(Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_ButtonBase : public UCommonButtonBase
 {
 	GENERATED_BODY()
 
 public:
+	/**
+	 * @param InText The override text to display on the button. 该Text会覆盖按钮上的文字。
+	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS")
-	void SetButtonText(const FText &InText);
+	void SetButtonText(const FText& InText);
 
 protected:
 	// UUserWidget interface
@@ -32,17 +36,30 @@ protected:
 
 	// 在PreConstruct,InputActionWidget更新，以及ButtonText变化时会触发。
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnUpdateButtonText(const FText &InText);
+	void OnUpdateButtonText(const FText& InText);
 
-	// 在PreConstruct,InputActionWidget更新，以及ButtonText变化时会触发。
+	/**
+	 * Will use the text from InputActionWidget if not checked.
+	 * 在PreConstruct,InputActionWidget更新，以及ButtonText变化时会触发。
+	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnUpdateButtonStyle();
 
-protected:
-	// 不勾选的情况下，会使用来自InputActionWidget的显示文字。
+	/**
+	 * Will use the text from InputActionWidget if not checked.
+	 * 不勾选的情况下，会使用来自InputActionWidget的显示文字。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button", meta = (ExposeOnSpawn = true, InlineEditConditionToggle))
 	uint8 bOverride_ButtonText : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button", meta = (ExposeOnSpawn = true, editcondition = "bOverride_ButtonText"))
+	/**
+	 * The text to display on the button.
+	 * 按钮的显示文字。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button", meta = (ExposeOnSpawn = true, EditCondition = "bOverride_ButtonText"))
 	FText ButtonText;
+
+#if WITH_EDITOR
+	COMMONUI_API virtual const FText GetPaletteCategory() override;
+#endif // WITH_EDITOR
 };

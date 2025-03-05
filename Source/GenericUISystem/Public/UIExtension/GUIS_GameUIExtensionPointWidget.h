@@ -15,14 +15,14 @@ class IWidgetCompilerLog;
  * 槽位定义了布局中的一个位置（占位符），以后可以在该位置添加内容。
  * @注意 Context是LocalPlayer.
  */
-UCLASS()
+UCLASS(meta=(Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_GameUIExtensionPointWidget : public UDynamicEntryBoxBase
 {
 	GENERATED_BODY()
 
 public:
-
 	DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(TSubclassOf<UUserWidget>, FOnGetWidgetClassForData, UObject*, DataItem);
+
 	DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnConfigureWidgetForData, UUserWidget*, Widget, UObject*, DataItem);
 
 	UGUIS_GameUIExtensionPointWidget(const FObjectInitializer& ObjectInitializer);
@@ -31,14 +31,14 @@ public:
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 
-	
+
 	void RegisterForPlayerStateIfReady();
 	bool CheckPlayerState();
 
 	void OnCheckPlayerState();
 
 	FTimerHandle TimerHandle;
-	
+
 #if WITH_EDITOR
 	virtual void ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const override;
 #endif

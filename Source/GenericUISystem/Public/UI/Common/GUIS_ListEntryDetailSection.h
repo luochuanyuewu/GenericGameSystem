@@ -9,7 +9,7 @@
 /**
  * Many detail sections compose a detail view.
  */
-UCLASS(Abstract, meta = (Category = "Generic UI System"))
+UCLASS(Abstract, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_ListEntryDetailSection : public UCommonUserWidget
 {
 	GENERATED_BODY()
