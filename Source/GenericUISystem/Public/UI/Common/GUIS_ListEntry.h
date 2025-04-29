@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 #include "Blueprint/IUserObjectListEntry.h"
+#include "UI/Foundation/GUIS_ButtonBase.h"
 #include "GUIS_ListEntry.generated.h"
 
 class UGUIS_UIAction;
@@ -23,10 +24,10 @@ struct FGUIS_UIActionBindingHandle
 };
 
 /**
- * ListEntry will represent a list item(Item of ListView/TileView)
+ * ListEntry(as CommonButton) will represent a list item(Item of ListView/TileView)
  */
 UCLASS(Abstract, meta = (Category = "Generic UI", DisableNativeTick))
-class GENERICUISYSTEM_API UGUIS_ListEntry : public UCommonUserWidget, public IUserObjectListEntry
+class GENERICUISYSTEM_API UGUIS_ListEntry : public UGUIS_ButtonBase, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
@@ -36,9 +37,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
 	void Bp_RegisterEntryActionBinding(UGUIS_UIAction* EntryAction, bool bShouldDisplayInActionBar, const FGUIS_UIEntryActionExecutedDelegate& Callback, FGUIS_UIActionBindingHandle& BindingHandle);
-
-	// UFUNCTION(BlueprintNativeEvent, Category = ExtendedActivatableWidget)
-	// void HandleEntryAction(const UGUIS_EntryAction* EntryAction) ;
 
 	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
 	void UnregisterBinding(UPARAM(ref) FGUIS_UIActionBindingHandle& BindingHandle);
@@ -50,13 +48,4 @@ protected:
 
 private:
 	TArray<FUIActionBindingHandle> BindingHandles;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced, Category = ExtendedActivatableWidget)
-	// TArray<TObjectPtr<UGUIS_EntryAction>> EntryActionsWhenSelected;
-	// UPROPERTY(EditAnywhere, Instanced, Category = ExtendedActivatableWidget)
-	// TArray<TObjectPtr<UGUIS_EntryAction>> EntryActionsOnSelected;
-	//
-	// virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-	// virtual void NativeOnEntryReleased() override;
-	// virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
 };

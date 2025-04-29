@@ -46,7 +46,5 @@ UUserWidget& UGUIS_TileView::OnGenerateEntryWidgetInternal(UObject* Item, TSubcl
 		}
 	}
 
-	UUserWidget& EntryWidget = GenerateTypedEntry<UUserWidget>(WidgetClass, OwnerTable);
-
-	return EntryWidget;
+	return Super::OnGenerateEntryWidgetInternal(Item, WidgetClass, OwnerTable);
 }
