@@ -44,25 +44,22 @@ public:
 
 protected:
 	UFUNCTION()
-	virtual void HandleUIAction(const FGUIS_UIActionDefinition& Definition);
+	virtual void HandleUIAction(const UGUIS_UIAction* Action);
 
 	UFUNCTION()
-	void HandleUIActionImmediately(const FGUIS_UIActionDefinition& Definition);
-
-	UFUNCTION()
-	virtual void HandleModalAction(FGameplayTag ActionTag); 
+	virtual void HandleModalAction(FGameplayTag ActionTag);
 
 	UPROPERTY()
 	TWeakObjectPtr<UObject> AssociatedData;
 
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	// TArray<FGUIS_UIActionDefinition> ActionDefinitions;
-
+	/**
+	 * A factory to get available ui actions for associated data.
+	 * 该数据资产用于针对关联数据返回所有可用的ui操作。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UIAction")
 	TObjectPtr<UGUIS_UIActionFactory> ActionFactory;
 
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGUIS_HandleUIActionSignature, FGUIS_UIActionDefinition, Definition);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGUIS_HandleUIActionSignature, const UGUIS_UIAction*, ActionReference);
 
 	UPROPERTY(BlueprintAssignable, Category="GUIS|UIAction")
 	FGUIS_HandleUIActionSignature OnHandleUIAction;
@@ -71,9 +68,8 @@ private:
 	TArray<FUIActionBindingHandle> ActionBindings;
 
 	UPROPERTY()
-	FGUIS_UIActionDefinition CurrentDefinition;
-		
+	TObjectPtr<const UGUIS_UIAction> CurrentAction{nullptr};
+
 	UPROPERTY()
 	TObjectPtr<UGUIS_AsyncAction_ShowModel> ModalTask{nullptr};
 };
-

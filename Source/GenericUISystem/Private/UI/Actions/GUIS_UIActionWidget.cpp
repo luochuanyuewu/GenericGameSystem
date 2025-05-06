@@ -10,39 +10,35 @@
 
 void UGUIS_UIActionWidget::SetAssociatedData(UObject* Data)
 {
+	if (Data == nullptr)
+	{
+		UnregisterActions();
+	}
 	AssociatedData = Data;
-
-	// if (IsValid(ActionFactory))
-	// {
-	// 	
-	// }
-	//
-	// ActionDefinitions = ActionFactory->FindUIActionsForData(AssociatedData.Get());
 }
 
 void UGUIS_UIActionWidget::RegisterActions()
 {
 	if (!IsValid(ActionFactory))
+	{
 		return;
-
+	}
 
 	if (!AssociatedData.IsValid())
 	{
 		return;
 	}
 
-	TArray<FGUIS_UIActionDefinition> ActionDefinitions = ActionFactory->FindUIActionsForData(AssociatedData.Get());
+	TArray<UGUIS_UIAction*> Actions = ActionFactory->FindAvailableUIActionsForData(AssociatedData.Get());
 
-	for (const FGUIS_UIActionDefinition& Definition : ActionDefinitions)
+	for (const UGUIS_UIAction* Action : Actions)
 	{
-		if (!Definition.EntryAction)
-			continue;
-		if (Definition.EntryAction->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
+		if (Action->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
 		{
-			FBindUIActionArgs BindArgs(Definition.EntryAction->GetInputActionData(), Definition.bShouldDisplayInActionBar,
-			                           FSimpleDelegate::CreateLambda([this,Definition]()
+			FBindUIActionArgs BindArgs(Action->GetInputActionData(), Action->GetShouldDisplayInActionBar(),
+			                           FSimpleDelegate::CreateLambda([this,Action]()
 			                           {
-				                           HandleUIAction(Definition);
+				                           HandleUIAction(Action);
 			                           }));
 
 			ActionBindings.Add(RegisterUIActionBinding(BindArgs));
@@ -65,11 +61,11 @@ void UGUIS_UIActionWidget::CancelAction()
 {
 	if (ModalTask)
 	{
-		ModalTask->OnModalAction.RemoveDynamic(this,&ThisClass::HandleModalAction);
+		ModalTask->OnModalAction.RemoveDynamic(this, &ThisClass::HandleModalAction);
 		ModalTask->Cancel();
 		ModalTask = nullptr;
 	}
-	CurrentDefinition = FGUIS_UIActionDefinition();
+	CurrentAction = nullptr;
 }
 
 #if WITH_EDITOR
@@ -79,7 +75,7 @@ const FText UGUIS_UIActionWidget::GetPaletteCategory()
 }
 #endif
 
-void UGUIS_UIActionWidget::HandleUIAction(const FGUIS_UIActionDefinition& Definition)
+void UGUIS_UIActionWidget::HandleUIAction(const UGUIS_UIAction* Action)
 {
 	if (ModalTask && ModalTask->IsActive())
 	{
@@ -87,25 +83,20 @@ void UGUIS_UIActionWidget::HandleUIAction(const FGUIS_UIActionDefinition& Defini
 	}
 	if (AssociatedData.IsValid())
 	{
-		if (Definition.bRequiresConfirm && !Definition.Confirmation.IsNull())
+		if (Action->GetRequiresConfirmation() && !Action->GetConfirmationModalClass().IsNull())
 		{
-			ModalTask = UGUIS_AsyncAction_ShowModel::ShowModal(GetWorld(), Definition.Confirmation);
-			CurrentDefinition = Definition;
-			ModalTask->OnModalAction.AddDynamic(this,&ThisClass::HandleModalAction);
+			ModalTask = UGUIS_AsyncAction_ShowModel::ShowModal(GetWorld(), Action->GetConfirmationModalClass());
+			CurrentAction = Action;
+			ModalTask->OnModalAction.AddDynamic(this, &ThisClass::HandleModalAction);
 			ModalTask->Activate();
 		}
 		else
 		{
-			HandleUIActionImmediately(Definition);
+			if (Action->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
+			{
+				Action->InvokeAction(AssociatedData.Get(), GetOwningPlayer());
+			}
 		}
-	}
-}
-
-void UGUIS_UIActionWidget::HandleUIActionImmediately(const FGUIS_UIActionDefinition& Definition)
-{
-	if (Definition.EntryAction->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
-	{
-		Definition.EntryAction->InvokeAction(AssociatedData.Get(), GetOwningPlayer());
 	}
 }
 
@@ -113,7 +104,10 @@ void UGUIS_UIActionWidget::HandleModalAction(FGameplayTag ActionTag)
 {
 	if (ActionTag == GUIS_GameModalActionTags::Yes || ActionTag == GUIS_GameModalActionTags::Ok)
 	{
-		HandleUIActionImmediately(CurrentDefinition);
+		if (CurrentAction && CurrentAction->CanInvoke(AssociatedData.Get(), GetOwningPlayer()))
+		{
+			CurrentAction->InvokeAction(AssociatedData.Get(), GetOwningPlayer());
+		}
 		CancelAction();
 	}
 	if (ActionTag == GUIS_GameModalActionTags::No)

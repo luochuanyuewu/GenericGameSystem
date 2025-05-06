@@ -16,7 +16,7 @@ class UCommonButtonBase;
  * Base Tab definition.
  * 基础选项卡定义。
  */
-UCLASS(Blueprintable, EditInlineNew, CollapseCategories, Const)
+UCLASS(Blueprintable, EditInlineNew, CollapseCategories, Const, DefaultToInstanced)
 class GENERICUISYSTEM_API UGUIS_TabDefinition : public UObject
 {
 	GENERATED_BODY()
@@ -35,7 +35,8 @@ public:
 	bool bHidden;
 
 	/**
-	 * 指定用作Tab按钮的Widget类型，该类型必须实现GGF_TagButtonInterface以接收Label信息。
+	 * A common button which implements GUIS_TabButtonInterface to received Label infomation.
+	 * 指定用作Tab按钮的Widget类型，该类型必须实现GUIS_TabButtonInterface以接收Label信息。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS", meta = (MustImplement = "/Script/GenericUISystem.GUIS_TabButtonInterface", AllowAbstract = "false"))
 	TSoftClassPtr<UCommonButtonBase> TabButtonType;

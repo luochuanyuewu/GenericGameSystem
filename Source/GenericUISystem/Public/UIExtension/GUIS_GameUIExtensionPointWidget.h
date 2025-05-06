@@ -63,6 +63,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
 	EGUIS_GameUIExtPointMatchType ExtensionPointTagMatch = EGUIS_GameUIExtPointMatchType::ExactMatch;
 
+	/**
+	 * Only classes in this list is allowed to be registered to this extension. No restrictions if left empty.
+	 * 此列表中的Class才被允许注册到此拓展，为空意味着没有约束。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
 	TArray<TSoftClassPtr<UClass>> DataClasses;
 

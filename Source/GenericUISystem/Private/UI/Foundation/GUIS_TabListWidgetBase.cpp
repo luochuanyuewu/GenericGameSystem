@@ -5,6 +5,8 @@
 #include "CommonAnimatedSwitcher.h"
 #include "CommonButtonBase.h"
 #include "CommonActivatableWidget.h"
+#include "GUIS_LogChannels.h"
+#include "Editor/WidgetCompilerLog.h"
 #include "UI/Foundation/GUIS_TabDefinition.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIS_TabListWidgetBase)
@@ -223,3 +225,24 @@ void UGUIS_TabListWidgetBase::SetupTabs()
 		}
 	}
 }
+
+#if WITH_EDITOR
+void UGUIS_TabListWidgetBase::ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const
+{
+	Super::ValidateCompiledDefaults(CompileLog);
+
+	bool bFoundInvalid = false;
+	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
+	{
+		if (TabInfo == nullptr)
+		{
+			bFoundInvalid = true;
+			break;
+		}
+	}
+	if (bFoundInvalid)
+	{
+		CompileLog.Error(FText::FromString(FString::Format(TEXT("Found invalid Tab Definitions,{0} has invalid tab definition"), {GetName()})));
+	}
+}
+#endif

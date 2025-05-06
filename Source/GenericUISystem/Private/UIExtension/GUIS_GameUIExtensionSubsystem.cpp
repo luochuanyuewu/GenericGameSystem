@@ -17,6 +17,8 @@ void FGUIS_GameUIExtPointHandle::Unregister()
 	if (UGUIS_ExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
 	{
 		ExtensionSourcePtr->UnregisterExtensionPoint(*this);
+		ExtensionSource = nullptr;
+		DataPtr.Reset();
 	}
 }
 
@@ -27,6 +29,8 @@ void FGUIS_GameUIExtHandle::Unregister()
 	if (UGUIS_ExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
 	{
 		ExtensionSourcePtr->UnregisterExtension(*this);
+		ExtensionSource = nullptr;
+		DataPtr.Reset();
 	}
 }
 
@@ -94,13 +98,14 @@ void UGUIS_ExtensionSubsystem::Deinitialize()
 }
 
 FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPoint(const FGameplayTag& ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
-                                                                      const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
+                                                                            const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
 {
 	return RegisterExtensionPointForContext(ExtensionPointTag, nullptr, ExtensionPointTagMatchType, AllowedDataClasses, ExtensionCallback);
 }
 
-FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPointForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
-                                                                                const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
+FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::RegisterExtensionPointForContext(const FGameplayTag& ExtensionPointTag, UObject* ContextObject,
+                                                                                      EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
+                                                                                      const TArray<UClass*>& AllowedDataClasses, FExtendExtensionPointDelegate ExtensionCallback)
 {
 	if (!ExtensionPointTag.IsValid())
 	{
@@ -306,8 +311,9 @@ FGUIS_GameUIExtRequest UGUIS_ExtensionSubsystem::CreateExtensionRequest(const TS
 	return Request;
 }
 
-FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<TSoftClassPtr<UClass>>& AllowedDataClasses,
-                                                                         FExtendExtensionPointDynamicDelegate ExtensionCallback)
+FGUIS_GameUIExtPointHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
+                                                                               const TArray<TSoftClassPtr<UClass>>& AllowedDataClasses,
+                                                                               FExtendExtensionPointDynamicDelegate ExtensionCallback)
 {
 	TArray<UClass*> LoadedClasses;
 
@@ -340,11 +346,8 @@ FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsWidgetForC
 	{
 		return RegisterExtensionAsWidgetForContext(ExtensionPointTag, ContextObject, WidgetClass.LoadSynchronous(), Priority);
 	}
-	else
-	{
-		FFrame::KismetExecutionMessage(TEXT("A null ContextObject was passed to Register Extension (Widget For Context)"), ELogVerbosity::Error);
-		return FGUIS_GameUIExtHandle();
-	}
+	FFrame::KismetExecutionMessage(TEXT("A null ContextObject was passed to Register Extension (Widget For Context)"), ELogVerbosity::Error);
+	return FGUIS_GameUIExtHandle();
 }
 
 FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsData(FGameplayTag ExtensionPointTag, UObject* Data, int32 Priority)
@@ -358,11 +361,8 @@ FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsDataForCon
 	{
 		return RegisterExtensionAsData(ExtensionPointTag, ContextObject, Data, Priority);
 	}
-	else
-	{
-		FFrame::KismetExecutionMessage(TEXT("A null ContextObject was passed to Register Extension (Data For Context)"), ELogVerbosity::Error);
-		return FGUIS_GameUIExtHandle();
-	}
+	FFrame::KismetExecutionMessage(TEXT("A null ContextObject was passed to Register Extension (Data For Context)"), ELogVerbosity::Error);
+	return FGUIS_GameUIExtHandle();
 }
 
 //=========================================================

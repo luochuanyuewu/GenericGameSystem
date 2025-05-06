@@ -2,25 +2,19 @@
 
 
 #include "UI/Actions/GUIS_UIActionFactory.h"
-
 #include "Misc/DataValidation.h"
+#include "UI/Actions/GUIS_UIAction.h"
 
-
-TArray<FGUIS_UIActionDefinition> UGUIS_UIActionFactory::FindUIActionsForData(const UObject* Data) const
+TArray<UGUIS_UIAction*> UGUIS_UIActionFactory::FindAvailableUIActionsForData(const UObject* Data) const
 {
-	TArray<FGUIS_UIActionDefinition> Ret;
-
-	for (const FGUIS_UIActionDefinition& Definition : UIActionDefinitions)
+	TArray<UGUIS_UIAction*> Ret;
+	for (UGUIS_UIAction* Action : PotentialActions)
 	{
-		if (Definition.EntryAction != nullptr)
+		if (Action != nullptr && Action->IsCompatible(Data))
 		{
-			if (Definition.EntryAction->IsCompatible(Data))
-			{
-				Ret.Add(Definition);
-			}
+			Ret.Add(Action);
 		}
 	}
-
 	return Ret;
 }
 
@@ -29,11 +23,11 @@ TArray<FGUIS_UIActionDefinition> UGUIS_UIActionFactory::FindUIActionsForData(con
 EDataValidationResult UGUIS_UIActionFactory::IsDataValid(FDataValidationContext& Context) const
 {
 	FText ValidationMessage;
-	for (int32 i = 0; i < UIActionDefinitions.Num(); i++)
+	for (int32 i = 0; i < PotentialActions.Num(); i++)
 	{
-		if (UIActionDefinitions[i].EntryAction == nullptr)
+		if (PotentialActions[0] == nullptr)
 		{
-			Context.AddError(FText::FromString(FString::Format(TEXT("Invalid definition on index:{0}"), {i})));
+			Context.AddError(FText::FromString(FString::Format(TEXT("Invalid action on index:{0}"), {i})));
 			return EDataValidationResult::Invalid;
 		}
 	}

@@ -7,6 +7,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "GUIS_GameUIExtensionSubsystem.generated.h"
 
+class UGUIS_ExtensionSubsystem;
 struct FGUIS_GameUIExtRequest;
 template <typename T>
 class TSubclassOf;
@@ -46,7 +47,6 @@ DECLARE_DELEGATE_TwoParams(FExtendExtensionPointDelegate, EGUIS_GameUIExtAction 
  */
 struct FGUIS_GameUIExt : TSharedFromThis<FGUIS_GameUIExt>
 {
-public:
 	/** The extension point this extension is intended for. */
 	FGameplayTag ExtensionPointTag;
 	int32 Priority = INDEX_NONE;
@@ -60,7 +60,6 @@ public:
  */
 struct FGUIS_GameUIExtPoint : TSharedFromThis<FGUIS_GameUIExtPoint>
 {
-public:
 	FGameplayTag ExtensionPointTag;
 	TWeakObjectPtr<UObject> ContextObject;
 	EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType = EGUIS_GameUIExtPointMatchType::ExactMatch;
@@ -80,7 +79,6 @@ struct GENERICUISYSTEM_API FGUIS_GameUIExtPointHandle
 {
 	GENERATED_BODY()
 
-public:
 	FGUIS_GameUIExtPointHandle()
 	{
 	}
@@ -110,7 +108,7 @@ private:
 };
 
 template <>
-struct TStructOpsTypeTraits<FGUIS_GameUIExtPointHandle> : public TStructOpsTypeTraitsBase2<FGUIS_GameUIExtPointHandle>
+struct TStructOpsTypeTraits<FGUIS_GameUIExtPointHandle> : TStructOpsTypeTraitsBase2<FGUIS_GameUIExtPointHandle>
 {
 	enum
 	{
@@ -127,7 +125,6 @@ struct GENERICUISYSTEM_API FGUIS_GameUIExtHandle
 {
 	GENERATED_BODY()
 
-public:
 	FGUIS_GameUIExtHandle()
 	{
 	}
@@ -157,7 +154,7 @@ private:
 };
 
 template <>
-struct TStructOpsTypeTraits<FGUIS_GameUIExtHandle> : public TStructOpsTypeTraitsBase2<FGUIS_GameUIExtHandle>
+struct TStructOpsTypeTraits<FGUIS_GameUIExtHandle> : TStructOpsTypeTraitsBase2<FGUIS_GameUIExtHandle>
 {
 	enum
 	{
@@ -174,20 +171,19 @@ struct FGUIS_GameUIExtRequest
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	FGUIS_GameUIExtHandle ExtensionHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	FGameplayTag ExtensionPointTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	int32 Priority = INDEX_NONE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	TObjectPtr<UObject> Data = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
 	TObjectPtr<UObject> ContextObject = nullptr;
 };
 
@@ -224,11 +220,12 @@ protected:
 	virtual void Deinitialize() override;
 
 	void NotifyExtensionPointOfExtensions(TSharedPtr<FGUIS_GameUIExtPoint>& ExtensionPoint);
-	
+
 	void NotifyExtensionPointsOfExtension(EGUIS_GameUIExtAction Action, TSharedPtr<FGUIS_GameUIExt>& Extension);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="UI Extension", meta = (DisplayName = "Register Extension Point"))
-	FGUIS_GameUIExtPointHandle K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType, const TArray<TSoftClassPtr<UClass>>& AllowedDataClasses,
+	FGUIS_GameUIExtPointHandle K2_RegisterExtensionPoint(FGameplayTag ExtensionPointTag, EGUIS_GameUIExtPointMatchType ExtensionPointTagMatchType,
+	                                                     const TArray<TSoftClassPtr<UClass>>& AllowedDataClasses,
 	                                                     FExtendExtensionPointDynamicDelegate ExtensionCallback);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension", meta = (DisplayName = "Register Extension (Widget)"))
@@ -256,10 +253,10 @@ protected:
 	FGUIS_GameUIExtRequest CreateExtensionRequest(const TSharedPtr<FGUIS_GameUIExt>& Extension);
 
 private:
-	typedef TArray<TSharedPtr<FGUIS_GameUIExtPoint>> FExtensionPointList;
+	using FExtensionPointList = TArray<TSharedPtr<FGUIS_GameUIExtPoint>>;
 	TMap<FGameplayTag, FExtensionPointList> ExtensionPointMap;
 
-	typedef TArray<TSharedPtr<FGUIS_GameUIExt>> FExtensionList;
+	using FExtensionList = TArray<TSharedPtr<FGUIS_GameUIExt>>;
 	TMap<FGameplayTag, FExtensionList> ExtensionMap;
 };
 
@@ -277,13 +274,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
 	static void UnregisterExtension(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
+	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintCosmetic, Category = "UI Extension")
 	static bool IsValidExtension(UPARAM(ref) FGUIS_GameUIExtHandle& Handle);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
 	static void UnregisterExtensionPoint(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "UI Extension")
+	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintCosmetic, Category = "UI Extension")
 	static bool IsValidExtensionPoint(UPARAM(ref) FGUIS_GameUIExtPointHandle& Handle);
 };
-

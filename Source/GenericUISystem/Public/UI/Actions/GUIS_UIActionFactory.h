@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GUIS_UIAction.h"
 #include "UObject/Object.h"
 #include "Engine/DataAsset.h"
 #include "GUIS_UIActionFactory.generated.h"
 
+class UGUIS_UIAction;
 /**
  *  提供一种通用的方式为UI对象选择合适的可用操作。
  */
@@ -18,13 +18,17 @@ class GENERICUISYSTEM_API UGUIS_UIActionFactory : public UDataAsset
 
 public:
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
-	TArray<FGUIS_UIActionDefinition> FindUIActionsForData(const UObject *Data) const;
+	TArray<UGUIS_UIAction*> FindAvailableUIActionsForData(const UObject* Data) const;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS|UIAction",meta=(TitleProperty="ActionId"))
-	TArray<FGUIS_UIActionDefinition> UIActionDefinitions;
+	/**
+	 * A list of potential actions for incoming data.
+	 * 针对传入数据的潜在可用ui操作。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", Instanced, meta=(TitleProperty="ActionId"))
+	TArray<TObjectPtr<UGUIS_UIAction>> PotentialActions;
 
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(FDataValidationContext &Context) const override;
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
 #endif
 };

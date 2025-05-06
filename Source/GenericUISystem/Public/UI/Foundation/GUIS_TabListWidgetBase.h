@@ -13,48 +13,6 @@ class UObject;
 class UWidget;
 struct FFrame;
 
-/**
- * 结构体用于定义一个选项卡的基本信息
- */
-USTRUCT(BlueprintType)
-struct FGUIS_TabDescriptor
-{
-	GENERATED_BODY()
-
-public:
-	FGUIS_TabDescriptor()
-		: bHidden(false), CreatedTabContentWidget(nullptr)
-	{
-	}
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
-	FName TabId;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
-	FText TabText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
-	FSlateBrush IconBrush;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
-	bool bHidden;
-
-	/**
-	 * 指定用作Tab按钮的Widget类型，该类型必须实现GGF_TagButtonInterface以接收Label信息。
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS", meta = (MustImplement = "/Script/GenericUISystem.GUIS_TabButtonInterface", AllowAbstract = "false"))
-	TSoftClassPtr<UCommonButtonBase> TabButtonType;
-
-	/**
-	 * 该所呈现的Widget（可选），如果有指定，那么需要调用
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
-	TSoftClassPtr<UCommonUserWidget> TabContentType;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UWidget> CreatedTabContentWidget;
-};
-
 UINTERFACE(BlueprintType)
 class UGUIS_TabButtonInterface : public UInterface
 {
@@ -70,7 +28,7 @@ class IGUIS_TabButtonInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button")
-	void SetTabDefinition(const UGUIS_TabDefinition *TabDefinition);
+	void SetTabDefinition(const UGUIS_TabDefinition* TabDefinition);
 };
 
 /**
@@ -90,12 +48,12 @@ public:
 	 * 找到其中一个预注册的选项卡信息。
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
-	bool GetTabDefinition(const FName TabNameId, UGUIS_TabDefinition *&OutTabDefinition);
+	bool GetTabDefinition(const FName TabNameId, UGUIS_TabDefinition*& OutTabDefinition);
 
 	/** Helper method to get at all the preregistered tab infos */
 	TArray<TObjectPtr<UGUIS_TabDefinition>> GetAllTabDefinitions() { return TabDefinitions; }
 	/**
-	 * Toggles whether or not a specified tab is hidden, can only be called before the switcher is associated。
+	 * Toggles whether a specified tab is hidden, can only be called before the switcher is associated。
 	 * 让指定的选项卡进行视觉上的开关，只能在关联Switcher之前调用。
 	 * @param TabNameId 哪一个选项卡Id
 	 * @param bHidden 是否隐藏？
@@ -109,7 +67,7 @@ public:
 	 * @return 是否成功注册？
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
-	bool RegisterDynamicTab(UGUIS_TabDefinition *TabDefinition);
+	bool RegisterDynamicTab(UGUIS_TabDefinition* TabDefinition);
 
 	/**
 	 * @return 是否第一个选项卡激活？
@@ -160,7 +118,7 @@ protected:
 	virtual void HandlePreLinkedSwitcherChanged() override;
 	virtual void HandlePostLinkedSwitcherChanged() override;
 
-	virtual void HandleTabCreation_Implementation(FName TabId, UCommonButtonBase *TabButton) override;
+	virtual void HandleTabCreation_Implementation(FName TabId, UCommonButtonBase* TabButton) override;
 
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
 	void SetupTabs();
@@ -173,5 +131,9 @@ protected:
 	 * Elements are removed once they are created.
 	 */
 	UPROPERTY()
-	TMap<FName, TObjectPtr<UGUIS_TabDefinition> > PendingTabLabelInfoMap;
+	TMap<FName, TObjectPtr<UGUIS_TabDefinition>> PendingTabLabelInfoMap;
+
+#if WITH_EDITOR
+	virtual void ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const override;
+#endif
 };

@@ -9,38 +9,13 @@
 class UGUIS_ModalDefinition;
 class UGUIS_UIAction;
 
-USTRUCT(BlueprintType)
-struct FGUIS_UIActionDefinition
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
-	FName ActionId;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
-	bool bShouldDisplayInActionBar{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", Instanced)
-	TObjectPtr<const UGUIS_UIAction> EntryAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
-	bool bRequiresConfirm{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS",meta=(EditCondition="bRequiresConfirm"))
-	TSoftClassPtr<UGUIS_ModalDefinition> Confirmation{nullptr};
-
-	bool operator ==(const FName& OtherActionId) const;
-};
-
 /**
- *
+ * Base ui action.
  */
 UCLASS(Blueprintable, EditInlineNew, CollapseCategories, DefaultToInstanced, Abstract, Const)
 class GENERICUISYSTEM_API UGUIS_UIAction : public UObject
 {
 	GENERATED_UCLASS_BODY()
-
-public:
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
@@ -60,6 +35,12 @@ public:
 
 	const FDataTableRowHandle& GetInputActionData() const { return InputActionData; }
 
+	bool GetShouldDisplayInActionBar() const { return bShouldDisplayInActionBar; }
+
+	bool GetRequiresConfirmation() const { return bRequiresConfirmation; }
+
+	TSoftClassPtr<UGUIS_ModalDefinition> GetConfirmationModalClass() const { return ConfirmationModalClass; };
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "UIAction", meta = (DisplayName = "Is Combatible"))
 	bool IsCompatibleInternal(const UObject* Data) const;
@@ -78,4 +59,13 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UIAction", meta = (RowType = "/Script/CommonUI.CommonInputActionDataBase"))
 	FDataTableRowHandle InputActionData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UIAction")
+	bool bShouldDisplayInActionBar{true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UIAction")
+	bool bRequiresConfirmation{true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UIAction", meta=(EditCondition="bRequiresConfirmation"))
+	TSoftClassPtr<UGUIS_ModalDefinition> ConfirmationModalClass{nullptr};
 };

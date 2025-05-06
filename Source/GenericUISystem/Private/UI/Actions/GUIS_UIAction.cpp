@@ -50,13 +50,6 @@ bool UGUIS_UIAction::IsCompatibleInternal_Implementation(const UObject* Data) co
 
 void UGUIS_UIAction::InvokeActionInternal_Implementation(const UObject* Data, APlayerController* PlayerController) const
 {
-	// 移除库存道具
-	return;
-}
-
-bool FGUIS_UIActionDefinition::operator==(const FName& OtherActionId) const
-{
-	return ActionId == OtherActionId;
 }
 
 UWorld* UGUIS_UIAction::GetWorld() const
