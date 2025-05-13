@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayAbilitySpecHandle.h"
 #include "SmartObjectRuntime.h"
 #include "SmartObjectSubsystem.h"
 #include "SmartObjectTypes.h"
@@ -20,7 +19,6 @@ struct GENERICGAMESYSTEM_API FGGS_SmartObjectInteractionEntryData : public FSmar
 {
 	GENERATED_BODY()
 
-public:
 	/** Simple text the interaction might return */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	FText Text;
@@ -37,7 +35,7 @@ public:
 
 	friend bool operator==(const FGGS_SmartObjectInteractionEntryData& Lhs, const FGGS_SmartObjectInteractionEntryData& RHS)
 	{
-		return  Lhs.TriggeringInputAction == RHS.TriggeringInputAction && Lhs.TriggeringTag == RHS.TriggeringTag;
+		return Lhs.TriggeringInputAction == RHS.TriggeringInputAction && Lhs.TriggeringTag == RHS.TriggeringTag;
 	}
 
 	friend bool operator!=(const FGGS_SmartObjectInteractionEntryData& Lhs, const FGGS_SmartObjectInteractionEntryData& RHS)
@@ -52,7 +50,6 @@ struct GENERICGAMESYSTEM_API FGGS_InteractionInstance
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	FGGS_SmartObjectInteractionEntryData Definition;
 

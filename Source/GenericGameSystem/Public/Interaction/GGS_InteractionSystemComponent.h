@@ -40,7 +40,7 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
 	void CycleInteractActors(bool bNext);
 
-	UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void SetPotentialActors(TArray<AActor*> NewActors);
 
 	//Set the currently interacting target actor
@@ -53,9 +53,6 @@ public:
 	FInteractionStateChangedSignature OnInteractionStateChangedEvent;
 
 	UPROPERTY(BlueprintAssignable)
-	FPotentialActorsNumChangedSignature OnPotentialActorsNumChangedEvent;
-
-	UPROPERTY(BlueprintAssignable)
 	FInteractionInstancesChangedSignature OnInteractionInstancesChangedEvent;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintNativeEvent, Category="GGS|InteractionSystem")
@@ -66,14 +63,17 @@ public:
 
 	void SetInteractionState(bool bNewState);
 
+	/**
+	 * @return Return currently if any active interacting. 当前是否有交互?
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem")
 	bool GetInteractionState() const;
 
+	/**
+	 * @return Currently available interaction options. 当前可用交互选项.
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem")
 	TArray<FGGS_InteractionInstance> GetInteractionInstances() const { return InteractionInstances; };
-
-	// UFUNCTION(BlueprintCallable, Category="GGS|InteractionSystem")
-	// virtual void TriggerInteraction(int32 Index);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
 	void StartInteraction(int32 Index);
@@ -82,20 +82,18 @@ public:
 	void StopInteraction();
 
 protected:
-
 	//Claim and Ocupate smart object, then trigger gameplay behavior.
 	bool InternalStartInteraction(int32 Index);
-	
+
 	// void TriggerInteraction(int32 Index, bool bSendRpc);
 
 	// UFUNCTION(Server, Reliable)
 	// void ServerTriggerInteraction(int32 Index);
-	
+
 	// bool ApplyGameplayBehaviorConfigToAbilitySystem(const FSmartObjectRequestResult& RequestResult,UAbilitySystemComponent* Asc,FGGS_InteractionInstance& InteractionInstance);
 	//
 	// bool ApplyGameplayAbilitiesBehaviorDefinition(const FSmartObjectRequestResult& RequestResult,UAbilitySystemComponent* Asc,FGGS_InteractionInstance& InteractionInstance);
 
-protected:
 	UFUNCTION()
 	virtual void OnInteractActorChanged(AActor* PreInteractActor);
 
@@ -106,10 +104,7 @@ protected:
 	virtual void OnInteractionInstancesChanged();
 
 	UFUNCTION()
-	virtual void OnPotentialActorsNumChanged();
-
-	UFUNCTION()
-	virtual void OnInteractionStateChanged(bool bPreState);
+	virtual void OnInteractionStateChanged(bool bPrevState);
 
 	/**
 	 * create new interaction instances  based on new smart object request results. 
@@ -126,9 +121,6 @@ protected:
 	/** 玩家交互的Actor */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnInteractActorChanged)
 	TObjectPtr<AActor> InteractActor;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnPotentialActorsNumChanged)
-	int32 PotentialActorsNum;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	FSmartObjectRequestFilter DefaultRequestFilter;

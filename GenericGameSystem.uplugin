@@ -1,91 +1,93 @@
 {
-	"FileVersion": 3,
-	"Version": 5,
-	"VersionName": "1.4",
-	"FriendlyName": "GenericGameSystem",
-	"Description": "Common functionalities for context based svf/vfx play, Camera modes management, and CommonUI extensions.",
-	"Category": "Gameplay",
-	"CreatedBy": "YuewuDev",
-	"CreatedByURL": "https://yuewu.dev/en",
-	"DocsURL": "https://k12oekrxfs.larksuite.com/wiki/KfnGwXQx6i1Ls4kmeCGuZJj0she",
-	"FabURL": "com.epicgames.launcher://ue/Fab/product/6904d4d1-c7af-4973-b10e-a88c4436dab5",
-	"MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/6904d4d1-c7af-4973-b10e-a88c4436dab5",
-	"SupportURL": "https://discord.com/invite/xMRXAB2",
-	"CanContainContent": false,
-	"Installed": true,
-	"Modules": [
-		{
-			"Name": "GenericEffectsSystem",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Android",
-				"Linux"
-			]
-		},
-		{
-			"Name": "GenericCameraSystem",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Android",
-				"Linux",
-				"LinuxArm64"
-			]
-		},
-		{
-			"Name": "GenericUISystem",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Android",
-				"Linux",
-				"LinuxArm64"
-			]
-		},
-		{
-			"Name": "GenericGameSystem",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "Niagara",
-			"Enabled": true
-		},
-		{
-			"Name": "CommonUI",
-			"Enabled": true
-		},
-		{
-			"Name": "EnhancedInput",
-			"Enabled": true
-		},
-		{ "Name": "StructUtils",
-			"Enabled": true},		
-		{
-			"Name": "ModularGameplay",
-			"Enabled": true
-		},
-		{
-			"Name": "TargetingSystem",
-			"Enabled": true
-		},
-		{
-			"Name": "SmartObjects",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayBehaviors",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayBehaviorSmartObjects",
-			"Enabled": true
-		}
-	]
+  "FileVersion": 3,
+  "Version": 6,
+  "VersionName": "1.5",
+  "FriendlyName": "GenericGameSystem",
+  "Description": "Common functionalities for Interaction, context based svf/vfx play, Camera modes management, and CommonUI extensions.",
+  "Category": "Gameplay",
+  "CreatedBy": "YuewuDev",
+  "CreatedByURL": "https://yuewu.dev/en",
+  "DocsURL": "https://www.yuewu.dev/en/wiki",
+  "FabURL": "com.epicgames.launcher://ue/Fab/product/6904d4d1-c7af-4973-b10e-a88c4436dab5",
+  "MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/6904d4d1-c7af-4973-b10e-a88c4436dab5",
+  "SupportURL": "https://discord.com/invite/xMRXAB2",
+  "CanContainContent": false,
+  "Installed": true,
+  "Modules": [
+    {
+      "Name": "GenericEffectsSystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Android",
+        "Linux"
+      ]
+    },
+    {
+      "Name": "GenericCameraSystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Android",
+        "Linux",
+        "LinuxArm64"
+      ]
+    },
+    {
+      "Name": "GenericUISystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Android",
+        "Linux",
+        "LinuxArm64"
+      ]
+    },
+    {
+      "Name": "GenericGameSystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "Niagara",
+      "Enabled": true
+    },
+    {
+      "Name": "CommonUI",
+      "Enabled": true
+    },
+    {
+      "Name": "EnhancedInput",
+      "Enabled": true
+    },
+    {
+      "Name": "StructUtils",
+      "Enabled": true
+    },
+    {
+      "Name": "ModularGameplay",
+      "Enabled": true
+    },
+    {
+      "Name": "TargetingSystem",
+      "Enabled": true
+    },
+    {
+      "Name": "SmartObjects",
+      "Enabled": true
+    },
+    {
+      "Name": "GameplayBehaviors",
+      "Enabled": true
+    },
+    {
+      "Name": "GameplayBehaviorSmartObjects",
+      "Enabled": true
+    }
+  ]
 }
