@@ -11,7 +11,7 @@
 class UCommonUserWidget;
 class UGameplayBehavior;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractionInstancesChangedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractionEventSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FInteractionActorChangedSignature, AActor*, OldInteractActor, AActor*, InteractActor);
 
@@ -40,6 +40,12 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
 	void CycleInteractActors(bool bNext);
 
+	/**
+	 * Force a search. 
+	 */
+	UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
+	void SearchInteractableActors();
+
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void SetPotentialActors(TArray<AActor*> NewActors);
 
@@ -52,8 +58,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FInteractionStateChangedSignature OnInteractionStateChangedEvent;
 
+	//Called when intaction list changed.
 	UPROPERTY(BlueprintAssignable)
-	FInteractionInstancesChangedSignature OnInteractionInstancesChangedEvent;
+	FInteractionEventSignature OnInteractionInstancesChangedEvent;
+
+	UPROPERTY(BlueprintAssignable)
+	FInteractionEventSignature OnSearchInteractableActorsEvent;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintNativeEvent, Category="GGS|InteractionSystem")
 	FSmartObjectRequestFilter GetSmartObjectRequestFilter();
@@ -61,6 +71,7 @@ public:
 
 	bool FindSmartObjectsInActor(AActor* InActor, TArray<FSmartObjectRequestResult>& OutResults);
 
+	UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void SetInteractionState(bool bNewState);
 
 	/**
@@ -73,27 +84,10 @@ public:
 	 * @return Currently available interaction options. 当前可用交互选项.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem")
-	TArray<FGGS_InteractionInstance> GetInteractionInstances() const { return InteractionInstances; };
+	const TArray<FGGS_InteractionInstance>& GetInteractionInstances() const { return InteractionInstances; };
 
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
-	void StartInteraction(int32 Index);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
-	void StopInteraction();
 
 protected:
-	//Claim and Ocupate smart object, then trigger gameplay behavior.
-	bool InternalStartInteraction(int32 Index);
-
-	// void TriggerInteraction(int32 Index, bool bSendRpc);
-
-	// UFUNCTION(Server, Reliable)
-	// void ServerTriggerInteraction(int32 Index);
-
-	// bool ApplyGameplayBehaviorConfigToAbilitySystem(const FSmartObjectRequestResult& RequestResult,UAbilitySystemComponent* Asc,FGGS_InteractionInstance& InteractionInstance);
-	//
-	// bool ApplyGameplayAbilitiesBehaviorDefinition(const FSmartObjectRequestResult& RequestResult,UAbilitySystemComponent* Asc,FGGS_InteractionInstance& InteractionInstance);
-
 	UFUNCTION()
 	virtual void OnInteractActorChanged(AActor* PreInteractActor);
 
@@ -111,28 +105,24 @@ protected:
 	 */
 	virtual void RefreshOptionsForActor();
 
-	void OnSmartObjectBehaviorFinished(UGameplayBehavior& Behavior, AActor& Avatar, const bool bInterrupted);
-
-	void OnClaimedSlotInvalidated(const FSmartObjectClaimHandle& ClaimHandle, const ESmartObjectSlotState State);
-
+	/**
+	 * Searched actor.
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	TArray<TObjectPtr<AActor>> PotentialActors;
-
+	
 	/** 玩家交互的Actor */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnInteractActorChanged)
 	TObjectPtr<AActor> InteractActor;
 
+	/**
+	 * 配置搜索交互对象的过滤器。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	FSmartObjectRequestFilter DefaultRequestFilter;
 
 	UPROPERTY(VisibleAnywhere, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractionInstancesChanged)
 	TArray<FGGS_InteractionInstance> InteractionInstances;
-
-	UPROPERTY()
-	TObjectPtr<UGameplayBehavior> GameplayBehavior;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
-	FSmartObjectClaimHandle ClaimedHandle;
 
 	/**
 	 * Indicating if there's any interaction in progress.
@@ -140,7 +130,4 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractionStateChanged)
 	bool bInteracting{false};
 
-	FDelegateHandle OnBehaviorFinishedNotifyHandle;
-
-	bool bBehaviorFinished;
 };

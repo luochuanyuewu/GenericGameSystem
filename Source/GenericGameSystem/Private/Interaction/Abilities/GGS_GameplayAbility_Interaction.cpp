@@ -3,17 +3,30 @@
 
 #include "Interaction/Abilities/GGS_GameplayAbility_Interaction.h"
 
+#include "GGS_LogChannels.h"
+#include "SmartObjectBlueprintFunctionLibrary.h"
+#include "Interaction/GGS_InteractionDefinition.h"
 #include "Interaction/GGS_InteractionSystemComponent.h"
 
-void UGGS_GameplayAbility_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                                      const FGameplayEventData* TriggerEventData)
+UGGS_GameplayAbility_Interaction::UGGS_GameplayAbility_Interaction()
 {
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+}
+
+void UGGS_GameplayAbility_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                       const FGameplayEventData* TriggerEventData)
+{
+	InteractionSystem = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(ActorInfo->AvatarActor.Get());
+	if (InteractionSystem == nullptr)
+	{
+		EndAbility(Handle,ActorInfo,ActivationInfo,true,true);
+		return;
+	}
+	InteractionSystem->OnInteractionActorChangedEvent.AddDynamic(this,&ThisClass::OnInteractActorChanged);
+
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (UGGS_InteractionSystemComponent* UserComponent = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(ActorInfo->AvatarActor.Get()) )
-	{
-		UserComponent->OnInteractionActorChangedEvent.AddDynamic(this,&ThisClass::OnInteractActorChanged);
-	}
 }
 
 void UGGS_GameplayAbility_Interaction::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -24,6 +37,45 @@ void UGGS_GameplayAbility_Interaction::EndAbility(const FGameplayAbilitySpecHand
 		UserComponent->OnInteractionActorChangedEvent.RemoveDynamic(this,&ThisClass::OnInteractActorChanged);
 	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+bool UGGS_GameplayAbility_Interaction::TryClaimInteraction(int32 Index, FSmartObjectClaimHandle& ClaimedHandle)
+{
+	USmartObjectSubsystem* Subsystem = USmartObjectSubsystem::GetCurrent(GetWorld());
+
+	check(Subsystem!=nullptr)
+	const TArray<FGGS_InteractionInstance>& InteractionInstances = InteractionSystem->GetInteractionInstances();
+	if (!InteractionInstances.IsValidIndex(Index))
+	{
+		INTERACTION_RLOG(Error,TEXT("Interaction at index(%d) not exist!!"),Index)
+		return false;
+	}
+
+	if (InteractionInstances[Index].Definition == nullptr)
+	{
+		INTERACTION_RLOG(Error,TEXT("Interaction at index(%d) has invalid definition!"),Index)
+		return false;
+	}
+
+	if (InteractionInstances[Index].SlotState != ESmartObjectSlotState::Free)
+	{
+		INTERACTION_RLOG(Error,TEXT("Interaction(%s) was Claimed/Occupied!"),*InteractionInstances[Index].Definition->Text.ToString())
+		return false;
+	}
+
+	const FGGS_InteractionInstance& CurrentOption = InteractionInstances[Index];
+
+	FSmartObjectClaimHandle NewlyClaimedHandle = USmartObjectBlueprintFunctionLibrary::MarkSmartObjectSlotAsClaimed(GetWorld(), CurrentOption.RequestResult.SlotHandle, GetAvatarActorFromActorInfo());
+
+	// A valid claimed handle can point to an object that is no longer part of the simulation
+	if (!Subsystem->IsClaimedSmartObjectValid(NewlyClaimedHandle))
+	{
+		INTERACTION_RLOG(Error,TEXT("Interaction(%s) refers to an object that is no longer available.!"),*InteractionInstances[Index].Definition->Text.ToString())
+		return false;
+	}
+
+	ClaimedHandle = NewlyClaimedHandle;
+	return true;
 }
 
 void UGGS_GameplayAbility_Interaction::OnInteractActorChanged_Implementation(AActor* OldActor, AActor* NewActor)

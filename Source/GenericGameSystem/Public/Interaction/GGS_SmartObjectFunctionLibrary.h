@@ -33,5 +33,5 @@ public:
 	static bool FindGameplayBehaviorConfig(const USmartObjectBehaviorDefinition* BehaviorDefinition, TSubclassOf<UGameplayBehaviorConfig> DesiredClass, UGameplayBehaviorConfig*& OutConfig);
 
 	UFUNCTION(BlueprintCallable,Category="GGS",meta=(WorldContext="WorldContext", ExpandBoolAsExecs="ReturnValue"))
-	static bool FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle,FGGS_SmartObjectInteractionEntryData& OutDefinition);
+	static bool FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle,UGGS_InteractionDefinition*& OutDefinition);
 };

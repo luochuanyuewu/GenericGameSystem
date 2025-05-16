@@ -7,7 +7,8 @@
 #include "GGS_TargetingFilterTask_InteractionSmartObjects.generated.h"
 
 /**
- * 
+ * A custom task to filter potential interactable actors.
+ * The filter comes from the one you specified on interaction system component.
  */
 UCLASS(meta=(DisplayName="(GGS)FilterTask:InteractionSmartObject"))
 class GENERICGAMESYSTEM_API UGGS_TargetingFilterTask_InteractionSmartObjects : public UTargetingFilterTask_BasicFilterTemplate

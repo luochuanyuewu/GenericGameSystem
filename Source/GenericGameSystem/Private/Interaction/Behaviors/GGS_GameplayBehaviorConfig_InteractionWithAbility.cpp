@@ -1,8 +1,8 @@
 ﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 
-#include "Interaction/GGS_GameplayBehaviorConfig_InteractionWithAbility.h"
-#include "Interaction/GGS_GameplayBehavior_InteractionWithAbility.h"
+#include "Interaction/Behaviors/GGS_GameplayBehaviorConfig_InteractionWithAbility.h"
+#include "Interaction/Behaviors/GGS_GameplayBehavior_InteractionWithAbility.h"
 
 UGGS_GameplayBehaviorConfig_InteractionWithAbility::UGGS_GameplayBehaviorConfig_InteractionWithAbility()
 {

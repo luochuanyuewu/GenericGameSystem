@@ -26,6 +26,7 @@ public class GenericGameSystem : ModuleRules
                 "UMG",
                 "StructUtils",
                 "TargetingSystem",
+                "GameplayTasks",
                 "GameplayAbilities",
                 "GameplayBehaviorsModule",
                 "SmartObjectsModule",

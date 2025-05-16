@@ -14,7 +14,7 @@ class UUserWidget;
 /**
  * A Gameplay Behavior Config for ability based interaction.
  */
-UCLASS()
+UCLASS(DisplayName="Gameplay Bheavior Config Interaction (GGS)")
 class GENERICGAMESYSTEM_API UGGS_GameplayBehaviorConfig_InteractionWithAbility : public UGameplayBehaviorConfig
 {
 	GENERATED_BODY()

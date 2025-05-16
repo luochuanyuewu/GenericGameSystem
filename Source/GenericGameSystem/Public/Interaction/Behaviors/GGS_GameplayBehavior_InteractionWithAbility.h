@@ -11,7 +11,7 @@
 /**
  * A Gameplay Behavior for ability based interaction.
  */
-UCLASS()
+UCLASS(DisplayName="GameplayBehavior_Interaction (GGS)")
 class GENERICGAMESYSTEM_API UGGS_GameplayBehavior_InteractionWithAbility : public UGameplayBehavior
 {
 	GENERATED_BODY()
@@ -21,6 +21,11 @@ public:
 	virtual void EndBehavior(AActor& Avatar, const bool bInterrupted) override;
 
 
+	// the ability granted for interaction.
+
+	UPROPERTY()
+	TSubclassOf<UGameplayAbility> GrantedAbilityClass{nullptr};
+	
 	FGameplayAbilitySpecHandle AbilitySpecHandle;
 	
 	bool bAbilityEnded = false;

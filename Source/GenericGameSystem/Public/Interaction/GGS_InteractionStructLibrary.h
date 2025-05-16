@@ -11,37 +11,17 @@
 #include "GGS_InteractionStructLibrary.generated.h"
 
 
+class UGGS_InteractionSystemComponent;
 class UAbilitySystemComponent;
-class UGCS_InteractionDefinition;
+class UGGS_InteractionDefinition;
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType,DisplayName="Interaction Entry")
 struct GENERICGAMESYSTEM_API FGGS_SmartObjectInteractionEntryData : public FSmartObjectDefinitionData
 {
 	GENERATED_BODY()
 
-	/** Simple text the interaction might return */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
-	FText Text;
-
-	/** Simple sub-text the interaction might return */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
-	FText SubText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Interaction", meta = (RowType = "/Script/CommonUI.CommonInputActionDataBase"))
-	FDataTableRowHandle TriggeringInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	FGameplayTag TriggeringTag;
-
-	friend bool operator==(const FGGS_SmartObjectInteractionEntryData& Lhs, const FGGS_SmartObjectInteractionEntryData& RHS)
-	{
-		return Lhs.TriggeringInputAction == RHS.TriggeringInputAction && Lhs.TriggeringTag == RHS.TriggeringTag;
-	}
-
-	friend bool operator!=(const FGGS_SmartObjectInteractionEntryData& Lhs, const FGGS_SmartObjectInteractionEntryData& RHS)
-	{
-		return !(Lhs == RHS);
-	}
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Interaction",Instanced)
+	TObjectPtr<UGGS_InteractionDefinition> Definition;
 };
 
 
@@ -50,16 +30,8 @@ struct GENERICGAMESYSTEM_API FGGS_InteractionInstance
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
-	FGGS_SmartObjectInteractionEntryData Definition;
-
-	/** The ability system on the target that can be used for the TargetInteractionHandle and sending the event, if needed. */
-	// UPROPERTY(BlueprintReadOnly)
-	// TObjectPtr<UAbilitySystemComponent> TargetAbilitySystem = nullptr;
-
-	/** The ability spec to activate on the object for this option. */
-	// UPROPERTY(BlueprintReadOnly)
-	// FGameplayAbilitySpecHandle TargetInteractionAbilityHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction",meta=(DisplayName="Definition"))
+	TObjectPtr<UGGS_InteractionDefinition> Definition{nullptr};
 
 	/**
 	 * The request result associated with this option.

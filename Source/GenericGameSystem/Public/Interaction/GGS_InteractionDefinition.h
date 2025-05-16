@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "Engine/DataTable.h"
-#include "GCS_InteractionDefinition.generated.h"
+#include "GameplayTagContainer.h"
+#include "UObject/Object.h"
+#include "GGS_InteractionDefinition.generated.h"
 
 /**
  * Base class for interaction settings.
  */
-UCLASS(Blueprintable, BlueprintType)
-class GENERICGAMESYSTEM_API UGCS_InteractionDefinition : public UDataAsset
+UCLASS(Blueprintable, BlueprintType, DefaultToInstanced, EditInlineNew, Const)
+class GENERICGAMESYSTEM_API UGGS_InteractionDefinition : public UObject
 {
 	GENERATED_BODY()
 
@@ -26,4 +26,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Interaction", meta = (RowType = "/Script/CommonUI.CommonInputActionDataBase"))
 	FDataTableRowHandle TriggeringInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+	FGameplayTag TriggeringTag;
 };

@@ -35,7 +35,7 @@ bool UGGS_SmartObjectFunctionLibrary::FindGameplayBehaviorConfig(const USmartObj
 	return false;
 }
 
-bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, FGGS_SmartObjectInteractionEntryData& OutDefinition)
+bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, UGGS_InteractionDefinition*& OutDefinition)
 {
 	if (WorldContext && WorldContext->GetWorld() && SmartObjectSlotHandle.IsValid())
 	{
@@ -44,10 +44,14 @@ bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(UObject*
 			const FSmartObjectSlotView SlotView = Subsystem->GetSlotView(SmartObjectSlotHandle);
 			if (SlotView.IsValid() && SlotView.GetSlotHandle().IsValid())
 			{
-				if (const FGGS_SmartObjectInteractionEntryData* DefinitionData = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntryData>())
+				if (const FGGS_SmartObjectInteractionEntryData* Entry = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntryData>())
 				{
-					OutDefinition = *DefinitionData;
-					return true;
+					if (Entry->Definition)
+					{
+						OutDefinition = Entry->Definition;
+						return true;
+					}
+
 				}
 			}
 		}
