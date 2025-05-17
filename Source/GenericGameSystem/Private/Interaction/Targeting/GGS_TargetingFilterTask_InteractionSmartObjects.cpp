@@ -2,9 +2,8 @@
 
 
 #include "Interaction/Targeting/GGS_TargetingFilterTask_InteractionSmartObjects.h"
-
-#include "SmartObjectBlueprintFunctionLibrary.h"
 #include "Interaction/GGS_InteractionSystemComponent.h"
+#include "Interaction/GGS_SmartObjectFunctionLibrary.h"
 
 bool UGGS_TargetingFilterTask_InteractionSmartObjects::ShouldFilterTarget(const FTargetingRequestHandle& TargetingHandle, const FTargetingDefaultResultData& TargetData) const
 {
@@ -15,7 +14,8 @@ bool UGGS_TargetingFilterTask_InteractionSmartObjects::ShouldFilterTarget(const 
 			if (UGGS_InteractionSystemComponent* InteractionSys = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(SourceContext->SourceActor))
 			{
 				TArray<FSmartObjectRequestResult> Results;
-				return !InteractionSys->FindSmartObjectsInActor(Actor,Results);
+
+				return !UGGS_SmartObjectFunctionLibrary::FindSmartObjectsWithInteractionEntranceInActor(InteractionSys->GetSmartObjectRequestFilter(), Actor, Results, InteractionSys->GetOwner());
 			}
 		}
 	}

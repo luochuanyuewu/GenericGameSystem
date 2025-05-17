@@ -32,6 +32,26 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GGS|SmartObject", meta=(DeterminesOutputType="DesiredClass", DynamicOutputParam="OutConfig", ExpandBoolAsExecs="ReturnValue"))
 	static bool FindGameplayBehaviorConfig(const USmartObjectBehaviorDefinition* BehaviorDefinition, TSubclassOf<UGameplayBehaviorConfig> DesiredClass, UGameplayBehaviorConfig*& OutConfig);
 
-	UFUNCTION(BlueprintCallable,Category="GGS",meta=(WorldContext="WorldContext", ExpandBoolAsExecs="ReturnValue"))
-	static bool FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle,UGGS_InteractionDefinition*& OutDefinition);
+	/**
+	 * Search a given Actor for slot candidates respecting the request criteria and selection conditions, also with interaction entrance.
+	 * 根据指定的过滤器，在给定Actor上搜索带有交互入口的槽。
+	 * @param Filter Parameters defining the search area and criteria
+	 * @param SearchActor The actor to search
+	 * @param OutResults List of smart object slot candidates found in range
+	 * @param UserActor  Used to create additional data that could be provided to bind values in the conditions evaluation context
+	 * @return True if at least one candidate was found.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure = False, Category = "SmartObject", Meta = (ReturnDisplayName = "bSuccess"))
+	static bool FindSmartObjectsWithInteractionEntranceInActor(const FSmartObjectRequestFilter& Filter, AActor* SearchActor, TArray<FSmartObjectRequestResult>& OutResults,
+	                                                           const AActor* UserActor = nullptr);
+
+	/**
+	 * Try finding an interaction definition in SmartObjectSlot.
+	 * @param WorldContext 
+	 * @param SmartObjectSlotHandle The slot.
+	 * @param OutDefinition Interaction definition for player.
+	 * @return true means this slot has associated interaction definition(player interactable). false means this slot has no valid interaction entry for players.
+	 */
+	UFUNCTION(BlueprintCallable, Category="GGS", meta=(WorldContext="WorldContext", ExpandBoolAsExecs="ReturnValue"))
+	static bool FindInteractionDefinitionFromSmartObjectSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, UGGS_InteractionDefinition*& OutDefinition);
 };

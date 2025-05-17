@@ -14,8 +14,9 @@ class GENERICGAMESYSTEM_API UGGS_InteractableInterface : public UInterface
 };
 
 /**
- * Optional interface for actor to responds to interaction events.
- * General usage of this interface is to do some visual stuff.
+ * Optional interface for actors to respond to interaction events.
+ * Typically used for visual feedback or interaction-specific logic.
+ * 角色响应交互事件的可选接口。通常用于视觉反馈或特定的交互逻辑。
  */
 class GENERICGAMESYSTEM_API IGGS_InteractableInterface
 {
@@ -23,17 +24,41 @@ class GENERICGAMESYSTEM_API IGGS_InteractableInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-
-	// Called when this actor was selected by interaction system.
-	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="GGS|Interaction")
+	/**
+	 * Called when this actor is selected by the interaction system
+	 * 当该Actor被交互系统选择时调用。
+	 * @param Instigator Usually the player 通常是玩家。
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
 	void OnInteractionSelected(AActor* Instigator);
 
-	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="GGS|Interaction")
+	/**
+	 * Called when this actor is deselected by the interaction system
+	 * 当交互系统取消选择该选项时调用。
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
 	void OnInteractionDeselected(AActor* Instigator);
 
-	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="GGS|Interaction")
-	void OnInteractionBegin(AActor* Instigator);
+	/**
+	 * Called when interaction with this actor starts
+	 * 与该Actor的交互结束时调用。
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
+	void OnInteractionStarted(AActor* Instigator);
 
-	UFUNCTION(BlueprintCallable,BlueprintNativeEvent,Category="GGS|Interaction")
-	void OnInteractionEnd(AActor* Instigator);
+	/**
+	 * Called when interaction with this actor ends
+	 * 与该Actor的交互结束时调用。
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
+	void OnInteractionEnded(AActor* Instigator);
+
+	/**
+	 * Called when one of the interaction option selected by instigator.
+	 * @details For example, when a shop option was selected, the merchant can say something like "Buy GGF, I have everything you want. ~V~"
+	 * 当其中一个选项被发起者选中时调用。
+	 * @细节 比如，当“购物”选项被选中时，商人可能说一句：“购买通用游戏框架吧，你想要的我都有。”
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
+	void OnInteractionOptionSelected(AActor* Instigator, int32 OptionIndex);
 };

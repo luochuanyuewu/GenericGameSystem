@@ -9,6 +9,7 @@
 
 /**
  * Base class for interaction settings.
+ * 交互设置的基类。
  */
 UCLASS(Blueprintable, BlueprintType, DefaultToInstanced, EditInlineNew, Const)
 class GENERICGAMESYSTEM_API UGGS_InteractionDefinition : public UObject

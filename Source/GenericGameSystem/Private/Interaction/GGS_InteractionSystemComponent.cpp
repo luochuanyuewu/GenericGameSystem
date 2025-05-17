@@ -2,35 +2,22 @@
 
 
 #include "Interaction/GGS_InteractionSystemComponent.h"
-#include "AbilitySystemComponent.h"
-#include "AbilitySystemGlobals.h"
 #include "Engine/World.h"
-#include "GameplayBehavior.h"
-#include "GameplayBehaviorConfig.h"
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
-#include "GameplayBehaviorSubsystem.h"
 #include "GGS_LogChannels.h"
-#include "SmartObjectBlueprintFunctionLibrary.h"
 #include "SmartObjectComponent.h"
 #include "SmartObjectSubsystem.h"
 #include "Interaction/GGS_InteractableInterface.h"
-#include "Interaction/Behaviors/GGS_GameplayBehaviorConfig_InteractionWithAbility.h"
-#include "Interaction/GGS_InteractionDefinition.h"
 #include "Interaction/GGS_SmartObjectFunctionLibrary.h"
 #include "Interaction/GGS_InteractionStructLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
 
-
 // Sets default values for this component's properties
 UGGS_InteractionSystemComponent::UGGS_InteractionSystemComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
-
-	// ...
 }
 
 void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -40,10 +27,9 @@ void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FL
 	FDoRepLifetimeParams Params;
 	Params.bIsPushBased = true;
 	Params.Condition = COND_OwnerOnly;
-	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractActor, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractableActor, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bInteracting, Params);
-	DOREPLIFETIME_CONDITION(ThisClass, InteractionInstances, COND_OwnerOnly);
-	
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractionOptions, Params);
 }
 
 UGGS_InteractionSystemComponent* UGGS_InteractionSystemComponent::GetInteractionSystemComponent(const AActor* Actor)
@@ -60,30 +46,30 @@ void UGGS_InteractionSystemComponent::TickComponent(float DeltaTime, ELevelTick 
 	// ...
 }
 
-void UGGS_InteractionSystemComponent::CycleInteractActors_Implementation(bool bNext)
+void UGGS_InteractionSystemComponent::CycleInteractableActors_Implementation(bool bNext)
 {
-	if (bInteracting || PotentialActors.Num() <= 1)
+	if (bInteracting || InteractableActors.Num() <= 1)
 	{
 		return;
 	}
 
-	int32 Index = InteractActor != nullptr ? PotentialActors.IndexOfByKey(InteractActor) : 0;
-	if (!PotentialActors.IsValidIndex(Index)) //一个都没
+	int32 Index = InteractableActor != nullptr ? InteractableActors.IndexOfByKey(InteractableActor) : 0;
+	if (!InteractableActors.IsValidIndex(Index)) //一个都没
 	{
 		return;
 	}
 	if (bNext)
 	{
-		Index = FMath::Clamp(Index + 1, 0, PotentialActors.Num());
+		Index = FMath::Clamp(Index + 1, 0, InteractableActors.Num());
 	}
 	else
 	{
-		Index = FMath::Clamp(Index - 1, 0, PotentialActors.Num());
+		Index = FMath::Clamp(Index - 1, 0, InteractableActors.Num());
 	}
-	if (PotentialActors.IsValidIndex(Index) && PotentialActors[Index] != nullptr && PotentialActors[Index] !=
-		InteractActor)
+	if (InteractableActors.IsValidIndex(Index) && InteractableActors[Index] != nullptr && InteractableActors[Index] !=
+		InteractableActor)
 	{
-		SetInteractActor(PotentialActors[Index]);
+		SetInteractableActor(InteractableActors[Index]);
 	}
 }
 
@@ -92,40 +78,41 @@ void UGGS_InteractionSystemComponent::SearchInteractableActors()
 	OnSearchInteractableActorsEvent.Broadcast();
 }
 
-void UGGS_InteractionSystemComponent::SetPotentialActors(TArray<AActor*> NewActors)
+void UGGS_InteractionSystemComponent::SetInteractableActors(TArray<AActor*> NewActors)
 {
 	if (!GetOwner()->HasAuthority())
 	{
 		return;
 	}
-	PotentialActors = NewActors;
+
+	InteractableActors = NewActors;
 
 	if (!bInteracting)
 	{
 		// update potential actor.
-		if (!IsValid(InteractActor) || !PotentialActors.Contains(InteractActor))
+		if (!IsValid(InteractableActor) || !InteractableActors.Contains(InteractableActor))
 		{
 			if (NewActors.IsValidIndex(0) && IsValid(NewActors[0]))
 			{
-				SetInteractActor(NewActors[0]);
+				SetInteractableActor(NewActors[0]);
 			}
 			else
 			{
-				SetInteractActor(nullptr);
+				SetInteractableActor(nullptr);
 			}
 		}
 	}
 }
 
-void UGGS_InteractionSystemComponent::SetInteractActor(AActor* InActor)
+void UGGS_InteractionSystemComponent::SetInteractableActor(AActor* InActor)
 {
-	if (InActor != InteractActor)
+	if (InActor != InteractableActor)
 	{
-		AActor* OldActor = InteractActor;
-		InteractActor = InActor;
+		AActor* OldActor = InteractableActor;
+		InteractableActor = InActor;
 
-		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractActor, this)
-		OnInteractActorChanged(OldActor);
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractableActor, this)
+		OnInteractableActorChanged(OldActor);
 	}
 }
 
@@ -134,76 +121,45 @@ FSmartObjectRequestFilter UGGS_InteractionSystemComponent::GetSmartObjectRequest
 	return DefaultRequestFilter;
 }
 
-bool UGGS_InteractionSystemComponent::FindSmartObjectsInActor(AActor* InActor, TArray<FSmartObjectRequestResult>& OutResults)
-{
-	USmartObjectSubsystem* Subsystem = GetWorld()->GetSubsystem<USmartObjectSubsystem>();
-
-	if (!Subsystem)
-	{
-		return false;
-	}
-
-	TArray<FSmartObjectRequestResult> Results;
-	USmartObjectBlueprintFunctionLibrary::FindSmartObjectsInActor(GetSmartObjectRequestFilter(), InActor, Results, GetOwner());
-
-	if (Results.IsEmpty())
-	{
-		return false;
-	}
-
-	OutResults.Empty();
-
-	for (FSmartObjectRequestResult& Result : Results)
-	{
-		UGGS_InteractionDefinition* FoundDefinition;
-		if (UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(this, Result.SlotHandle, FoundDefinition))
-		{
-			OutResults.Add(Result);
-		}
-	}
-
-	return !OutResults.IsEmpty();
-}
-
-void UGGS_InteractionSystemComponent::SetInteractionState(bool bNewState)
+void UGGS_InteractionSystemComponent::SetInteracting(bool bNewState)
 {
 	bool prevState = bInteracting;
 	COMPARE_ASSIGN_AND_MARK_PROPERTY_DIRTY(ThisClass, bInteracting, bNewState, this);
-	OnInteractionStateChanged(prevState);
+	OnInteractingStateChanged(prevState);
 }
 
-bool UGGS_InteractionSystemComponent::GetInteractionState() const
+bool UGGS_InteractionSystemComponent::IsInteracting() const
 {
 	return bInteracting;
 }
 
-void UGGS_InteractionSystemComponent::OnInteractActorChanged(AActor* PreInteractActor)
+void UGGS_InteractionSystemComponent::OnInteractableActorChanged(AActor* OldActor)
 {
 	if (GetOwner()->GetLocalRole() >= ROLE_Authority)
 	{
 		RefreshOptionsForActor();
 	}
 
-	if (IsValid(PreInteractActor) && PreInteractActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
+	if (IsValid(OldActor) && OldActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
 	{
-		IGGS_InteractableInterface::Execute_OnInteractionDeselected(PreInteractActor,GetOwner());
-	}
-	
-	if (IsValid(InteractActor) && InteractActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
-	{
-		IGGS_InteractableInterface::Execute_OnInteractionSelected(InteractActor,GetOwner());
+		IGGS_InteractableInterface::Execute_OnInteractionDeselected(OldActor, GetOwner());
 	}
 
-	OnInteractionActorChangedEvent.Broadcast(PreInteractActor, InteractActor);
+	if (IsValid(InteractableActor) && InteractableActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
+	{
+		IGGS_InteractableInterface::Execute_OnInteractionSelected(InteractableActor, GetOwner());
+	}
+
+	OnInteractableActorChangedEvent.Broadcast(OldActor, InteractableActor);
 }
 
 void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObjectEventData& EventData)
 {
-	check(InteractActor != nullptr);
+	check(InteractableActor != nullptr);
 
-	for (int32 i = 0; i < InteractionInstances.Num(); i++)
+	for (int32 i = 0; i < InteractionOptions.Num(); i++)
 	{
-		const FGGS_InteractionInstance& Option = InteractionInstances[i];
+		const FGGS_InteractionOption& Option = InteractionOptions[i];
 		if (EventData.SmartObjectHandle == Option.RequestResult.SmartObjectHandle && EventData.SlotHandle == Option.RequestResult.SlotHandle)
 		{
 			if (EventData.Reason == ESmartObjectChangeReason::OnOccupied || EventData.Reason == ESmartObjectChangeReason::OnReleased || EventData.Reason == ESmartObjectChangeReason::OnClaimed)
@@ -214,24 +170,25 @@ void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObj
 	}
 }
 
-void UGGS_InteractionSystemComponent::OnInteractionInstancesChanged()
+void UGGS_InteractionSystemComponent::OnInteractionOptionsChanged()
 {
-	OnInteractionInstancesChangedEvent.Broadcast();
+	OnInteractionOptionsChangedEvent.Broadcast();
 }
 
-void UGGS_InteractionSystemComponent::OnInteractionStateChanged(bool bPrevState)
+void UGGS_InteractionSystemComponent::OnInteractingStateChanged(bool bPrevState)
 {
-	if (IsValid(InteractActor) && InteractActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
+	if (IsValid(InteractableActor) && InteractableActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
 	{
 		if (bInteracting)
 		{
-			IGGS_InteractableInterface::Execute_OnInteractionBegin(InteractActor,GetOwner());
-		}else
+			IGGS_InteractableInterface::Execute_OnInteractionStarted(InteractableActor, GetOwner());
+		}
+		else
 		{
-			IGGS_InteractableInterface::Execute_OnInteractionEnd(InteractActor,GetOwner());
+			IGGS_InteractableInterface::Execute_OnInteractionEnded(InteractableActor, GetOwner());
 		}
 	}
-	OnInteractionStateChangedEvent.Broadcast(bInteracting);
+	OnInteractingStateChangedEvent.Broadcast(bInteracting);
 }
 
 void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
@@ -244,16 +201,16 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 	}
 
 	// getting new options for current interact actor.
-	TArray<FGGS_InteractionInstance> NewOptions;
+	TArray<FGGS_InteractionOption> NewOptions;
 	{
 		TArray<FSmartObjectRequestResult> Results;
-		if (IsValid(InteractActor) && FindSmartObjectsInActor(InteractActor, Results))
+		if (IsValid(InteractableActor) && UGGS_SmartObjectFunctionLibrary::FindSmartObjectsWithInteractionEntranceInActor(GetSmartObjectRequestFilter(), InteractableActor, Results, GetOwner()))
 		{
 			for (int32 i = 0; i < Results.Num(); i++)
 			{
-				FGGS_InteractionInstance Option;
+				FGGS_InteractionOption Option;
 				UGGS_InteractionDefinition* FoundDefinition;
-				if (UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(this, Results[i].SlotHandle, FoundDefinition))
+				if (UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSmartObjectSlot(this, Results[i].SlotHandle, FoundDefinition))
 				{
 					Option.Definition = FoundDefinition;
 					Option.SlotState = Subsystem->GetSlotState(Results[i].SlotHandle);
@@ -269,14 +226,14 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 	// check any options changed.
 	bool bOptionsChanged = false;
 	{
-		if (NewOptions.Num() == InteractionInstances.Num())
+		if (NewOptions.Num() == InteractionOptions.Num())
 		{
 			NewOptions.Sort();
 
 			for (int OptionIndex = 0; OptionIndex < NewOptions.Num(); OptionIndex++)
 			{
-				const FGGS_InteractionInstance& NewOption = NewOptions[OptionIndex];
-				const FGGS_InteractionInstance& CurrentOption = InteractionInstances[OptionIndex];
+				const FGGS_InteractionOption& NewOption = NewOptions[OptionIndex];
+				const FGGS_InteractionOption& CurrentOption = InteractionOptions[OptionIndex];
 
 				if (NewOption != CurrentOption)
 				{
@@ -294,7 +251,7 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 	if (bOptionsChanged)
 	{
 		// unregister event callbacks for existing options.
-		for (FGGS_InteractionInstance& Option : InteractionInstances)
+		for (FGGS_InteractionOption& Option : InteractionOptions)
 		{
 			if (Option.DelegateHandle.IsValid())
 			{
@@ -306,21 +263,21 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 			}
 		}
 
-		InteractionInstances = NewOptions;
+		InteractionOptions = NewOptions;
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractionOptions, this)
 
-		INTERACTION_RLOG(Verbose,TEXT("Interaction options changed, nums of options:%d"),InteractionInstances.Num())
+		INTERACTION_RLOG(Verbose, TEXT("Interaction options changed, nums of options:%d"), InteractionOptions.Num())
 
 		// register slot event callbacks.
-		for (int32 i = 0; i < InteractionInstances.Num(); i++)
+		for (int32 i = 0; i < InteractionOptions.Num(); i++)
 		{
-			FGGS_InteractionInstance& Option = InteractionInstances[i];
+			FGGS_InteractionOption& Option = InteractionOptions[i];
 			if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Option.RequestResult.SlotHandle))
 			{
 				Option.DelegateHandle = OnEventDelegate->AddUObject(this, &ThisClass::OnSmartObjectEventCallback);
 			}
 		}
 
-		OnInteractionInstancesChanged();
+		OnInteractionOptionsChanged();
 	}
 }
-

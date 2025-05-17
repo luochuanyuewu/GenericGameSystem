@@ -4,6 +4,7 @@
 #include "Interaction/GGS_SmartObjectFunctionLibrary.h"
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
 #include "GameplayBehaviorConfig.h"
+#include "SmartObjectBlueprintFunctionLibrary.h"
 #include "SmartObjectDefinition.h"
 #include "Engine/World.h"
 #include "SmartObjectSubsystem.h"
@@ -19,7 +20,7 @@ UGameplayBehaviorConfig* UGGS_SmartObjectFunctionLibrary::GetGameplayBehaviorCon
 }
 
 bool UGGS_SmartObjectFunctionLibrary::FindGameplayBehaviorConfig(const USmartObjectBehaviorDefinition* BehaviorDefinition, TSubclassOf<UGameplayBehaviorConfig> DesiredClass,
-                                                                         UGameplayBehaviorConfig*& OutConfig)
+                                                                 UGameplayBehaviorConfig*& OutConfig)
 {
 	if (UClass* RealClass = DesiredClass)
 	{
@@ -35,7 +36,33 @@ bool UGGS_SmartObjectFunctionLibrary::FindGameplayBehaviorConfig(const USmartObj
 	return false;
 }
 
-bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, UGGS_InteractionDefinition*& OutDefinition)
+bool UGGS_SmartObjectFunctionLibrary::FindSmartObjectsWithInteractionEntranceInActor(const FSmartObjectRequestFilter& Filter, AActor* SearchActor, TArray<FSmartObjectRequestResult>& OutResults,
+                                                                                     const AActor* UserActor)
+{
+	if (!IsValid(SearchActor))
+	{
+		return false;
+	}
+	TArray<FSmartObjectRequestResult> Results;
+	USmartObjectBlueprintFunctionLibrary::FindSmartObjectsInActor(Filter, SearchActor, Results, UserActor);
+	if (Results.IsEmpty())
+	{
+		return false;
+	}
+
+	// filter results which has definiton entry.
+	for (int32 i = 0; i < Results.Num(); i++)
+	{
+		UGGS_InteractionDefinition* FoundDefinition;
+		if (FindInteractionDefinitionFromSmartObjectSlot(SearchActor, Results[i].SlotHandle, FoundDefinition))
+		{
+			OutResults.Add(Results[i]);
+		}
+	}
+	return !OutResults.IsEmpty();
+}
+
+bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSmartObjectSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, UGGS_InteractionDefinition*& OutDefinition)
 {
 	if (WorldContext && WorldContext->GetWorld() && SmartObjectSlotHandle.IsValid())
 	{
@@ -44,18 +71,16 @@ bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSlot(UObject*
 			const FSmartObjectSlotView SlotView = Subsystem->GetSlotView(SmartObjectSlotHandle);
 			if (SlotView.IsValid() && SlotView.GetSlotHandle().IsValid())
 			{
-				if (const FGGS_SmartObjectInteractionEntryData* Entry = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntryData>())
+				if (const FGGS_SmartObjectInteractionEntranceData* Entry = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntranceData>())
 				{
 					if (Entry->Definition)
 					{
 						OutDefinition = Entry->Definition;
 						return true;
 					}
-
 				}
 			}
 		}
 	}
 	return false;
 }
-
