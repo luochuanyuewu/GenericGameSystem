@@ -20,25 +20,29 @@ class GENERICGAMESYSTEM_API UGGS_GameplayBehaviorConfig_InteractionWithAbility :
 	GENERATED_BODY()
 
 public:
-
 	UGGS_GameplayBehaviorConfig_InteractionWithAbility();
-	
+
 	/**
-	 * The ability to grant and activate when interaction begin.
-	 * The ability has to be ServerOnly/ServerInitiated, and triggered from event.
+	 * The ability to grant and activate when interaction begins.
+	 * @attention Must be Instanced Ability, Must not be LocalOnly. Doesn't support event triggered ability.
+	 * 交互开始后会赋予并执行的技能。
+	 * @注意 必须是实例化的技能，不能是LocalOnly。不支持通过事件触发的技能。
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Interaction")
 	TSoftClassPtr<UGameplayAbility> AbilityToGrant;
 
+	/**
+	 * The ability level.
+	 * @details You can use levels to make distinctions in visual, e.g. 0~10 each corresponds to a different pickup visual effect.
+	 * 交互技能的等级。
+	 * @细节 你可以使用等级来做表现上的区分，比如0~10分别对应不同的拾取视觉效果。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	int32 AbilityLevel{0};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	FGameplayTag AbilityTriggeringTag;
-
-	/** The widget to show for this kind of interaction. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-	TSoftClassPtr<UUserWidget> InteractionWidgetClass;
+	// /** The widget to show for this kind of interaction. */
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+	// TSoftClassPtr<UUserWidget> InteractionWidgetClass;
 
 #if WITH_EDITORONLY_DATA
 	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;

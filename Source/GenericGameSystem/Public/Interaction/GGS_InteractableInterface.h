@@ -25,6 +25,13 @@ class GENERICGAMESYSTEM_API IGGS_InteractableInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	/**
+	 * Return an optional friendly name of this interactable actor.
+	 * 返回一个该Actor的可选友好名称。
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
+	FText GetInteractionDisplayName() const;
+
+	/**
 	 * Called when this actor is selected by the interaction system
 	 * 当该Actor被交互系统选择时调用。
 	 * @param Instigator Usually the player 通常是玩家。

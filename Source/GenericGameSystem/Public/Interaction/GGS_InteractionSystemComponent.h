@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FInteractableActorChangedSignature,
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractingStateChangedSignature, bool, bInteracting);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPotentialActorsNumChangedSignature, int32, ActorsNum);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractableActorNumChangedSignature, int32, ActorsNum);
 
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(GGS), meta=(BlueprintSpawnableComponent))
@@ -33,9 +33,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem", meta=(DefaultToSelf="Actor"))
 	static UGGS_InteractionSystemComponent* GetInteractionSystemComponent(const AActor* Actor);
-
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
 	void CycleInteractableActors(bool bNext);
@@ -54,7 +51,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void SetInteractableActors(TArray<AActor*> NewActors);
 
+	void SetInteractableActorsNum(int32 NewNum);
+
 	TArray<AActor*> GetInteractableActors() const { return InteractableActors; }
+
+	int32 GetNumOfInteractableActors() const { return NumsOfInteractableActors; }
+
 	/**
 	 * Set the actor you want to interact with.
 	 * @param InActor The actor you want to interact with.
@@ -66,6 +68,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FInteractableActorChangedSignature OnInteractableActorChangedEvent;
+
+	UPROPERTY(BlueprintAssignable)
+	FInteractableActorNumChangedSignature OnInteractableActorNumChangedEvent;
 
 	UPROPERTY(BlueprintAssignable)
 	FInteractingStateChangedSignature OnInteractingStateChangedEvent;
@@ -101,6 +106,9 @@ protected:
 	virtual void OnInteractableActorChanged(AActor* OldActor);
 
 	UFUNCTION()
+	virtual void OnInteractableActorsNumChanged(int32 ActorsNum);
+
+	UFUNCTION()
 	virtual void OnSmartObjectEventCallback(const FSmartObjectEventData& EventData);
 
 	UFUNCTION()
@@ -122,6 +130,13 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	TArray<TObjectPtr<AActor>> InteractableActors;
+
+	/**
+	 * Num of potential interactable actors, replicated to owning client.
+	 * 潜在可交互Actors数量，同步到Owning客户端。
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnInteractableActorsNumChanged, Category="GGS|InteractionSystem")
+	int32 NumsOfInteractableActors{0};
 
 	/**
 	 * The current selected interactable actor. will build interaction options around this one.

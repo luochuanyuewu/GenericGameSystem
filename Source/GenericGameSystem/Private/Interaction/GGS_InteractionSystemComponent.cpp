@@ -28,6 +28,7 @@ void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FL
 	Params.bIsPushBased = true;
 	Params.Condition = COND_OwnerOnly;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractableActor, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, NumsOfInteractableActors, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bInteracting, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractionOptions, Params);
 }
@@ -35,15 +36,6 @@ void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FL
 UGGS_InteractionSystemComponent* UGGS_InteractionSystemComponent::GetInteractionSystemComponent(const AActor* Actor)
 {
 	return IsValid(Actor) ? Actor->FindComponentByClass<UGGS_InteractionSystemComponent>() : nullptr;
-}
-
-
-// Called every frame
-void UGGS_InteractionSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UGGS_InteractionSystemComponent::CycleInteractableActors_Implementation(bool bNext)
@@ -86,6 +78,7 @@ void UGGS_InteractionSystemComponent::SetInteractableActors(TArray<AActor*> NewA
 	}
 
 	InteractableActors = NewActors;
+	SetInteractableActorsNum(InteractableActors.Num());
 
 	if (!bInteracting)
 	{
@@ -101,6 +94,17 @@ void UGGS_InteractionSystemComponent::SetInteractableActors(TArray<AActor*> NewA
 				SetInteractableActor(nullptr);
 			}
 		}
+	}
+}
+
+void UGGS_InteractionSystemComponent::SetInteractableActorsNum(int32 NewNum)
+{
+	if (NewNum != NumsOfInteractableActors)
+	{
+		const int32 PrevNum = NumsOfInteractableActors;
+		NumsOfInteractableActors = NewNum;
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, NumsOfInteractableActors, this)
+		OnInteractableActorsNumChanged(PrevNum);
 	}
 }
 
@@ -123,9 +127,13 @@ FSmartObjectRequestFilter UGGS_InteractionSystemComponent::GetSmartObjectRequest
 
 void UGGS_InteractionSystemComponent::SetInteracting(bool bNewState)
 {
-	bool prevState = bInteracting;
-	COMPARE_ASSIGN_AND_MARK_PROPERTY_DIRTY(ThisClass, bInteracting, bNewState, this);
-	OnInteractingStateChanged(prevState);
+	if (bInteracting != bNewState)
+	{
+		bool prevState = bInteracting;
+		bInteracting = bNewState;
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bInteracting, this);
+		OnInteractingStateChanged(prevState);
+	}
 }
 
 bool UGGS_InteractionSystemComponent::IsInteracting() const
@@ -151,6 +159,11 @@ void UGGS_InteractionSystemComponent::OnInteractableActorChanged(AActor* OldActo
 	}
 
 	OnInteractableActorChangedEvent.Broadcast(OldActor, InteractableActor);
+}
+
+void UGGS_InteractionSystemComponent::OnInteractableActorsNumChanged(int32 PrevNum)
+{
+	OnInteractableActorNumChangedEvent.Broadcast(NumsOfInteractableActors);
 }
 
 void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObjectEventData& EventData)
@@ -179,11 +192,11 @@ void UGGS_InteractionSystemComponent::OnInteractingStateChanged(bool bPrevState)
 {
 	if (IsValid(InteractableActor) && InteractableActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
 	{
-		if (bInteracting)
+		if (!bPrevState && bInteracting)
 		{
 			IGGS_InteractableInterface::Execute_OnInteractionStarted(InteractableActor, GetOwner());
 		}
-		else
+		if (bPrevState && !bInteracting)
 		{
 			IGGS_InteractableInterface::Execute_OnInteractionEnded(InteractableActor, GetOwner());
 		}
