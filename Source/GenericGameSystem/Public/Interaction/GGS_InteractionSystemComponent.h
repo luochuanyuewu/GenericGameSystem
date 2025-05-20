@@ -169,4 +169,6 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractingStateChanged)
 	bool bInteracting{false};
+
+	TMap<FSmartObjectSlotHandle,FDelegateHandle> SlotCallbacks;
 };

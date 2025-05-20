@@ -185,6 +185,10 @@ void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObj
 
 void UGGS_InteractionSystemComponent::OnInteractionOptionsChanged()
 {
+	for (FGGS_InteractionOption& InteractionOption : InteractionOptions)
+	{
+		INTERACTION_RLOG(Verbose, TEXT("Available Options:%s"), *InteractionOption.ToString())
+	}
 	OnInteractionOptionsChangedEvent.Broadcast();
 }
 
@@ -264,16 +268,37 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 	if (bOptionsChanged)
 	{
 		// unregister event callbacks for existing options.
+		for (int32 i = 0; i < InteractionOptions.Num(); i++)
+		{
+			auto& Handle = InteractionOptions[i].RequestResult.SlotHandle;
+			if (SlotCallbacks.Contains(Handle))
+			{
+				if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Handle))
+				{
+					OnEventDelegate->Remove(SlotCallbacks[Handle]);
+					SlotCallbacks.Remove(Handle);
+				}
+			}
+		}
+
 		for (FGGS_InteractionOption& Option : InteractionOptions)
 		{
-			if (Option.DelegateHandle.IsValid())
+			if (SlotCallbacks.Contains(Option.RequestResult.SlotHandle))
 			{
 				if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Option.RequestResult.SlotHandle))
 				{
-					OnEventDelegate->Remove(Option.DelegateHandle);
-					Option.DelegateHandle.Reset();
+					OnEventDelegate->Remove(SlotCallbacks[Option.RequestResult.SlotHandle]);
+					SlotCallbacks.Remove(Option.RequestResult.SlotHandle);
 				}
 			}
+			// if (Option.DelegateHandle.IsValid())
+			// {
+			// 	if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Option.RequestResult.SlotHandle))
+			// 	{
+			// 		OnEventDelegate->Remove(Option.DelegateHandle);
+			// 		Option.DelegateHandle.Reset();
+			// 	}
+			// }
 		}
 
 		InteractionOptions = NewOptions;
@@ -282,12 +307,22 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 		INTERACTION_RLOG(Verbose, TEXT("Interaction options changed, nums of options:%d"), InteractionOptions.Num())
 
 		// register slot event callbacks.
+		// for (int32 i = 0; i < InteractionOptions.Num(); i++)
+		// {
+		// 	FGGS_InteractionOption& Option = InteractionOptions[i];
+		// 	if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Option.RequestResult.SlotHandle))
+		// 	{
+		// 		Option.DelegateHandle = OnEventDelegate->AddUObject(this, &ThisClass::OnSmartObjectEventCallback);
+		// 	}
+		// }
+
 		for (int32 i = 0; i < InteractionOptions.Num(); i++)
 		{
-			FGGS_InteractionOption& Option = InteractionOptions[i];
-			if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Option.RequestResult.SlotHandle))
+			auto& Handle = InteractionOptions[i].RequestResult.SlotHandle;
+			if (FOnSmartObjectEvent* OnEventDelegate = Subsystem->GetSlotEventDelegate(Handle))
 			{
-				Option.DelegateHandle = OnEventDelegate->AddUObject(this, &ThisClass::OnSmartObjectEventCallback);
+				FDelegateHandle DelegateHandle = OnEventDelegate->AddUObject(this, &ThisClass::OnSmartObjectEventCallback);
+				SlotCallbacks.Emplace(Handle, DelegateHandle);
 			}
 		}
 

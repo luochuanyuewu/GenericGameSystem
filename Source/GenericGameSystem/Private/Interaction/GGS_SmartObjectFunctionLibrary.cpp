@@ -8,6 +8,7 @@
 #include "SmartObjectDefinition.h"
 #include "Engine/World.h"
 #include "SmartObjectSubsystem.h"
+#include "Interaction/GGS_InteractionDefinition.h"
 
 UGameplayBehaviorConfig* UGGS_SmartObjectFunctionLibrary::GetGameplayBehaviorConfig(const USmartObjectBehaviorDefinition* BehaviorDefinition)
 {
@@ -73,9 +74,9 @@ bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSmartObjectSl
 			{
 				if (const FGGS_SmartObjectInteractionEntranceData* Entry = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntranceData>())
 				{
-					if (Entry->Definition)
+					if (!Entry->DefinitionDA.IsNull())
 					{
-						OutDefinition = Entry->Definition;
+						OutDefinition = Entry->DefinitionDA.LoadSynchronous();
 						return true;
 					}
 				}

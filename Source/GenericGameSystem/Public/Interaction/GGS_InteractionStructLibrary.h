@@ -29,9 +29,9 @@ struct GENERICGAMESYSTEM_API FGGS_SmartObjectInteractionEntranceData : public FS
 	 * @attention It's replicated cross network.
 	 * 可自定义的对象，包含玩家交互所需的所有静态数据。
 	 * @注意 它通过网络进行同步。
-	 */
-	UPROPERTY(EditAnywhere, Category="Interaction", Instanced)
-	TObjectPtr<UGGS_InteractionDefinition> Definition;
+	 */	
+	UPROPERTY(EditAnywhere, Category="Interaction",meta=(DisplayName="Definition"))
+	TSoftObjectPtr<UGGS_InteractionDefinition> DefinitionDA{nullptr};
 };
 
 /**
@@ -54,14 +54,14 @@ struct GENERICGAMESYSTEM_API FGGS_InteractionOption
 	 * The smart object associated with this option.
 	 * 与此交互选项关联的智能对象及其槽。
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NotReplicated, Category="Interaction")
 	FSmartObjectRequestResult RequestResult;
 
 	/**
 	 * The smart object behavior definition associated with this option.
 	 * 与此交互选项关联的智能对象行为定义。
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,NotReplicated, Category="Interaction")
 	TObjectPtr<const USmartObjectBehaviorDefinition> BehaviorDefinition;
 
 	/**
@@ -78,14 +78,10 @@ struct GENERICGAMESYSTEM_API FGGS_InteractionOption
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	ESmartObjectSlotState SlotState{ESmartObjectSlotState::Free};
 
-	// interally, not replicated.
-	FDelegateHandle DelegateHandle;
-
 	friend bool operator==(const FGGS_InteractionOption& Lhs, const FGGS_InteractionOption& RHS)
 	{
 		return Lhs.Definition == RHS.Definition
 			&& Lhs.RequestResult == RHS.RequestResult
-			&& Lhs.BehaviorDefinition == RHS.BehaviorDefinition
 			&& Lhs.SlotIndex == RHS.SlotIndex
 			&& Lhs.SlotState == RHS.SlotState;
 	}
@@ -99,4 +95,6 @@ struct GENERICGAMESYSTEM_API FGGS_InteractionOption
 	{
 		return Lhs.SlotIndex < RHS.SlotIndex;
 	}
+
+	FString ToString() const;
 };

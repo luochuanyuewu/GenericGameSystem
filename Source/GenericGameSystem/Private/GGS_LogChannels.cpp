@@ -5,7 +5,8 @@
 
 #include "GameplayBehavior.h"
 #include "Abilities/GameplayAbility.h"
-
+#include "GameplayBehavior.h"
+#include "GameplayTask.h"
 DEFINE_LOG_CATEGORY(LogGGS_Interaction)
 
 FString GetGGSLogContextString(const UObject* ContextObject)
@@ -38,7 +39,7 @@ FString GetGGSLogContextString(const UObject* ContextObject)
 	{
 		Role = Ability->GetAvatarActorFromActorInfo()->GetLocalRole();
 		Name = Ability->GetAvatarActorFromActorInfo()->GetName();
-	}		
+	}
 	else if (IsValid(ContextObject))
 	{
 		Name = ContextObject->GetName();
