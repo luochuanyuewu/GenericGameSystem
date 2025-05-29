@@ -32,9 +32,9 @@ protected:
 	// virtual bool OnIsSelectableOrNavigableInternal(UObject* SelectedItem) override;
 
 	/**
-		 * EntryWidgetFactories allows you dynamically select Entry Widget Class based on your own rules.
-		 * EntryWidgetFactories 允许你根据你自己的规则动态地选择Entry Widget Class。
-		 */
+	 * EntryWidgetFactories allows you dynamically select Entry Widget Class based on your own rules.
+	 * EntryWidgetFactories 允许你根据你自己的规则动态地选择Entry Widget Class。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ListEntries", meta = (IsBindableEvent = "True"))
 	TArray<TObjectPtr<UGUIS_WidgetFactory>> EntryWidgetFactories;
 };

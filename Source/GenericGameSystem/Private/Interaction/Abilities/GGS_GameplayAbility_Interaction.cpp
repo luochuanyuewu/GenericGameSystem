@@ -7,6 +7,7 @@
 #include "SmartObjectBlueprintFunctionLibrary.h"
 #include "Interaction/GGS_InteractionDefinition.h"
 #include "Interaction/GGS_InteractionSystemComponent.h"
+#include "Misc/DataValidation.h"
 
 UGGS_GameplayAbility_Interaction::UGGS_GameplayAbility_Interaction()
 {
@@ -77,6 +78,34 @@ bool UGGS_GameplayAbility_Interaction::TryClaimInteraction(int32 Index, FSmartOb
 	return true;
 }
 
+
 void UGGS_GameplayAbility_Interaction::OnInteractActorChanged_Implementation(AActor* OldActor, AActor* NewActor)
 {
 }
+
+#if WITH_EDITORONLY_DATA
+EDataValidationResult UGGS_GameplayAbility_Interaction::IsDataValid(class FDataValidationContext& Context) const
+{
+	if (ReplicationPolicy != EGameplayAbilityReplicationPolicy::ReplicateYes)
+	{
+		Context.AddError(FText::FromString(TEXT("Core Interaction ability must be Replicated to allow client->server communications via RPC.")));
+		return EDataValidationResult::Invalid;
+	}
+	if (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalOnly || NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerOnly)
+	{
+		Context.AddError(FText::FromString(TEXT("Core Interaction ability must not be Local/Server only.")));
+		return EDataValidationResult::Invalid;
+	}
+	if (!AbilityTriggers.IsEmpty())
+	{
+		Context.AddError(FText::FromString(TEXT("Core Interaction ability doesn't allow event triggering!")));
+		return EDataValidationResult::Invalid;
+	}
+	if (InstancingPolicy != EGameplayAbilityInstancingPolicy::InstancedPerActor)
+	{
+		Context.AddError(FText::FromString(TEXT("Core Interaction ability's instancing policy must be InstancedPerActor")));
+		return EDataValidationResult::Invalid;
+	}
+	return Super::IsDataValid(Context);
+}
+#endif
