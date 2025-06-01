@@ -26,14 +26,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
 	void SetAssociatedData(UObject* Data);
 
-	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
+	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction", meta=(DeprecatedFunction, DeprecationMessage="Use RegisterActionsWithFactory"))
 	void RegisterActions();
 
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
-	void UnregisterActions();
+	virtual void RegisterActionsWithFactory(TSoftObjectPtr<UGUIS_UIActionFactory> InActionFactory);
 
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
-	void CancelAction();
+	virtual void UnregisterActions();
+
+	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
+	virtual void CancelAction();
 
 
 	//~ Begin UWidget
@@ -61,7 +64,7 @@ protected:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGUIS_HandleUIActionSignature, const UGUIS_UIAction*, ActionReference);
 
-	UPROPERTY(BlueprintAssignable, Category="GUIS|UIAction")
+	UPROPERTY(BlueprintAssignable, Category="UIAction")
 	FGUIS_HandleUIActionSignature OnHandleUIAction;
 
 private:

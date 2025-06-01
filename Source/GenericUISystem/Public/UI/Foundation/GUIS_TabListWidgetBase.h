@@ -45,13 +45,20 @@ public:
 	// bool GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo);
 
 	/**
-	 * 找到其中一个预注册的选项卡信息。
+	 * get a default registered tab definition by name.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
-	bool GetTabDefinition(const FName TabNameId, UGUIS_TabDefinition*& OutTabDefinition);
+	const UGUIS_TabDefinition* GetTabDefinition(FName TabNameId) const;
+
+	/**
+	 * Find a typed default registered tab definition.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList", meta=(DeterminesOutputType="DesiredClass", DynamicOutputParam="ReturnValue"))
+	const UGUIS_TabDefinition* FindTabDefinition(const FName TabNameId, TSubclassOf<UGUIS_TabDefinition> DesiredClass);
 
 	/** Helper method to get at all the preregistered tab infos */
 	TArray<TObjectPtr<UGUIS_TabDefinition>> GetAllTabDefinitions() { return TabDefinitions; }
+
 	/**
 	 * Toggles whether a specified tab is hidden, can only be called before the switcher is associated。
 	 * 让指定的选项卡进行视觉上的开关，只能在关联Switcher之前调用。
@@ -67,7 +74,7 @@ public:
 	 * @return 是否成功注册？
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
-	bool RegisterDynamicTab(UGUIS_TabDefinition* TabDefinition);
+	bool RegisterDynamicTab(const UGUIS_TabDefinition* TabDefinition);
 
 	/**
 	 * @return 是否第一个选项卡激活？
@@ -131,7 +138,7 @@ protected:
 	 * Elements are removed once they are created.
 	 */
 	UPROPERTY()
-	TMap<FName, TObjectPtr<UGUIS_TabDefinition>> PendingTabLabelInfoMap;
+	TMap<FName, TObjectPtr<const UGUIS_TabDefinition>> PendingTabLabelInfoMap;
 
 #if WITH_EDITOR
 	virtual void ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const override;

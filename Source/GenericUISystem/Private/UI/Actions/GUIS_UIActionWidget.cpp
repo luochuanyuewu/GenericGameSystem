@@ -3,6 +3,7 @@
 
 #include "UI/Actions/GUIS_UIActionWidget.h"
 
+#include "GUIS_LogChannels.h"
 #include "Input/CommonUIInputTypes.h"
 #include "UI/GUIS_GameplayTags.h"
 #include "UI/Actions/GUIS_AsyncAction_ShowModel.h"
@@ -19,12 +20,12 @@ void UGUIS_UIActionWidget::SetAssociatedData(UObject* Data)
 
 void UGUIS_UIActionWidget::RegisterActions()
 {
-	if (!IsValid(ActionFactory))
+	if (!AssociatedData.IsValid())
 	{
 		return;
 	}
 
-	if (!AssociatedData.IsValid())
+	if (!IsValid(ActionFactory))
 	{
 		return;
 	}
@@ -44,6 +45,27 @@ void UGUIS_UIActionWidget::RegisterActions()
 			ActionBindings.Add(RegisterUIActionBinding(BindArgs));
 		}
 	}
+}
+
+void UGUIS_UIActionWidget::RegisterActionsWithFactory(TSoftObjectPtr<UGUIS_UIActionFactory> InActionFactory)
+{
+	if (InActionFactory.IsNull())
+	{
+		UE_LOG(LogGUIS, Warning, TEXT("Passed invalid action factory!"))
+		return;
+	}
+
+	UGUIS_UIActionFactory* Factory = InActionFactory.LoadSynchronous();
+
+	if (Factory == nullptr)
+	{
+		UE_LOG(LogGUIS, Warning, TEXT("Failed to load action factory!"))
+		return;
+	}
+
+	ActionFactory = Factory;
+
+	RegisterActions();
 }
 
 void UGUIS_UIActionWidget::UnregisterActions()

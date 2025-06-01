@@ -53,7 +53,7 @@ void UGUIS_TabListWidgetBase::NativeDestruct()
 // 	return true;
 // }
 
-bool UGUIS_TabListWidgetBase::GetTabDefinition(const FName TabNameId, UGUIS_TabDefinition*& OutTabDefinition)
+const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::GetTabDefinition(FName TabNameId) const
 {
 	const TObjectPtr<UGUIS_TabDefinition>* FoundTabInfo = TabDefinitions.FindByPredicate([&](const TObjectPtr<UGUIS_TabDefinition> TabInfo)-> bool
 	{
@@ -62,11 +62,23 @@ bool UGUIS_TabListWidgetBase::GetTabDefinition(const FName TabNameId, UGUIS_TabD
 
 	if (!FoundTabInfo)
 	{
-		return false;
+		return nullptr;
 	}
 
-	OutTabDefinition = *FoundTabInfo;
-	return true;
+	return *FoundTabInfo;
+}
+
+const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::FindTabDefinition(const FName TabNameId, TSubclassOf<UGUIS_TabDefinition> DesiredClass)
+{
+	if (DesiredClass != nullptr)
+	{
+		const UGUIS_TabDefinition* OutTabDefinition = GetTabDefinition(TabNameId);
+		if (OutTabDefinition->GetClass()->IsChildOf(DesiredClass))
+		{
+			return OutTabDefinition;
+		}
+	}
+	return nullptr;
 }
 
 void UGUIS_TabListWidgetBase::SetTabHiddenState(FName TabNameId, bool bHidden)
@@ -81,7 +93,7 @@ void UGUIS_TabListWidgetBase::SetTabHiddenState(FName TabNameId, bool bHidden)
 	}
 }
 
-bool UGUIS_TabListWidgetBase::RegisterDynamicTab(UGUIS_TabDefinition* TabDefinition)
+bool UGUIS_TabListWidgetBase::RegisterDynamicTab(const UGUIS_TabDefinition* TabDefinition)
 {
 	if (!IsValid(TabDefinition))
 	{
@@ -125,16 +137,16 @@ void UGUIS_TabListWidgetBase::HandlePostLinkedSwitcherChanged()
 
 void UGUIS_TabListWidgetBase::HandleTabCreation_Implementation(FName TabId, UCommonButtonBase* TabButton)
 {
-	UGUIS_TabDefinition* TabDefinition = nullptr;
+	const UGUIS_TabDefinition* TabDefinition = GetTabDefinition(TabId);
 
-	if (!GetTabDefinition(TabId, TabDefinition))
+	if (TabDefinition == nullptr)
 	{
 		TabDefinition = *PendingTabLabelInfoMap.Find(TabId);
 	}
 
 	if (TabButton->GetClass()->ImplementsInterface(UGUIS_TabButtonInterface::StaticClass()))
 	{
-		if (ensureMsgf(TabDefinition, TEXT("A tab button was created with id %s but no label info was specified. RegisterDynamicTab should be used over RegisterTab to provide label info."),
+		if (ensureMsgf(TabDefinition, TEXT("A tab button was created with id %s but no tab definition was specified. RegisterDynamicTab should be used over RegisterTab to provide label info."),
 		               *TabId.ToString()))
 		{
 			IGUIS_TabButtonInterface::Execute_SetTabDefinition(TabButton, TabDefinition);
