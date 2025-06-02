@@ -14,8 +14,8 @@ UGUIS_AsyncAction_PushContentToUILayer::UGUIS_AsyncAction_PushContentToUILayer(c
 }
 
 UGUIS_AsyncAction_PushContentToUILayer* UGUIS_AsyncAction_PushContentToUILayer::PushContentToUILayer(UGUIS_GameUILayout* UILayout,
-                                                                                                   TSoftClassPtr<UCommonActivatableWidget> InWidgetClass, FGameplayTag InLayerName,
-                                                                                                   bool bSuspendInputUntilComplete)
+                                                                                                     TSoftClassPtr<UCommonActivatableWidget> InWidgetClass, FGameplayTag InLayerName,
+                                                                                                     bool bSuspendInputUntilComplete)
 {
 	if (!IsValid(UILayout))
 	{
@@ -44,8 +44,9 @@ UGUIS_AsyncAction_PushContentToUILayer* UGUIS_AsyncAction_PushContentToUILayer::
 	return nullptr;
 }
 
-UGUIS_AsyncAction_PushContentToUILayer* UGUIS_AsyncAction_PushContentToUILayer::PushContentToUILayerForPlayer(APlayerController* PlayerController, TSoftClassPtr<UCommonActivatableWidget> InWidgetClass,
-                                                                                                            FGameplayTag InLayerName, bool bSuspendInputUntilComplete)
+UGUIS_AsyncAction_PushContentToUILayer* UGUIS_AsyncAction_PushContentToUILayer::PushContentToUILayerForPlayer(APlayerController* PlayerController,
+                                                                                                              TSoftClassPtr<UCommonActivatableWidget> InWidgetClass,
+                                                                                                              FGameplayTag InLayerName, bool bSuspendInputUntilComplete)
 {
 	if (!IsValid(PlayerController))
 	{

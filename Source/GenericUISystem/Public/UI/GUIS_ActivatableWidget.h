@@ -37,10 +37,10 @@ public:
 
 protected:
 	/** The desired input mode to use while this UI is activated, for example do you want key presses to still reach the game/player controller? */
-	UPROPERTY(EditDefaultsOnly, Category="GUIS|Input")
+	UPROPERTY(EditDefaultsOnly, Category="Input")
 	EGUIS_ActivatableWidgetInputMode InputConfig = EGUIS_ActivatableWidgetInputMode::Default;
 
 	/** The desired mouse behavior when the game gets input. */
-	UPROPERTY(EditDefaultsOnly, Category="GUIS|Input")
+	UPROPERTY(EditDefaultsOnly, Category="Input")
 	EMouseCaptureMode GameMouseCaptureMode = EMouseCaptureMode::CapturePermanently;
 };

@@ -24,23 +24,24 @@ UCLASS(BlueprintType)
 class GENERICUISYSTEM_API UGUIS_AsyncAction_PushContentToUILayer : public UCancellableAsyncAction
 {
 	GENERATED_UCLASS_BODY()
-
-public:
 	virtual void Cancel() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="GUIS", meta = (WorldContext = "WorldContextObject", BlueprintInternalUseOnly = "true"))
-	static UGUIS_AsyncAction_PushContentToUILayer *PushContentToUILayer(UGUIS_GameUILayout *UILayout,
-																		UPARAM(meta = (AllowAbstract = false)) TSoftClassPtr<UCommonActivatableWidget> WidgetClass,
-																		UPARAM(meta = (Categories = "UI.Layer,GUIS.Layer")) FGameplayTag LayerName, bool bSuspendInputUntilComplete = true);
+	static UGUIS_AsyncAction_PushContentToUILayer* PushContentToUILayer(UGUIS_GameUILayout* UILayout,
+	                                                                    UPARAM(meta = (AllowAbstract = false))
+	                                                                    TSoftClassPtr<UCommonActivatableWidget> WidgetClass,
+	                                                                    UPARAM(meta = (Categories = "UI.Layer,GUIS.Layer"))
+	                                                                    FGameplayTag LayerName, bool bSuspendInputUntilComplete = true);
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="GUIS", meta = (WorldContext = "WorldContextObject", BlueprintInternalUseOnly = "true"))
-	static UGUIS_AsyncAction_PushContentToUILayer *PushContentToUILayerForPlayer(APlayerController *PlayerController,
-																				 UPARAM(meta = (AllowAbstract = false)) TSoftClassPtr<UCommonActivatableWidget> WidgetClass,
-																				 UPARAM(meta = (Categories = "UI.Layer,GUIS.Layer")) FGameplayTag LayerName, bool bSuspendInputUntilComplete = true);
+	static UGUIS_AsyncAction_PushContentToUILayer* PushContentToUILayerForPlayer(APlayerController* PlayerController,
+	                                                                             UPARAM(meta = (AllowAbstract = false))
+	                                                                             TSoftClassPtr<UCommonActivatableWidget> WidgetClass,
+	                                                                             UPARAM(meta = (Categories = "UI.Layer,GUIS.Layer"))
+	                                                                             FGameplayTag LayerName, bool bSuspendInputUntilComplete = true);
 
 	virtual void Activate() override;
 
-public:
 	UPROPERTY(BlueprintAssignable)
 	FPushContentToLayerForPlayerAsyncDelegate BeforePush;
 
