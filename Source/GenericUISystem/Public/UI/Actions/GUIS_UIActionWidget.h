@@ -26,7 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
 	void SetAssociatedData(UObject* Data);
 
-	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction", meta=(DeprecatedFunction, DeprecationMessage="Use RegisterActionsWithFactory"))
+	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")
 	void RegisterActions();
 
 	UFUNCTION(BlueprintCallable, Category="GUIS|UIAction")

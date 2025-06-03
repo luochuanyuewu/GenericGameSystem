@@ -42,7 +42,7 @@ class GENERICUISYSTEM_API UGUIS_UIAction : public UObject
 	TSoftClassPtr<UGUIS_ModalDefinition> GetConfirmationModalClass() const { return ConfirmationModalClass; };
 
 protected:
-	UFUNCTION(BlueprintNativeEvent, Category = "UIAction", meta = (DisplayName = "Is Combatible"))
+	UFUNCTION(BlueprintNativeEvent, Category = "UIAction", meta = (DisplayName = "Is Compatible"))
 	bool IsCompatibleInternal(const UObject* Data) const;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "UIAction", meta = (DisplayName = "Can Invoke"))
