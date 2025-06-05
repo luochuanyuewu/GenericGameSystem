@@ -29,7 +29,7 @@ void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FL
 	Params.Condition = COND_OwnerOnly;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractableActor, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, NumsOfInteractableActors, Params);
-	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, bInteracting, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractingOption, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractionOptions, Params);
 }
 
@@ -125,20 +125,48 @@ FSmartObjectRequestFilter UGGS_InteractionSystemComponent::GetSmartObjectRequest
 	return DefaultRequestFilter;
 }
 
-void UGGS_InteractionSystemComponent::SetInteracting(bool bNewState)
+void UGGS_InteractionSystemComponent::StartInteraction(int32 NewIndex)
 {
-	if (bInteracting != bNewState)
+	if (bInteracting)
 	{
-		bool prevState = bInteracting;
-		bInteracting = bNewState;
-		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bInteracting, this);
-		OnInteractingStateChanged(prevState);
+		INTERACTION_RLOG(Warning, TEXT("Can't start interaction(%d) while already interacting(%d)"), NewIndex, InteractingOption)
+		return;
 	}
+
+	if (!InteractionOptions.IsValidIndex(NewIndex))
+	{
+		INTERACTION_RLOG(Warning, TEXT("Try start invalid interaction(%d)"), NewIndex)
+		return;
+	}
+
+	int32 Prev = InteractingOption;
+	InteractingOption = NewIndex;
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractingOption, this);
+	OnInteractingOptionChanged(Prev);
+}
+
+void UGGS_InteractionSystemComponent::EndInteraction()
+{
+	if (!bInteracting)
+	{
+		INTERACTION_RLOG(Warning, TEXT("no need to end interaction when there's no any active interaction."))
+		return;
+	}
+
+	int32 Prev = InteractingOption;
+	InteractingOption = INDEX_NONE;
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractingOption, this);
+	OnInteractingOptionChanged(Prev);
 }
 
 bool UGGS_InteractionSystemComponent::IsInteracting() const
 {
 	return bInteracting;
+}
+
+int32 UGGS_InteractionSystemComponent::GetInteractingOption() const
+{
+	return InteractingOption;
 }
 
 void UGGS_InteractionSystemComponent::OnInteractableActorChanged(AActor* OldActor)
@@ -192,19 +220,23 @@ void UGGS_InteractionSystemComponent::OnInteractionOptionsChanged()
 	OnInteractionOptionsChangedEvent.Broadcast();
 }
 
-void UGGS_InteractionSystemComponent::OnInteractingStateChanged(bool bPrevState)
+void UGGS_InteractionSystemComponent::OnInteractingOptionChanged(int32 PrevOptionIndex)
 {
+	bool bPrevInteracting = bInteracting;
+	bInteracting = InteractingOption != INDEX_NONE;
+
 	if (IsValid(InteractableActor) && InteractableActor->GetClass()->ImplementsInterface(UGGS_InteractableInterface::StaticClass()))
 	{
-		if (!bPrevState && bInteracting)
+		if (!bPrevInteracting && bInteracting)
 		{
-			IGGS_InteractableInterface::Execute_OnInteractionStarted(InteractableActor, GetOwner());
+			IGGS_InteractableInterface::Execute_OnInteractionStarted(InteractableActor, GetOwner(), InteractingOption);
 		}
-		if (bPrevState && !bInteracting)
+		if (bPrevInteracting && !bInteracting)
 		{
-			IGGS_InteractableInterface::Execute_OnInteractionEnded(InteractableActor, GetOwner());
+			IGGS_InteractableInterface::Execute_OnInteractionEnded(InteractableActor, GetOwner(), PrevOptionIndex);
 		}
 	}
+
 	OnInteractingStateChangedEvent.Broadcast(bInteracting);
 }
 

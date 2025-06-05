@@ -51,14 +51,14 @@ public:
 	 * 与该Actor的交互结束时调用。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
-	void OnInteractionStarted(AActor* Instigator);
+	void OnInteractionStarted(AActor* Instigator, int32 Index);
 
 	/**
 	 * Called when interaction with this actor ends
 	 * 与该Actor的交互结束时调用。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
-	void OnInteractionEnded(AActor* Instigator);
+	void OnInteractionEnded(AActor* Instigator, int32 Index);
 
 	/**
 	 * Called when one of the interaction option selected by instigator.

@@ -86,14 +86,26 @@ public:
 	FSmartObjectRequestFilter GetSmartObjectRequestFilter();
 	virtual FSmartObjectRequestFilter GetSmartObjectRequestFilter_Implementation();
 
+	/**
+	 * Set the current interacting option index. 
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
-	void SetInteracting(bool bNewState);
+	virtual void StartInteraction(int32 NewIndex = 0);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
+	virtual void EndInteraction();
 
 	/**
 	 * @return Return currently if any active interacting. 当前是否有交互?
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem")
 	bool IsInteracting() const;
+
+	/**
+	 * @return Get the currently interacting option index. 当前交互选项Index.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GGS|InteractionSystem")
+	int32 GetInteractingOption() const;
 
 	/**
 	 * @return Currently available interaction options. 当前可用交互选项.
@@ -115,7 +127,7 @@ protected:
 	virtual void OnInteractionOptionsChanged();
 
 	UFUNCTION()
-	virtual void OnInteractingStateChanged(bool bPrevState);
+	virtual void OnInteractingOptionChanged(int32 PrevOptionIndex);
 
 	/**
 	 * create new interaction instances  based on new smart object request results. 
@@ -167,8 +179,17 @@ protected:
 	 * Indicating if there's any interaction in progress.
 	 * 表示是否有任何交互进行中。。
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractingStateChanged)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	bool bInteracting{false};
 
-	TMap<FSmartObjectSlotHandle,FDelegateHandle> SlotCallbacks;
+	/**
+	 * The current interacting option index.
+	 * @details -1 means no any interaction in progress.
+	 * 当前交互中的选项下标。
+	 * @细节 -1意味着没有任何交互进行中。
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractingOptionChanged)
+	int32 InteractingOption{INDEX_NONE};
+
+	TMap<FSmartObjectSlotHandle, FDelegateHandle> SlotCallbacks;
 };
