@@ -2,16 +2,46 @@
 
 #pragma once
 
-#include "Common/GUIS_ListEntry.h"
+#include "Input/UIActionBindingHandle.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UObject/SoftObjectPtr.h"
-
 #include "GUIS_GameUISubsystem.generated.h"
 
+class UCommonUserWidget;
+class UGUIS_GameUIContext;
 class FSubsystemCollectionBase;
 class ULocalPlayer;
 class UGUIS_GameUIPolicy;
 class UObject;
+
+USTRUCT(BlueprintType)
+struct FGUIS_UIActionBindingHandle
+{
+	GENERATED_BODY()
+
+	FName Id;
+
+	FUIActionBindingHandle Handle;
+};
+
+USTRUCT(BlueprintType)
+struct FGUIS_UIContextBindingHandle
+{
+	GENERATED_BODY()
+
+	FGUIS_UIContextBindingHandle()
+	{
+	};
+
+	FGUIS_UIContextBindingHandle(ULocalPlayer* InLocalPlayer, UClass* InContextClass);
+
+	UPROPERTY()
+	TObjectPtr<ULocalPlayer> LocalPlayer;
+
+	UPROPERTY()
+	UClass* ContextClass{nullptr};
+};
+
 
 /**
  * This manager is intended to be replaced by whatever your game needs to
@@ -57,13 +87,25 @@ public:
 	virtual void NotifyPlayerRemoved(ULocalPlayer* LocalPlayer);
 	virtual void NotifyPlayerDestroyed(ULocalPlayer* LocalPlayer);
 
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FGUIS_UIActionExecutedDelegate, FName, ActionName);
 
 	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="Target"))
 	void RegisterUIActionBinding(UCommonUserWidget* Target, FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback,
 	                             FGUIS_UIActionBindingHandle& BindingHandle);
 
-	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
-	void UnregisterBinding(UPARAM(ref) FGUIS_UIActionBindingHandle& BindingHandle);
+	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget, meta=(DeprecatedFunction, DeprecationMessage="Use Unregister UI Action Binding For Player"))
+	void UnregisterBinding(UPARAM(ref)
+		FGUIS_UIActionBindingHandle& BindingHandle);
+
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer"))
+	void RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle);
+
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer", DeterminesOutputType="ContextClass", DynamicOutputParam="OutContext", ExpandBoolAsExecs="ReturnValue"))
+	bool FindUIContextForPlayer(ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass, UGUIS_GameUIContext*& OutContext);
+
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer"))
+	void UnregisterUIContextForPlayer(UPARAM(ref)
+		FGUIS_UIContextBindingHandle& BindingHandle);
 
 protected:
 	void SwitchToPolicy(UGUIS_GameUIPolicy* InPolicy);
@@ -72,9 +114,6 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UGUIS_GameUIPolicy> CurrentPolicy = nullptr;
 
+	// TODO, maybe move to each local player's layout info?
 	TArray<FUIActionBindingHandle> BindingHandles;
-
-#pragma region ModalSystem
-
-#pragma endregion
 };

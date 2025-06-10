@@ -6,6 +6,7 @@
 
 #include "GUIS_GameUIPolicy.generated.h"
 
+class UGUIS_GameUIContext;
 class ULocalPlayer;
 class UGUIS_GameUISubsystem;
 class ULocalPlayer;
@@ -32,7 +33,6 @@ struct FGUIS_RootViewportLayoutInfo
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(Transient)
 	TObjectPtr<ULocalPlayer> LocalPlayer = nullptr;
 
@@ -42,20 +42,24 @@ public:
 	UPROPERTY(Transient)
 	bool bAddedToViewport = false;
 
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UGUIS_GameUIContext>> Contexts;
+
 	FGUIS_RootViewportLayoutInfo()
 	{
 	}
 
-	FGUIS_RootViewportLayoutInfo(ULocalPlayer *InLocalPlayer, UGUIS_GameUILayout *InRootLayout, bool bIsInViewport)
+	FGUIS_RootViewportLayoutInfo(ULocalPlayer* InLocalPlayer, UGUIS_GameUILayout* InRootLayout, bool bIsInViewport)
 		: LocalPlayer(InLocalPlayer), RootLayout(InRootLayout), bAddedToViewport(bIsInViewport)
 	{
 	}
 
-	bool operator==(const ULocalPlayer *OtherLocalPlayer) const { return LocalPlayer == OtherLocalPlayer; }
+	bool operator==(const ULocalPlayer* OtherLocalPlayer) const { return LocalPlayer == OtherLocalPlayer; }
 };
 
 /**
- * 
+ * UI policy manages each game ui layout for different local players.
+ * UI 策略管理每一个本地玩家的UI布局。
  */
 UCLASS(Abstract, Blueprintable, Within = GUIS_GameUISubsystem)
 class GENERICUISYSTEM_API UGUIS_GameUIPolicy : public UObject
@@ -64,36 +68,40 @@ class GENERICUISYSTEM_API UGUIS_GameUIPolicy : public UObject
 
 public:
 	template <typename GameUIPolicyClass = UGUIS_GameUIPolicy>
-	static GameUIPolicyClass *GetGameUIPolicyAs(const UObject *WorldContextObject)
+	static GameUIPolicyClass* GetGameUIPolicyAs(const UObject* WorldContextObject)
 	{
 		return Cast<GameUIPolicyClass>(GetGameUIPolicy(WorldContextObject));
 	}
 
-	static UGUIS_GameUIPolicy *GetGameUIPolicy(const UObject *WorldContextObject);
+	static UGUIS_GameUIPolicy* GetGameUIPolicy(const UObject* WorldContextObject);
 
-public:
-	virtual UWorld *GetWorld() const override;
-	UGUIS_GameUISubsystem *GetOwningUIManager() const;
-	UGUIS_GameUILayout *GetRootLayout(const ULocalPlayer *LocalPlayer) const;
+	virtual UWorld* GetWorld() const override;
+	UGUIS_GameUISubsystem* GetOwningSubsystem() const;
+
+	UGUIS_GameUILayout* GetRootLayout(const ULocalPlayer* LocalPlayer) const;
+
+	virtual UGUIS_GameUIContext* GetContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
+	virtual bool AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* NewContext);
+	virtual void RemoveContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 
 	EGUIS_LocalMultiplayerInteractionMode GetLocalMultiplayerInteractionMode() const { return LocalMultiplayerInteractionMode; }
 
-	void RequestPrimaryControl(UGUIS_GameUILayout *Layout);
+	void RequestPrimaryControl(UGUIS_GameUILayout* Layout);
 
 protected:
-	void AddLayoutToViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
-	void RemoveLayoutFromViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	void AddLayoutToViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
+	void RemoveLayoutFromViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
-	virtual void OnRootLayoutAddedToViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	virtual void OnRootLayoutAddedToViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnRootLayoutAddedToViewport"))
-	void BP_OnRootLayoutAddedToViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	void BP_OnRootLayoutAddedToViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
-	virtual void OnRootLayoutRemovedFromViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	virtual void OnRootLayoutRemovedFromViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnRootLayoutRemovedFromViewport"))
-	void BP_OnRootLayoutRemovedFromViewport(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	void BP_OnRootLayoutRemovedFromViewport(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
-	virtual void OnRootLayoutReleased(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	virtual void OnRootLayoutReleased(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
 	/**
 	 *
@@ -101,10 +109,10 @@ protected:
 	 * @param Layout
 	 */
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnRootLayoutReleased"))
-	void BP_OnRootLayoutReleased(ULocalPlayer *LocalPlayer, UGUIS_GameUILayout *Layout);
+	void BP_OnRootLayoutReleased(ULocalPlayer* LocalPlayer, UGUIS_GameUILayout* Layout);
 
-	void CreateLayoutWidget(ULocalPlayer *LocalPlayer);
-	TSubclassOf<UGUIS_GameUILayout> GetLayoutWidgetClass(ULocalPlayer *LocalPlayer);
+	void CreateLayoutWidget(ULocalPlayer* LocalPlayer);
+	TSubclassOf<UGUIS_GameUILayout> GetLayoutWidgetClass(ULocalPlayer* LocalPlayer);
 
 private:
 	EGUIS_LocalMultiplayerInteractionMode LocalMultiplayerInteractionMode = EGUIS_LocalMultiplayerInteractionMode::PrimaryOnly;
@@ -118,10 +126,9 @@ private:
 	UPROPERTY(Transient)
 	TArray<FGUIS_RootViewportLayoutInfo> RootViewportLayouts;
 
-private:
-	void NotifyPlayerAdded(ULocalPlayer *LocalPlayer);
-	void NotifyPlayerRemoved(ULocalPlayer *LocalPlayer);
-	void NotifyPlayerDestroyed(ULocalPlayer *LocalPlayer);
+	void NotifyPlayerAdded(ULocalPlayer* LocalPlayer);
+	void NotifyPlayerRemoved(ULocalPlayer* LocalPlayer);
+	void NotifyPlayerDestroyed(ULocalPlayer* LocalPlayer);
 
 	friend class UGUIS_GameUISubsystem;
 };

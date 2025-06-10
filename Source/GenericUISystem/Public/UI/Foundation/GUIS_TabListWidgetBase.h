@@ -41,6 +41,8 @@ class GENERICUISYSTEM_API UGUIS_TabListWidgetBase : public UCommonTabListWidgetB
 	GENERATED_BODY()
 
 public:
+	UGUIS_TabListWidgetBase();
+
 	// UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS|TabList")
 	// bool GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo);
 
@@ -49,6 +51,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
 	const UGUIS_TabDefinition* GetTabDefinition(FName TabNameId) const;
+
+	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
+	int32 GetTabDefinitionIndex(FName TabNameId) const;
 
 	/**
 	 * Find a typed default registered tab definition.

@@ -53,6 +53,12 @@ void UGUIS_TabListWidgetBase::NativeDestruct()
 // 	return true;
 // }
 
+UGUIS_TabListWidgetBase::UGUIS_TabListWidgetBase()
+{
+	bAutoListenForInput = false;
+	bDeferRebuildingTabList = true;
+}
+
 const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::GetTabDefinition(FName TabNameId) const
 {
 	const TObjectPtr<UGUIS_TabDefinition>* FoundTabInfo = TabDefinitions.FindByPredicate([&](const TObjectPtr<UGUIS_TabDefinition> TabInfo)-> bool
@@ -66,6 +72,18 @@ const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::GetTabDefinition(FName TabNa
 	}
 
 	return *FoundTabInfo;
+}
+
+int32 UGUIS_TabListWidgetBase::GetTabDefinitionIndex(FName TabNameId) const
+{
+	for (int32 i = 0; i < TabDefinitions.Num(); ++i)
+	{
+		if (TabDefinitions[i] && TabDefinitions[i]->TabId == TabNameId)
+		{
+			return i;
+		}
+	}
+	return INDEX_NONE;
 }
 
 const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::FindTabDefinition(const FName TabNameId, TSubclassOf<UGUIS_TabDefinition> DesiredClass)

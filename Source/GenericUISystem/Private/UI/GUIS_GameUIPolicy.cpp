@@ -6,6 +6,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Engine/Engine.h"
 #include "GUIS_LogChannels.h"
+#include "UI/GUIS_GameUIContext.h"
 #include "UI/GUIS_GameUILayout.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIS_GameUIPolicy)
@@ -27,14 +28,14 @@ UGUIS_GameUIPolicy* UGUIS_GameUIPolicy::GetGameUIPolicy(const UObject* WorldCont
 	return nullptr;
 }
 
-UGUIS_GameUISubsystem* UGUIS_GameUIPolicy::GetOwningUIManager() const
+UGUIS_GameUISubsystem* UGUIS_GameUIPolicy::GetOwningSubsystem() const
 {
 	return Cast<UGUIS_GameUISubsystem>(GetOuter());
 }
 
 UWorld* UGUIS_GameUIPolicy::GetWorld() const
 {
-	if (UGUIS_GameUISubsystem* Subsystem = GetOwningUIManager())
+	if (UGUIS_GameUISubsystem* Subsystem = GetOwningSubsystem())
 	{
 		return Subsystem->GetGameInstance()->GetWorld();
 	}
@@ -45,6 +46,53 @@ UGUIS_GameUILayout* UGUIS_GameUIPolicy::GetRootLayout(const ULocalPlayer* LocalP
 {
 	const FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer);
 	return LayoutInfo ? LayoutInfo->RootLayout : nullptr;
+}
+
+UGUIS_GameUIContext* UGUIS_GameUIPolicy::GetContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass)
+{
+	if (const FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		for (int32 i = 0; i < LayoutInfo->Contexts.Num(); i++)
+		{
+			if (LayoutInfo->Contexts[i] && LayoutInfo->Contexts[i]->GetClass() == ContextClass)
+			{
+				return LayoutInfo->Contexts[i];
+			}
+		}
+	}
+	return nullptr;
+}
+
+bool UGUIS_GameUIPolicy::AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* NewContext)
+{
+	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		if (const UObject* ExistingContext = GetContext(LocalPlayer, NewContext->GetClass()))
+		{
+			UE_LOG(LogGUIS, Warning, TEXT("[%s] is trying to add repeat context of type(%s) for %s, which is not allowed!"), *GetName(), *NewContext->GetClass()->GetName(), *GetNameSafe(LocalPlayer));
+			return false;
+		}
+		LayoutInfo->Contexts.Add(NewContext);
+		return true;
+	}
+	return false;
+}
+
+void UGUIS_GameUIPolicy::RemoveContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass)
+{
+	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		int32 FoundContext = INDEX_NONE;
+		for (int32 i = 0; i < LayoutInfo->Contexts.Num(); i++)
+		{
+			if (LayoutInfo->Contexts[i] && LayoutInfo->Contexts[i]->GetClass() == ContextClass)
+			{
+				FoundContext = i;
+				break;
+			}
+		}
+		LayoutInfo->Contexts.RemoveAt(FoundContext);
+	}
 }
 
 void UGUIS_GameUIPolicy::NotifyPlayerAdded(ULocalPlayer* LocalPlayer)
@@ -68,6 +116,8 @@ void UGUIS_GameUIPolicy::NotifyPlayerRemoved(ULocalPlayer* LocalPlayer)
 	{
 		RemoveLayoutFromViewport(LocalPlayer, LayoutInfo->RootLayout);
 		LayoutInfo->bAddedToViewport = false;
+
+		LayoutInfo->Contexts.Empty();
 
 		if (LocalMultiplayerInteractionMode == EGUIS_LocalMultiplayerInteractionMode::SingleToggle && !LocalPlayer->IsPrimaryPlayer())
 		{

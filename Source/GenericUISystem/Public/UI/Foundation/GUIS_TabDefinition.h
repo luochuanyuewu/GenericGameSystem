@@ -22,29 +22,29 @@ class GENERICUISYSTEM_API UGUIS_TabDefinition : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	FName TabId;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	FText TabText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	FSlateBrush IconBrush;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	bool bHidden;
 
 	/**
 	 * A common button which implements GUIS_TabButtonInterface to received Label infomation.
 	 * 指定用作Tab按钮的Widget类型，该类型必须实现GUIS_TabButtonInterface以接收Label信息。
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS", meta = (MustImplement = "/Script/GenericUISystem.GUIS_TabButtonInterface", AllowAbstract = "false"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition", meta = (MustImplement = "/Script/GenericUISystem.GUIS_TabButtonInterface", AllowAbstract = "false"))
 	TSoftClassPtr<UCommonButtonBase> TabButtonType;
 
 	/**
 	 * 该所呈现的Widget（可选），如果有指定，那么需要调用
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GUIS")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	TSoftClassPtr<UCommonActivatableWidget> TabContentType;
 
 	UPROPERTY(Transient)

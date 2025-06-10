@@ -1,17 +1,24 @@
 ﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/GUIS_GameUISubsystem.h"
-
 #include "GUIS_GenericUISystemSettings.h"
+#include "CommonUserWidget.h"
 #include "GUIS_LogChannels.h"
 #include "Engine/GameInstance.h"
 #include "Input/CommonUIInputTypes.h"
+#include "UI/GUIS_GameUIContext.h"
 #include "UI/GUIS_GameUIPolicy.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIS_GameUISubsystem)
 
 class FSubsystemCollectionBase;
 class UClass;
+
+FGUIS_UIContextBindingHandle::FGUIS_UIContextBindingHandle(ULocalPlayer* InLocalPlayer, UClass* InContextClass)
+{
+	LocalPlayer = InLocalPlayer;
+	ContextClass = InContextClass;
+}
 
 void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -23,9 +30,10 @@ void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		if (PolicyClass)
 		{
 			SwitchToPolicy(NewObject<UGUIS_GameUIPolicy>(this, PolicyClass));
-		}else
+		}
+		else
 		{
-			UE_LOG(LogGUIS,Error,TEXT("GUIS_GameUISubsystem::Initialize Failed, Missing GameUIPolicyClass in GenericUISystemSettings!!!"));
+			UE_LOG(LogGUIS, Error, TEXT("GUIS_GameUISubsystem::Initialize Failed, Missing GameUIPolicyClass in GenericUISystemSettings!!!"));
 		}
 	}
 }
@@ -40,7 +48,9 @@ void UGUIS_GameUISubsystem::Deinitialize()
 bool UGUIS_GameUISubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
 	if (CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance())
+	{
 		return false;
+	}
 
 	TArray<UClass*> ChildClasses;
 	GetDerivedClasses(GetClass(), ChildClasses, false);
@@ -110,6 +120,41 @@ void UGUIS_GameUISubsystem::UnregisterBinding(FGUIS_UIActionBindingHandle& Bindi
 
 		BindingHandle.Handle.Unregister();
 		BindingHandles.Remove(BindingHandle.Handle);
+	}
+}
+
+void UGUIS_GameUISubsystem::RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle)
+{
+	if (LocalPlayer && CurrentPolicy && Context)
+	{
+		if (CurrentPolicy->AddContext(LocalPlayer, Context))
+		{
+			BindingHandle = FGUIS_UIContextBindingHandle(LocalPlayer, Context->GetClass());
+		}
+	}
+}
+
+bool UGUIS_GameUISubsystem::FindUIContextForPlayer(ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass, UGUIS_GameUIContext*& OutContext)
+{
+	if (LocalPlayer && CurrentPolicy && ContextClass != nullptr)
+	{
+		if (UGUIS_GameUIContext* Context = CurrentPolicy->GetContext(LocalPlayer, ContextClass))
+		{
+			if (Context->GetClass() == ContextClass)
+			{
+				OutContext = Context;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void UGUIS_GameUISubsystem::UnregisterUIContextForPlayer(FGUIS_UIContextBindingHandle& BindingHandle)
+{
+	if (BindingHandle.LocalPlayer && BindingHandle.ContextClass && CurrentPolicy)
+	{
+		CurrentPolicy->RemoveContext(BindingHandle.LocalPlayer, BindingHandle.ContextClass);
 	}
 }
 

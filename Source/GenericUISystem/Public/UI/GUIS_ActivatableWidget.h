@@ -24,15 +24,17 @@ class GENERICUISYSTEM_API UGUIS_ActivatableWidget : public UCommonActivatableWid
 	GENERATED_BODY()
 
 public:
-	UGUIS_ActivatableWidget(const FObjectInitializer &ObjectInitializer);
+	UGUIS_ActivatableWidget(const FObjectInitializer& ObjectInitializer);
 
-public:
+	UFUNCTION(BlueprintCallable, Category = "GUIS|ActivatableWidget")
+	void SetIsBackHandler(bool bNewState);
+
 	//~UCommonActivatableWidget interface
 	virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
 	//~End of UCommonActivatableWidget interface
 
 #if WITH_EDITOR
-	virtual void ValidateCompiledWidgetTree(const UWidgetTree &BlueprintWidgetTree, class IWidgetCompilerLog &CompileLog) const override;
+	virtual void ValidateCompiledWidgetTree(const UWidgetTree& BlueprintWidgetTree, class IWidgetCompilerLog& CompileLog) const override;
 #endif
 
 protected:
