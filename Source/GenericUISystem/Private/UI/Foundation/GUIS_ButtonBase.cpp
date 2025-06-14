@@ -24,14 +24,14 @@ void UGUIS_ButtonBase::UpdateInputActionWidget()
 
 void UGUIS_ButtonBase::SetButtonText(const FText& InText)
 {
-	bOverride_ButtonText = InText.IsEmpty();
+	bOverride_ButtonText = !InText.IsEmpty();
 	ButtonText = InText;
 	RefreshButtonText();
 }
 
 void UGUIS_ButtonBase::RefreshButtonText()
 {
-	if (bOverride_ButtonText || ButtonText.IsEmpty())
+	if (!bOverride_ButtonText || ButtonText.IsEmpty())
 	{
 		if (InputActionWidget)
 		{

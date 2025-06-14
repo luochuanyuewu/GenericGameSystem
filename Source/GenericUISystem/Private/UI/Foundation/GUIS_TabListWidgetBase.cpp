@@ -25,33 +25,16 @@ void UGUIS_TabListWidgetBase::NativeConstruct()
 
 void UGUIS_TabListWidgetBase::NativeDestruct()
 {
-	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
+	for (FGUIS_TabDescriptor& TabInfo : PreregisteredTabInfoArray)
 	{
-		if (TabInfo->CreatedTabContentWidget)
+		if (TabInfo.CreatedTabContentWidget)
 		{
-			TabInfo->CreatedTabContentWidget->RemoveFromParent();
-			TabInfo->CreatedTabContentWidget = nullptr;
+			TabInfo.CreatedTabContentWidget->RemoveFromParent();
+			TabInfo.CreatedTabContentWidget = nullptr;
 		}
 	}
-
 	Super::NativeDestruct();
 }
-
-// bool UGUIS_TabListWidgetBase::GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo)
-// {
-// 	const FGUIS_TabDescriptor* const FoundTabInfo = PreregisteredTabInfoArray.FindByPredicate([&](FGUIS_TabDescriptor& TabInfo) -> bool
-// 	{
-// 		return TabInfo.TabId == TabNameId;
-// 	});
-//
-// 	if (!FoundTabInfo)
-// 	{
-// 		return false;
-// 	}
-//
-// 	OutTabInfo = *FoundTabInfo;
-// 	return true;
-// }
 
 UGUIS_TabListWidgetBase::UGUIS_TabListWidgetBase()
 {
@@ -59,26 +42,27 @@ UGUIS_TabListWidgetBase::UGUIS_TabListWidgetBase()
 	bDeferRebuildingTabList = true;
 }
 
-const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::GetTabDefinition(FName TabNameId) const
+bool UGUIS_TabListWidgetBase::GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo)
 {
-	const TObjectPtr<UGUIS_TabDefinition>* FoundTabInfo = TabDefinitions.FindByPredicate([&](const TObjectPtr<UGUIS_TabDefinition> TabInfo)-> bool
+	const FGUIS_TabDescriptor* const FoundTabInfo = PreregisteredTabInfoArray.FindByPredicate([&](const FGUIS_TabDescriptor& TabInfo) -> bool
 	{
-		return TabInfo && TabInfo->TabId == TabNameId;
+		return TabInfo.TabId == TabNameId;
 	});
 
 	if (!FoundTabInfo)
 	{
-		return nullptr;
+		return false;
 	}
 
-	return *FoundTabInfo;
+	OutTabInfo = *FoundTabInfo;
+	return true;
 }
 
-int32 UGUIS_TabListWidgetBase::GetTabDefinitionIndex(FName TabNameId) const
+int32 UGUIS_TabListWidgetBase::GetPreregisteredTabIndex(FName TabNameId) const
 {
-	for (int32 i = 0; i < TabDefinitions.Num(); ++i)
+	for (int32 i = 0; i < PreregisteredTabInfoArray.Num(); ++i)
 	{
-		if (TabDefinitions[i] && TabDefinitions[i]->TabId == TabNameId)
+		if (PreregisteredTabInfoArray[i].TabId == TabNameId)
 		{
 			return i;
 		}
@@ -86,56 +70,43 @@ int32 UGUIS_TabListWidgetBase::GetTabDefinitionIndex(FName TabNameId) const
 	return INDEX_NONE;
 }
 
-const UGUIS_TabDefinition* UGUIS_TabListWidgetBase::FindTabDefinition(const FName TabNameId, TSubclassOf<UGUIS_TabDefinition> DesiredClass)
+bool UGUIS_TabListWidgetBase::FindPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo)
 {
-	if (DesiredClass != nullptr)
-	{
-		const UGUIS_TabDefinition* OutTabDefinition = GetTabDefinition(TabNameId);
-		if (OutTabDefinition->GetClass()->IsChildOf(DesiredClass))
-		{
-			return OutTabDefinition;
-		}
-	}
-	return nullptr;
+	return GetPreregisteredTabInfo(TabNameId, OutTabInfo);
 }
 
 void UGUIS_TabListWidgetBase::SetTabHiddenState(FName TabNameId, bool bHidden)
 {
-	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
+	for (FGUIS_TabDescriptor& TabInfo : PreregisteredTabInfoArray)
 	{
-		if (TabInfo->TabId == TabNameId)
+		if (TabInfo.TabId == TabNameId)
 		{
-			TabInfo->bHidden = bHidden;
-			break;
+			TabInfo.bHidden = bHidden;
 		}
 	}
 }
 
-bool UGUIS_TabListWidgetBase::RegisterDynamicTab(const UGUIS_TabDefinition* TabDefinition)
+bool UGUIS_TabListWidgetBase::RegisterDynamicTab(const FGUIS_TabDescriptor& TabDescriptor)
 {
-	if (!IsValid(TabDefinition))
-	{
-		return false;
-	}
 	// If it's hidden we just ignore it.
-	if (TabDefinition->bHidden)
+	if (TabDescriptor.bHidden)
 	{
 		return true;
 	}
 
-	PendingTabLabelInfoMap.Add(TabDefinition->TabId, TabDefinition);
+	PendingTabLabelInfoMap.Add(TabDescriptor.TabId, TabDescriptor);
 
-	return RegisterTab(TabDefinition->TabId, TabDefinition->TabButtonType.LoadSynchronous(), TabDefinition->CreatedTabContentWidget);
+	return RegisterTab(TabDescriptor.TabId, TabDescriptor.TabButtonType.LoadSynchronous(), TabDescriptor.CreatedTabContentWidget);
 }
 
 void UGUIS_TabListWidgetBase::HandlePreLinkedSwitcherChanged()
 {
-	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
+	for (const FGUIS_TabDescriptor& TabInfo : PreregisteredTabInfoArray)
 	{
 		// Remove tab content widget from linked switcher, as it is being disassociated.
-		if (TabInfo->CreatedTabContentWidget)
+		if (TabInfo.CreatedTabContentWidget)
 		{
-			TabInfo->CreatedTabContentWidget->RemoveFromParent();
+			TabInfo.CreatedTabContentWidget->RemoveFromParent();
 		}
 	}
 
@@ -155,19 +126,24 @@ void UGUIS_TabListWidgetBase::HandlePostLinkedSwitcherChanged()
 
 void UGUIS_TabListWidgetBase::HandleTabCreation_Implementation(FName TabId, UCommonButtonBase* TabButton)
 {
-	const UGUIS_TabDefinition* TabDefinition = GetTabDefinition(TabId);
+	FGUIS_TabDescriptor* TabInfoPtr = nullptr;
 
-	if (TabDefinition == nullptr)
+	FGUIS_TabDescriptor TabInfo;
+	if (GetPreregisteredTabInfo(TabId, TabInfo))
 	{
-		TabDefinition = *PendingTabLabelInfoMap.Find(TabId);
+		TabInfoPtr = &TabInfo;
+	}
+	else
+	{
+		TabInfoPtr = PendingTabLabelInfoMap.Find(TabId);
 	}
 
 	if (TabButton->GetClass()->ImplementsInterface(UGUIS_TabButtonInterface::StaticClass()))
 	{
-		if (ensureMsgf(TabDefinition, TEXT("A tab button was created with id %s but no tab definition was specified. RegisterDynamicTab should be used over RegisterTab to provide label info."),
+		if (ensureMsgf(TabInfoPtr, TEXT("A tab button was created with id %s but no label info was specified. RegisterDynamicTab should be used over RegisterTab to provide label info."),
 		               *TabId.ToString()))
 		{
-			IGUIS_TabButtonInterface::Execute_SetTabDefinition(TabButton, TabDefinition);
+			IGUIS_TabButtonInterface::Execute_SetTabLabelInfo(TabButton, *TabInfoPtr);
 		}
 	}
 
@@ -176,9 +152,9 @@ void UGUIS_TabListWidgetBase::HandleTabCreation_Implementation(FName TabId, UCom
 
 bool UGUIS_TabListWidgetBase::IsFirstTabActive() const
 {
-	if (TabDefinitions.Num() > 0)
+	if (PreregisteredTabInfoArray.Num() > 0)
 	{
-		return GetActiveTab() == TabDefinitions[0]->TabId;
+		return GetActiveTab() == PreregisteredTabInfoArray[0].TabId;
 	}
 
 	return false;
@@ -186,9 +162,9 @@ bool UGUIS_TabListWidgetBase::IsFirstTabActive() const
 
 bool UGUIS_TabListWidgetBase::IsLastTabActive() const
 {
-	if (TabDefinitions.Num() > 0)
+	if (PreregisteredTabInfoArray.Num() > 0)
 	{
-		return GetActiveTab() == TabDefinitions.Last()->TabId;
+		return GetActiveTab() == PreregisteredTabInfoArray.Last().TabId;
 	}
 
 	return false;
@@ -224,55 +200,63 @@ int32 UGUIS_TabListWidgetBase::GetVisibleTabCount()
 
 void UGUIS_TabListWidgetBase::SetupTabs()
 {
-	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
+	for (FGUIS_TabDescriptor& TabInfo : PreregisteredTabInfoArray)
 	{
-		if (TabInfo->bHidden)
+		if (TabInfo.bHidden)
 		{
 			continue;
 		}
 
 		// If the tab content hasn't been created already, create it.
-		if (!TabInfo->CreatedTabContentWidget && !TabInfo->TabContentType.IsNull())
+		if (!TabInfo.CreatedTabContentWidget && !TabInfo.TabContentType.IsNull())
 		{
-			TabInfo->CreatedTabContentWidget = CreateWidget<UCommonUserWidget>(GetOwningPlayer(), TabInfo->TabContentType.LoadSynchronous());
-			OnTabContentCreatedNative.Broadcast(TabInfo->TabId, Cast<UCommonUserWidget>(TabInfo->CreatedTabContentWidget));
-			OnTabContentCreated.Broadcast(TabInfo->TabId, Cast<UCommonUserWidget>(TabInfo->CreatedTabContentWidget));
+			TabInfo.CreatedTabContentWidget = CreateWidget<UCommonUserWidget>(GetOwningPlayer(), TabInfo.TabContentType.LoadSynchronous());
+			OnTabContentCreatedNative.Broadcast(TabInfo.TabId, Cast<UCommonUserWidget>(TabInfo.CreatedTabContentWidget));
+			OnTabContentCreated.Broadcast(TabInfo.TabId, Cast<UCommonUserWidget>(TabInfo.CreatedTabContentWidget));
 		}
 
 		if (UCommonAnimatedSwitcher* CurrentLinkedSwitcher = GetLinkedSwitcher())
 		{
 			// Add the tab content to the newly linked switcher.
-			if (!CurrentLinkedSwitcher->HasChild(TabInfo->CreatedTabContentWidget))
+			if (!CurrentLinkedSwitcher->HasChild(TabInfo.CreatedTabContentWidget))
 			{
-				CurrentLinkedSwitcher->AddChild(TabInfo->CreatedTabContentWidget);
+				CurrentLinkedSwitcher->AddChild(TabInfo.CreatedTabContentWidget);
 			}
 		}
 
 		// If the tab is not already registered, register it.
-		if (GetTabButtonBaseByID(TabInfo->TabId) == nullptr)
+		if (GetTabButtonBaseByID(TabInfo.TabId) == nullptr)
 		{
-			RegisterTab(TabInfo->TabId, TabInfo->TabButtonType.LoadSynchronous(), TabInfo->CreatedTabContentWidget);
+			RegisterTab(TabInfo.TabId, TabInfo.TabButtonType.LoadSynchronous(), TabInfo.CreatedTabContentWidget);
 		}
 	}
 }
 
 #if WITH_EDITOR
+void UGUIS_TabListWidgetBase::PostLoad()
+{
+	if (!TabDefinitions_DEPRECATED.IsEmpty())
+	{
+		for (TObjectPtr<UGUIS_TabDefinition> Def : TabDefinitions_DEPRECATED)
+		{
+			if (Def)
+			{
+				FGUIS_TabDescriptor Tab;
+				Tab.TabId = Def->TabId;
+				Tab.IconBrush = Def->IconBrush;
+				Tab.TabButtonType = Def->TabButtonType;
+				Tab.TabText = Def->TabText;
+				PreregisteredTabInfoArray.Add(Tab);
+			}
+		}
+		TabDefinitions_DEPRECATED.Empty();
+	}
+
+	Super::PostLoad();
+}
+
 void UGUIS_TabListWidgetBase::ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const
 {
 	Super::ValidateCompiledDefaults(CompileLog);
-
-	bool bFoundInvalid = false;
-	for (UGUIS_TabDefinition* TabInfo : TabDefinitions)
-	{
-		if (TabInfo == nullptr)
-		{
-			bFoundInvalid = true;
-			break;
-		}
-	}
-	if (bFoundInvalid)
-	{
-		CompileLog.Error(FText::FromString(FString::Format(TEXT("Found invalid Tab Definitions,{0} has invalid tab definition"), {GetName()})));
-	}
 }
 #endif

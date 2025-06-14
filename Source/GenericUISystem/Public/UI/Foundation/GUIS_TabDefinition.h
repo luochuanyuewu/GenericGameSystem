@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Engine/DataAsset.h"
 #include "Styling/SlateBrush.h"
 #include "GUIS_TabDefinition.generated.h"
 
@@ -14,9 +15,11 @@ class UCommonButtonBase;
 
 /**
  * Base Tab definition.
+ * @attention Deprecated as it's unstable.
  * 基础选项卡定义。
+ * @注意 已经弃用
  */
-UCLASS(Blueprintable, EditInlineNew, CollapseCategories, Const, DefaultToInstanced)
+UCLASS(Blueprintable, EditInlineNew, CollapseCategories, Const, DefaultToInstanced, Deprecated)
 class GENERICUISYSTEM_API UGUIS_TabDefinition : public UObject
 {
 	GENERATED_BODY()
@@ -31,7 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
 	FSlateBrush IconBrush;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition", Transient)
 	bool bHidden;
 
 	/**

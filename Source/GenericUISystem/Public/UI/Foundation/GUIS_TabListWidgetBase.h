@@ -13,8 +13,51 @@ class UObject;
 class UWidget;
 struct FFrame;
 
+
+USTRUCT(BlueprintType)
+struct GENERICUISYSTEM_API FGUIS_TabDescriptor
+{
+	GENERATED_BODY()
+
+	FGUIS_TabDescriptor()
+		: bHidden(false)
+		  , CreatedTabContentWidget(nullptr)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
+	FName TabId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
+	FText TabText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
+	FSlateBrush IconBrush;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition", Transient)
+	bool bHidden;
+
+	/**
+	 * A common button which implements GUIS_TabButtonInterface to received Label infomation.
+	 * 指定用作Tab按钮的Widget类型，该类型必须实现GUIS_TabButtonInterface以接收Label信息。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition", meta = (MustImplement = "/Script/GenericUISystem.GUIS_TabButtonInterface", AllowAbstract = "false"))
+	TSoftClassPtr<UCommonButtonBase> TabButtonType;
+
+	/**
+	 * The content this tab represents.
+	 *  该Tab所呈现的Widget（可选），如果有指定.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition")
+	TSoftClassPtr<UCommonUserWidget> TabContentType;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UWidget> CreatedTabContentWidget;
+};
+
+
 UINTERFACE(BlueprintType)
-class UGUIS_TabButtonInterface : public UInterface
+class GENERICUISYSTEM_API UGUIS_TabButtonInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -22,13 +65,16 @@ class UGUIS_TabButtonInterface : public UInterface
 /**
  * 选项卡按钮接口，任何用于切换到不同选项卡的“按钮”都应该实现此接口，实现此接口的按钮，可以得知有关于选项卡的信息，并作出视觉上的更新。
  */
-class IGUIS_TabButtonInterface
+class GENERICUISYSTEM_API IGUIS_TabButtonInterface
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button")
+	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button", meta=(DeprecatedFunction, DeprecationMessage="Use Set TabLabelInfo"))
 	void SetTabDefinition(const UGUIS_TabDefinition* TabDefinition);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button")
+	void SetTabLabelInfo(const FGUIS_TabDescriptor& TabDescriptor);
 };
 
 /**
@@ -43,26 +89,20 @@ class GENERICUISYSTEM_API UGUIS_TabListWidgetBase : public UCommonTabListWidgetB
 public:
 	UGUIS_TabListWidgetBase();
 
-	// UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS|TabList")
-	// bool GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo);
-
 	/**
 	 * get a default registered tab definition by name.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
-	const UGUIS_TabDefinition* GetTabDefinition(FName TabNameId) const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS|TabList")
+	bool GetPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
-	int32 GetTabDefinitionIndex(FName TabNameId) const;
+	int32 GetPreregisteredTabIndex(FName TabNameId) const;
 
 	/**
-	 * Find a typed default registered tab definition.
+	 * Find a preregistered tab definition.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList", meta=(DeterminesOutputType="DesiredClass", DynamicOutputParam="ReturnValue"))
-	const UGUIS_TabDefinition* FindTabDefinition(const FName TabNameId, TSubclassOf<UGUIS_TabDefinition> DesiredClass);
-
-	/** Helper method to get at all the preregistered tab infos */
-	TArray<TObjectPtr<UGUIS_TabDefinition>> GetAllTabDefinitions() { return TabDefinitions; }
+	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList", meta=(ExpandBoolAsExecs="ReturnValue"))
+	bool FindPreregisteredTabInfo(const FName TabNameId, FGUIS_TabDescriptor& OutTabInfo);
 
 	/**
 	 * Toggles whether a specified tab is hidden, can only be called before the switcher is associated。
@@ -73,36 +113,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GUIS|TabList")
 	void SetTabHiddenState(FName TabNameId, bool bHidden);
 
-	/**
-	 * 给定一个选项卡信息，动态地添加一个选项卡。
-	 * @param TabDefinition 选项卡的信息
-	 * @return 是否成功注册？
-	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
-	bool RegisterDynamicTab(const UGUIS_TabDefinition* TabDefinition);
+	bool RegisterDynamicTab(const FGUIS_TabDescriptor& TabDescriptor);
 
 	/**
-	 * @return 是否第一个选项卡激活？
+	 * @return Is the first tab active? 是否第一个选项卡激活？
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
 	bool IsFirstTabActive() const;
 
 	/**
-	 * @return 是否最后一个选项卡激活？
+	 * @return Is the last tab active? 是否最后一个选项卡激活？
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
 	bool IsLastTabActive() const;
 
 	/**
-	 * @param TabId 哪一个选项卡？
-	 * @return 指定的选项卡是否可见？
+	 * @param TabId Which tab?;哪一个选项卡？
+	 * @return If The specified tab visible? 指定的选项卡是否可见？
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS|TabList")
 	bool IsTabVisible(FName TabId);
 
 	/**
 	 *
-	 * @return 返回可见选项卡数量。
+	 * @return Return nums of visible tabs. 返回可见选项卡数量。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GUIS|TabList")
 	int32 GetVisibleTabCount();
@@ -135,17 +170,21 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="GUIS|TabList")
 	void SetupTabs();
 
-	UPROPERTY(EditAnywhere, Category="TabList", Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
-	TArray<TObjectPtr<UGUIS_TabDefinition>> TabDefinitions;
+	UPROPERTY(Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
+	TArray<TObjectPtr<UGUIS_TabDefinition>> TabDefinitions_DEPRECATED;
+
+	UPROPERTY(EditAnywhere, Category="TabList", meta=(TitleProperty="TabId"))
+	TArray<FGUIS_TabDescriptor> PreregisteredTabInfoArray;
 
 	/**
 	 * Stores label info for tabs that have been registered at runtime but not yet created.
 	 * Elements are removed once they are created.
 	 */
 	UPROPERTY()
-	TMap<FName, TObjectPtr<const UGUIS_TabDefinition>> PendingTabLabelInfoMap;
+	TMap<FName, FGUIS_TabDescriptor> PendingTabLabelInfoMap;
 
 #if WITH_EDITOR
+	virtual void PostLoad() override;
 	virtual void ValidateCompiledDefaults(class IWidgetCompilerLog& CompileLog) const override;
 #endif
 };

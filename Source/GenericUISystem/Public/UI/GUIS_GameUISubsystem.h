@@ -93,12 +93,19 @@ public:
 	void RegisterUIActionBinding(UCommonUserWidget* Target, FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback,
 	                             FGUIS_UIActionBindingHandle& BindingHandle);
 
-	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget, meta=(DeprecatedFunction, DeprecationMessage="Use Unregister UI Action Binding For Player"))
+	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
 	void UnregisterBinding(UPARAM(ref)
 		FGUIS_UIActionBindingHandle& BindingHandle);
 
 	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer"))
 	void RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle);
+
+	/**
+	 * Shortcut method to register ui context for Actor.
+	 * @attention The actor must be a locally controlled pawn processed by a player controller!
+	 */
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="Actor"))
+	void RegisterUIContextForActor(AActor* Actor, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle);
 
 	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer", DeterminesOutputType="ContextClass", DynamicOutputParam="OutContext", ExpandBoolAsExecs="ReturnValue"))
 	bool FindUIContextForPlayer(ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass, UGUIS_GameUIContext*& OutContext);

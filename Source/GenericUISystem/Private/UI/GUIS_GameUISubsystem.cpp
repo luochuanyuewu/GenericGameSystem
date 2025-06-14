@@ -134,6 +134,28 @@ void UGUIS_GameUISubsystem::RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer
 	}
 }
 
+void UGUIS_GameUISubsystem::RegisterUIContextForActor(AActor* Actor, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle)
+{
+	if (!IsValid(Actor))
+	{
+		UE_LOG(LogGUIS, Error, TEXT("Trying to register ui context for invalid pawn!"))
+		return;
+	}
+	APawn* Pawn = Cast<APawn>(Actor);
+	if (Pawn == nullptr || !Pawn->IsLocallyControlled())
+	{
+		UE_LOG(LogGUIS, Error, TEXT("Trying to register ui context for actor(%s) which is not locally controlled pawn!"), *Pawn->GetName())
+		return;
+	}
+	APlayerController* PC = Cast<APlayerController>(Pawn->GetController());
+	if (PC == nullptr)
+	{
+		UE_LOG(LogGUIS, Error, TEXT("Trying to register ui context for pawn(%s) which doesn't have valid player controller"), *Pawn->GetName())
+		return;
+	}
+	RegisterUIContextForPlayer(PC->GetLocalPlayer(), Context, BindingHandle);
+}
+
 bool UGUIS_GameUISubsystem::FindUIContextForPlayer(ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass, UGUIS_GameUIContext*& OutContext)
 {
 	if (LocalPlayer && CurrentPolicy && ContextClass != nullptr)
