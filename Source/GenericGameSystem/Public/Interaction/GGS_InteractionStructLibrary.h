@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "SmartObjectRuntime.h"
 #include "SmartObjectSubsystem.h"
 #include "SmartObjectTypes.h"
+#if ENGINE_MINOR_VERSION >= 6
+#include "SmartObjectRequestTypes.h"
+#endif
 #include "Engine/DataTable.h"
 #include "UObject/Object.h"
 #include "GGS_InteractionStructLibrary.generated.h"

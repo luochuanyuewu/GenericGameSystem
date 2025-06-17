@@ -1,6 +1,7 @@
 ﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/Mobile/GUIS_SimulatedInputWidget.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "EnhancedInputSubsystems.h"
 #include "GUIS_LogChannels.h"
 
@@ -74,6 +75,8 @@ UEnhancedPlayerInput* UGUIS_SimulatedInputWidget::GetPlayerInput() const
 
 void UGUIS_SimulatedInputWidget::InputKeyValue(const FVector& Value)
 {
+	const APlayerController* PC = GetOwningPlayer();
+	const FPlatformUserId UserId = PC ? PC->GetPlatformUserId() : PLATFORMUSERID_NONE;
 	// If we have an associated input action then we can use it
 	if (AssociatedAction)
 	{
@@ -88,6 +91,7 @@ void UGUIS_SimulatedInputWidget::InputKeyValue(const FVector& Value)
 	// In case there is no associated input action, we can attempt to simulate input on the fallback key
 	else if (UEnhancedPlayerInput* Input = GetPlayerInput())
 	{
+#if ENGINE_MINOR_VERSION < 6
 		if (KeyToSimulate.IsValid())
 		{
 			FInputKeyParams Params;
@@ -99,6 +103,42 @@ void UGUIS_SimulatedInputWidget::InputKeyValue(const FVector& Value)
 
 			Input->InputKey(Params);
 		}
+#else
+		const FInputDeviceId DeviceToSimulate = IPlatformInputDeviceMapper::Get().GetPrimaryInputDeviceForUser(UserId);
+		if(KeyToSimulate.IsValid())
+		{
+			const float DeltaTime = GetWorld()->GetDeltaSeconds();
+			auto SimulateKeyPress = [Input, DeltaTime, DeviceToSimulate](const FKey& KeyToSim, const float Value, const EInputEvent Event)
+			{
+				FInputKeyEventArgs Args = FInputKeyEventArgs::CreateSimulated(
+					KeyToSim,
+					Event,
+					Value,
+					KeyToSim.IsAnalog() ? 1 : 0,
+					DeviceToSimulate);
+
+				Args.DeltaTime = DeltaTime;
+			
+				Input->InputKey(Args);
+			};
+			
+			// For keys which are the "root" of the key pair (such as Mouse2D
+			// being made up of the MouseX and MouseY keys) we should call InputKey for each key in the pair,
+			// not the paired key itself. This is so that the events accumulate correctly in
+			// the key state map of UPlayerInput. All input events
+			// from the message handler and viewport client work this way, so when we simulate key inputs, we should
+			// do so as well.
+			if (const EKeys::FPairedKeyDetails* PairDetails = EKeys::GetPairedKeyDetails(KeyToSimulate))
+			{
+				SimulateKeyPress(PairDetails->XKeyDetails->GetKey(), Value.X, IE_Axis);
+				SimulateKeyPress(PairDetails->YKeyDetails->GetKey(), Value.Y, IE_Axis);
+			}
+			else
+			{
+				SimulateKeyPress(KeyToSimulate, Value.X, IE_Pressed);
+			}
+		}
+#endif
 	}
 	else
 	{
