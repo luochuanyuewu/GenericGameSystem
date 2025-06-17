@@ -10,7 +10,7 @@ class UGUIS_ModalDefinition;
 class UGUIS_UIAction;
 
 /**
- * Base ui action.
+ * Base ui action for single data.
  */
 UCLASS(Blueprintable, EditInlineNew, CollapseCategories, DefaultToInstanced, Abstract, Const)
 class GENERICUISYSTEM_API UGUIS_UIAction : public UObject

@@ -237,7 +237,7 @@ void UGUIS_TabListWidgetBase::PostLoad()
 {
 	if (!TabDefinitions_DEPRECATED.IsEmpty())
 	{
-		for (TObjectPtr<UGUIS_TabDefinition> Def : TabDefinitions_DEPRECATED)
+		for (TObjectPtr<UDEPRECATED_GUIS_TabDefinition> Def : TabDefinitions_DEPRECATED)
 		{
 			if (Def)
 			{

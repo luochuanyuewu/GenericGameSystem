@@ -73,6 +73,7 @@ bool UGUIS_GameUIPolicy::AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameU
 			return false;
 		}
 		LayoutInfo->Contexts.Add(NewContext);
+		UE_LOG(LogGUIS, Verbose, TEXT("[%s] registered context of type(%s) for %s."), *GetName(), *NewContext->GetClass()->GetName(), *GetNameSafe(LocalPlayer));
 		return true;
 	}
 	return false;
@@ -88,6 +89,7 @@ void UGUIS_GameUIPolicy::RemoveContext(const ULocalPlayer* LocalPlayer, TSubclas
 			if (LayoutInfo->Contexts[i] && LayoutInfo->Contexts[i]->GetClass() == ContextClass)
 			{
 				FoundContext = i;
+				UE_LOG(LogGUIS, Verbose, TEXT("[%s] unregistered context of type(%s) for %s."), *GetName(), *LayoutInfo->Contexts[i]->GetClass()->GetName(), *GetNameSafe(LocalPlayer));
 				break;
 			}
 		}

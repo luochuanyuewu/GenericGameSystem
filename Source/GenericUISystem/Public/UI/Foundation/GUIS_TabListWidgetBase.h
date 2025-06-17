@@ -6,7 +6,7 @@
 
 #include "GUIS_TabListWidgetBase.generated.h"
 
-class UGUIS_TabDefinition;
+class UDEPRECATED_GUIS_TabDefinition;
 class UCommonButtonBase;
 class UCommonUserWidget;
 class UObject;
@@ -71,7 +71,7 @@ class GENERICUISYSTEM_API IGUIS_TabButtonInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button", meta=(DeprecatedFunction, DeprecationMessage="Use Set TabLabelInfo"))
-	void SetTabDefinition(const UGUIS_TabDefinition* TabDefinition);
+	void SetTabDefinition(const UDEPRECATED_GUIS_TabDefinition* TabDefinition);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Tab Button")
 	void SetTabLabelInfo(const FGUIS_TabDescriptor& TabDescriptor);
@@ -171,7 +171,7 @@ protected:
 	void SetupTabs();
 
 	UPROPERTY(Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
-	TArray<TObjectPtr<UGUIS_TabDefinition>> TabDefinitions_DEPRECATED;
+	TArray<TObjectPtr<UDEPRECATED_GUIS_TabDefinition>> TabDefinitions_DEPRECATED;
 
 	UPROPERTY(EditAnywhere, Category="TabList", meta=(TitleProperty="TabId"))
 	TArray<FGUIS_TabDescriptor> PreregisteredTabInfoArray;

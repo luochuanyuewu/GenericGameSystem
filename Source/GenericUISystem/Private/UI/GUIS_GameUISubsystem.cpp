@@ -177,6 +177,8 @@ void UGUIS_GameUISubsystem::UnregisterUIContextForPlayer(FGUIS_UIContextBindingH
 	if (BindingHandle.LocalPlayer && BindingHandle.ContextClass && CurrentPolicy)
 	{
 		CurrentPolicy->RemoveContext(BindingHandle.LocalPlayer, BindingHandle.ContextClass);
+		BindingHandle.LocalPlayer = nullptr;
+		BindingHandle.ContextClass = nullptr;
 	}
 }
 

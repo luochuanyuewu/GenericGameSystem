@@ -20,7 +20,7 @@ class UCommonButtonBase;
  * @注意 已经弃用
  */
 UCLASS(Blueprintable, EditInlineNew, CollapseCategories, Const, DefaultToInstanced, Deprecated)
-class GENERICUISYSTEM_API UGUIS_TabDefinition : public UObject
+class GENERICUISYSTEM_API UDEPRECATED_GUIS_TabDefinition : public UObject
 {
 	GENERATED_BODY()
 
