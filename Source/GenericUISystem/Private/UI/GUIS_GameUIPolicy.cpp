@@ -6,6 +6,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Engine/Engine.h"
 #include "GUIS_LogChannels.h"
+#include "Input/CommonUIInputTypes.h"
 #include "UI/GUIS_GameUIContext.h"
 #include "UI/GUIS_GameUILayout.h"
 
@@ -94,6 +95,38 @@ void UGUIS_GameUIPolicy::RemoveContext(const ULocalPlayer* LocalPlayer, TSubclas
 			}
 		}
 		LayoutInfo->Contexts.RemoveAt(FoundContext);
+	}
+}
+
+void UGUIS_GameUIPolicy::AddUIAction(const ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, const FDataTableRowHandle& InputAction, bool bShouldDisplayInActionBar,
+                                     const FGUIS_UIActionExecutedDelegate& Callback, FGUIS_UIActionBindingHandle& BindingHandle)
+{
+	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		if (IsValid(Target))
+		{
+			FBindUIActionArgs BindArgs(InputAction, bShouldDisplayInActionBar, FSimpleDelegate::CreateLambda([InputAction, Callback]()
+			{
+				Callback.ExecuteIfBound(InputAction.RowName);
+			}));
+
+			BindingHandle.Handle = Target->RegisterUIActionBinding(BindArgs);
+			LayoutInfo->BindingHandles.Add(BindingHandle.Handle);
+		}
+	}
+}
+
+void UGUIS_GameUIPolicy::RemoveUIAction(const ULocalPlayer* LocalPlayer, FGUIS_UIActionBindingHandle& BindingHandle)
+{
+	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		if (BindingHandle.Handle.IsValid())
+		{
+			UE_LOG(LogGUIS, Display, TEXT("Unregister binding for %s"), *BindingHandle.Handle.GetDisplayName().ToString())
+
+			BindingHandle.Handle.Unregister();
+			LayoutInfo->BindingHandles.Remove(BindingHandle.Handle);
+		}
 	}
 }
 

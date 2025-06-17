@@ -2,10 +2,12 @@
 
 #pragma once
 
+#include "GUIS_GameUIStructLibrary.h"
 #include "Engine/World.h"
 
 #include "GUIS_GameUIPolicy.generated.h"
 
+class UCommonUserWidget;
 class UGUIS_GameUIContext;
 class ULocalPlayer;
 class UGUIS_GameUISubsystem;
@@ -28,34 +30,6 @@ enum class EGUIS_LocalMultiplayerInteractionMode : uint8
 	Simultaneous
 };
 
-USTRUCT()
-struct FGUIS_RootViewportLayoutInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(Transient)
-	TObjectPtr<ULocalPlayer> LocalPlayer = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UGUIS_GameUILayout> RootLayout = nullptr;
-
-	UPROPERTY(Transient)
-	bool bAddedToViewport = false;
-
-	UPROPERTY(Transient)
-	TArray<TObjectPtr<UGUIS_GameUIContext>> Contexts;
-
-	FGUIS_RootViewportLayoutInfo()
-	{
-	}
-
-	FGUIS_RootViewportLayoutInfo(ULocalPlayer* InLocalPlayer, UGUIS_GameUILayout* InRootLayout, bool bIsInViewport)
-		: LocalPlayer(InLocalPlayer), RootLayout(InRootLayout), bAddedToViewport(bIsInViewport)
-	{
-	}
-
-	bool operator==(const ULocalPlayer* OtherLocalPlayer) const { return LocalPlayer == OtherLocalPlayer; }
-};
 
 /**
  * UI policy manages each game ui layout for different local players.
@@ -83,6 +57,11 @@ public:
 	virtual UGUIS_GameUIContext* GetContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 	virtual bool AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* NewContext);
 	virtual void RemoveContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
+
+	virtual void AddUIAction(const ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, const FDataTableRowHandle& InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback,
+	                 FGUIS_UIActionBindingHandle& BindingHandle);
+
+	virtual void RemoveUIAction(const ULocalPlayer* LocalPlayer, FGUIS_UIActionBindingHandle& BindingHandle);
 
 	EGUIS_LocalMultiplayerInteractionMode GetLocalMultiplayerInteractionMode() const { return LocalMultiplayerInteractionMode; }
 

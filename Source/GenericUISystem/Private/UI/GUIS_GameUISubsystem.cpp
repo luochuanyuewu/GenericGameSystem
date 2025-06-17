@@ -14,22 +14,30 @@
 class FSubsystemCollectionBase;
 class UClass;
 
-FGUIS_UIContextBindingHandle::FGUIS_UIContextBindingHandle(ULocalPlayer* InLocalPlayer, UClass* InContextClass)
-{
-	LocalPlayer = InLocalPlayer;
-	ContextClass = InContextClass;
-}
-
 void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	if (!CurrentPolicy && !UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.IsNull())
+	if (UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.IsNull())
+	{
+		UE_LOG(LogGUIS, Error, TEXT("GUIS_GameUISubsystem::Initialize Failed, Missing GameUIPolicyClass in GenericUISystemSettings!!!"));
+		return;
+	}
+
+	if (!CurrentPolicy)
 	{
 		TSubclassOf<UGUIS_GameUIPolicy> PolicyClass = UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.LoadSynchronous();
 		if (PolicyClass)
 		{
-			SwitchToPolicy(NewObject<UGUIS_GameUIPolicy>(this, PolicyClass));
+			UGUIS_GameUIPolicy* NewPolicy = NewObject<UGUIS_GameUIPolicy>(this, PolicyClass);
+			if (NewPolicy)
+			{
+				SwitchToPolicy(NewPolicy);
+			}
+			else
+			{
+				UE_LOG(LogGUIS, Error, TEXT("GUIS_GameUISubsystem::Initialize Failed, failed to create Game UI Policy from class:%s!"), *PolicyClass->GetName());
+			}
 		}
 		else
 		{
@@ -120,6 +128,23 @@ void UGUIS_GameUISubsystem::UnregisterBinding(FGUIS_UIActionBindingHandle& Bindi
 
 		BindingHandle.Handle.Unregister();
 		BindingHandles.Remove(BindingHandle.Handle);
+	}
+}
+
+void UGUIS_GameUISubsystem::RegisterUIActionBindingForPlayer(ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar,
+                                                             const FGUIS_UIActionExecutedDelegate& Callback, FGUIS_UIActionBindingHandle& BindingHandle)
+{
+	if (LocalPlayer && CurrentPolicy)
+	{
+		CurrentPolicy->AddUIAction(LocalPlayer, Target, InputAction, bShouldDisplayInActionBar, Callback, BindingHandle);
+	}
+}
+
+void UGUIS_GameUISubsystem::UnregisterUIActionBindingForPlayer(ULocalPlayer* LocalPlayer, FGUIS_UIActionBindingHandle& BindingHandle)
+{
+	if (LocalPlayer && CurrentPolicy)
+	{
+		CurrentPolicy->RemoveUIAction(LocalPlayer, BindingHandle);
 	}
 }
 

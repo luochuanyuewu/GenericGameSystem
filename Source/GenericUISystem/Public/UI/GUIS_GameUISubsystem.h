@@ -4,6 +4,7 @@
 
 #include "Input/UIActionBindingHandle.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "GUIS_GameUIStructLibrary.h"
 #include "UObject/SoftObjectPtr.h"
 #include "GUIS_GameUISubsystem.generated.h"
 
@@ -13,34 +14,6 @@ class FSubsystemCollectionBase;
 class ULocalPlayer;
 class UGUIS_GameUIPolicy;
 class UObject;
-
-USTRUCT(BlueprintType)
-struct FGUIS_UIActionBindingHandle
-{
-	GENERATED_BODY()
-
-	FName Id;
-
-	FUIActionBindingHandle Handle;
-};
-
-USTRUCT(BlueprintType)
-struct FGUIS_UIContextBindingHandle
-{
-	GENERATED_BODY()
-
-	FGUIS_UIContextBindingHandle()
-	{
-	};
-
-	FGUIS_UIContextBindingHandle(ULocalPlayer* InLocalPlayer, UClass* InContextClass);
-
-	UPROPERTY()
-	TObjectPtr<ULocalPlayer> LocalPlayer;
-
-	UPROPERTY()
-	UClass* ContextClass{nullptr};
-};
 
 
 /**
@@ -87,15 +60,24 @@ public:
 	virtual void NotifyPlayerRemoved(ULocalPlayer* LocalPlayer);
 	virtual void NotifyPlayerDestroyed(ULocalPlayer* LocalPlayer);
 
-	DECLARE_DYNAMIC_DELEGATE_OneParam(FGUIS_UIActionExecutedDelegate, FName, ActionName);
+	// DECLARE_DYNAMIC_DELEGATE_OneParam(FGUIS_UIActionExecutedDelegate, FName, ActionName);
 
-	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="Target"))
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="Target", DeprecatedFunction, DeprecationMessage="Use RegisterUIActionBindingForPlayer"))
 	void RegisterUIActionBinding(UCommonUserWidget* Target, FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback,
 	                             FGUIS_UIActionBindingHandle& BindingHandle);
 
-	UFUNCTION(BlueprintCallable, Category = ExtendedActivatableWidget)
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DeprecatedFunction, DeprecationMessage="Use UnregisterUIActionBindingForPlayer"))
 	void UnregisterBinding(UPARAM(ref)
 		FGUIS_UIActionBindingHandle& BindingHandle);
+
+	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="Target"))
+	virtual void RegisterUIActionBindingForPlayer(ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, FDataTableRowHandle InputAction, bool bShouldDisplayInActionBar,
+	                                              const FGUIS_UIActionExecutedDelegate& Callback,
+	                                              FGUIS_UIActionBindingHandle& BindingHandle);
+
+	UFUNCTION(BlueprintCallable, Category="GUIS")
+	virtual void UnregisterUIActionBindingForPlayer(ULocalPlayer* LocalPlayer, UPARAM(ref)
+	                                                FGUIS_UIActionBindingHandle& BindingHandle);
 
 	UFUNCTION(BlueprintCallable, Category="GUIS", meta=(DefaultToSelf="LocalPlayer"))
 	void RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle);
