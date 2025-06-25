@@ -11,7 +11,7 @@
 #include "SmartObjectComponent.h"
 #include "SmartObjectSubsystem.h"
 
-UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
+UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 }
 
@@ -73,7 +73,6 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::Activate()
 	SmartObjectSubsystem->RegisterSlotInvalidationCallback(ClaimedHandle, FOnSlotInvalidated::CreateUObject(this, &UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnSlotInvalidated));
 
 	bSuccess = StartInteraction();
-
 }
 
 bool UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::StartInteraction()
@@ -85,7 +84,8 @@ bool UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::StartInteraction()
 		return false;
 	}
 
-	const UGameplayBehaviorSmartObjectBehaviorDefinition* SmartObjectGameplayBehaviorDefinition = SmartObjectSubsystem->MarkSlotAsOccupied<UGameplayBehaviorSmartObjectBehaviorDefinition>(ClaimedHandle);
+	const UGameplayBehaviorSmartObjectBehaviorDefinition* SmartObjectGameplayBehaviorDefinition = SmartObjectSubsystem->MarkSlotAsOccupied<
+		UGameplayBehaviorSmartObjectBehaviorDefinition>(ClaimedHandle);
 	const UGameplayBehaviorConfig* GameplayBehaviorConfig = SmartObjectGameplayBehaviorDefinition != nullptr ? SmartObjectGameplayBehaviorDefinition->GameplayBehaviorConfig : nullptr;
 	GameplayBehavior = GameplayBehaviorConfig != nullptr ? GameplayBehaviorConfig->GetBehavior(*World) : nullptr;
 	if (GameplayBehavior == nullptr)
@@ -149,14 +149,11 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnDestroy(bool bInOwne
 
 void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnSlotInvalidated(const FSmartObjectClaimHandle& ClaimHandle, const ESmartObjectSlotState State)
 {
-	if (!bBehaviorFinished)
+	if (!bBehaviorFinished && GameplayBehavior != nullptr)
 	{
-		if (GameplayBehavior != nullptr)
-		{
-			check(GetAvatarActor());
-			GameplayBehavior->GetOnBehaviorFinishedDelegate().Remove(OnBehaviorFinishedNotifyHandle);
-			GameplayBehavior->AbortBehavior(*GetAvatarActor());
-		}
+		check(GetAvatarActor());
+		GameplayBehavior->GetOnBehaviorFinishedDelegate().Remove(OnBehaviorFinishedNotifyHandle);
+		GameplayBehavior->AbortBehavior(*GetAvatarActor());
 	}
 	EndTask();
 }

@@ -16,13 +16,14 @@ UCLASS()
 class GENERICGAMESYSTEM_API UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior : public UAbilityTask
 {
 	GENERATED_BODY()
-public:
 
+public:
 	UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	
-	UFUNCTION(BlueprintCallable, Category = "GGS|Interaction",  meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-	static UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior* UseSmartObjectWithGameplayBehavior(UGameplayAbility* OwningAbility, FSmartObjectClaimHandle ClaimHandle, ESmartObjectClaimPriority ClaimPriority = ESmartObjectClaimPriority::Normal);
+
+	UFUNCTION(BlueprintCallable, Category = "GGS|Interaction", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
+	static UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior* UseSmartObjectWithGameplayBehavior(UGameplayAbility* OwningAbility, FSmartObjectClaimHandle ClaimHandle,
+	                                                                                               ESmartObjectClaimPriority ClaimPriority = ESmartObjectClaimPriority::Normal);
 
 	void SetClaimHandle(const FSmartObjectClaimHandle& Handle) { ClaimedHandle = Handle; }
 
@@ -34,6 +35,7 @@ protected:
 
 	void OnSmartObjectBehaviorFinished(UGameplayBehavior& Behavior, AActor& Avatar, const bool bInterrupted);
 
+	// called when slot invalid(actor destoryed etc..)
 	void OnSlotInvalidated(const FSmartObjectClaimHandle& ClaimHandle, const ESmartObjectSlotState State);
 
 	UPROPERTY(BlueprintAssignable)
@@ -49,7 +51,4 @@ protected:
 	FDelegateHandle OnBehaviorFinishedNotifyHandle;
 
 	bool bBehaviorFinished;
-
 };
-
-

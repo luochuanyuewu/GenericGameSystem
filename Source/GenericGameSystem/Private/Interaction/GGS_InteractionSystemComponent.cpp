@@ -159,6 +159,30 @@ void UGGS_InteractionSystemComponent::EndInteraction()
 	OnInteractingOptionChanged(Prev);
 }
 
+void UGGS_InteractionSystemComponent::InstantInteraction(int32 NewIndex)
+{
+	if (bInteracting)
+	{
+		INTERACTION_RLOG(Warning, TEXT("Can't trigger instant interaction(%d) while already interacting(%d)"), NewIndex, InteractingOption)
+		return;
+	}
+	if (!InteractionOptions.IsValidIndex(NewIndex))
+	{
+		INTERACTION_RLOG(Warning, TEXT("Try trigger invalid interaction(%d)"), NewIndex)
+		return;
+	}
+	
+	int32 Prev = InteractingOption;
+	InteractingOption = NewIndex;
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractingOption, this);
+	OnInteractingOptionChanged(Prev);
+
+	int32 Prev2 = InteractingOption;
+	InteractingOption = INDEX_NONE;
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractingOption, this);
+	OnInteractingOptionChanged(Prev2);
+}
+
 bool UGGS_InteractionSystemComponent::IsInteracting() const
 {
 	return bInteracting;

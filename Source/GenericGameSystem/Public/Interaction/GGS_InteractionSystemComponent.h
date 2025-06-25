@@ -95,6 +95,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	virtual void EndInteraction();
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
+	virtual void InstantInteraction(int32 NewIndex = 0);
+
 	/**
 	 * @return Return currently if any active interacting. 当前是否有交互?
 	 */
