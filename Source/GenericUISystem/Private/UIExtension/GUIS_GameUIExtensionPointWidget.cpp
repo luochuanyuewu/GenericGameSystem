@@ -7,6 +7,7 @@
 #include "Editor/WidgetCompilerLog.h"
 #include "Misc/UObjectToken.h"
 #include "GameFramework/PlayerState.h"
+#include "UI/Common/GUIS_UserWidgetInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIS_GameUIExtensionPointWidget)
 
@@ -58,10 +59,7 @@ TSharedRef<SWidget> UGUIS_GameUIExtensionPointWidget::RebuildWidget()
 
 		return MessageBox;
 	}
-	else
-	{
-		return Super::RebuildWidget();
-	}
+	return Super::RebuildWidget();
 }
 
 void UGUIS_GameUIExtensionPointWidget::RegisterForPlayerStateIfReady()
@@ -104,7 +102,9 @@ void UGUIS_GameUIExtensionPointWidget::OnCheckPlayerState()
 		if (APlayerState* PS = PC->GetPlayerState<APlayerState>())
 		{
 			if (TimerHandle.IsValid())
+			{
 				TimerHandle.Invalidate();
+			}
 			RegisterExtensionPointForPlayerState(GetOwningLocalPlayer(), PS);
 		}
 	}
@@ -173,12 +173,21 @@ void UGUIS_GameUIExtensionPointWidget::OnAddOrRemoveExtension(EGUIS_GameUIExtAct
 	if (Action == EGUIS_GameUIExtAction::Added)
 	{
 		UObject* Data = Request.Data;
-
 		TSubclassOf<UUserWidget> WidgetClass(Cast<UClass>(Data));
 		if (WidgetClass)
 		{
 			UUserWidget* Widget = CreateEntryInternal(WidgetClass);
 			ExtensionMapping.Add(Request.ExtensionHandle, Widget);
+
+			// Use UserWidgetInterface to notify it was registered.
+			if (Widget->GetClass()->ImplementsInterface(UGUIS_UserWidgetInterface::StaticClass()))
+			{
+				if (AActor* Actor = Cast<AActor>(Request.ContextObject))
+				{
+					IGUIS_UserWidgetInterface::Execute_SetOwningActor(Widget, Actor);
+				}
+				IGUIS_UserWidgetInterface::Execute_OnActivated(Widget);
+			}
 		}
 		else if (DataClasses.Num() > 0)
 		{
@@ -193,6 +202,14 @@ void UGUIS_GameUIExtensionPointWidget::OnAddOrRemoveExtension(EGUIS_GameUIExtAct
 					{
 						ExtensionMapping.Add(Request.ExtensionHandle, Widget);
 						ConfigureWidgetForData.ExecuteIfBound(Widget, Data);
+						if (Widget->GetClass()->ImplementsInterface(UGUIS_UserWidgetInterface::StaticClass()))
+						{
+							if (AActor* Actor = Cast<AActor>(Request.ContextObject))
+							{
+								IGUIS_UserWidgetInterface::Execute_SetOwningActor(Widget, Actor);
+							}
+							IGUIS_UserWidgetInterface::Execute_OnActivated(Widget);
+						}
 					}
 				}
 			}
@@ -202,6 +219,14 @@ void UGUIS_GameUIExtensionPointWidget::OnAddOrRemoveExtension(EGUIS_GameUIExtAct
 	{
 		if (UUserWidget* Extension = ExtensionMapping.FindRef(Request.ExtensionHandle))
 		{
+			if (Extension->GetClass()->ImplementsInterface(UGUIS_UserWidgetInterface::StaticClass()))
+			{
+				IGUIS_UserWidgetInterface::Execute_OnDeactivated(Extension);
+				if (AActor* Actor = Cast<AActor>(Request.ContextObject))
+				{
+					IGUIS_UserWidgetInterface::Execute_SetOwningActor(Extension, nullptr);
+				}
+			}
 			RemoveEntryInternal(Extension);
 			ExtensionMapping.Remove(Request.ExtensionHandle);
 		}

@@ -70,9 +70,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
 	TArray<TSoftClassPtr<UClass>> DataClasses;
 
+	/**
+	 * For non-widget data, Use this event to return widget for this data item.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Extension", meta=( IsBindableEvent="True" ))
 	FOnGetWidgetClassForData GetWidgetClassForData;
 
+	/**
+	 * For non-widget data, Use this event to dynamically setup widget instance for this data item.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI Extension", meta=( IsBindableEvent="True" ))
 	FOnConfigureWidgetForData ConfigureWidgetForData;
 

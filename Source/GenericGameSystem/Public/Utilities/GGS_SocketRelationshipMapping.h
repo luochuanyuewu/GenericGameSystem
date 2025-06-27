@@ -19,14 +19,14 @@ struct GENERICGAMESYSTEM_API FGGS_SocketAdjustment
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS")
 	FName SocketName{NAME_None};
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS")
 	FTransform RelativeTransform;
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, Category="GGS", meta=(EditCondition=false, EditConditionHides))
 	FString EditorFriendlyName;
-#endif	
+#endif
 };
 
 USTRUCT(BlueprintType)
@@ -36,8 +36,8 @@ struct GENERICGAMESYSTEM_API FGGS_SocketRelationship
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS")
 	TSoftObjectPtr<UStreamableRenderAsset> MeshAsset;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS",meta=(TitleProperty="EditorFriendlyName"))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS", meta=(TitleProperty="EditorFriendlyName"))
 	TArray<FGGS_SocketAdjustment> Adjustments;
 
 #if WITH_EDITORONLY_DATA
@@ -48,7 +48,7 @@ struct GENERICGAMESYSTEM_API FGGS_SocketRelationship
 
 
 /**
- * 
+ * Defines the socket relationship of meshes to parent meshes when attached to different socket.
  */
 UCLASS(BlueprintType)
 class GENERICGAMESYSTEM_API UGGS_SocketRelationshipMapping : public UDataAsset
@@ -56,15 +56,16 @@ class GENERICGAMESYSTEM_API UGGS_SocketRelationshipMapping : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable,BlueprintPure=False, Category="GGS|Utilities")
-	bool FindSocketAdjustment(const USkeletalMeshComponent* InParentMeshComponent, const UStreamableRenderAsset* InMeshAsset,FName InSocketName,
-								 FGGS_SocketAdjustment& OutAdjustment) const;
+	UFUNCTION(BlueprintCallable, BlueprintPure=False, Category="GGS|Utilities")
+	bool FindSocketAdjustment(const USkeletalMeshComponent* InParentMeshComponent, const UStreamableRenderAsset* InMeshAsset, FName InSocketName,
+	                          FGGS_SocketAdjustment& OutAdjustment) const;
 
 	UFUNCTION(BlueprintCallable, Category="GGS|Utilities")
-	static bool FindSocketAdjustmentInMappings(TArray<TSoftObjectPtr<UGGS_SocketRelationshipMapping>> InMappings,const USkeletalMeshComponent* InParentMeshComponent, const UStreamableRenderAsset* InMeshAsset,FName InSocketName,
-								 FGGS_SocketAdjustment& OutAdjustment);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS",meta=(TitleProperty="EditorFriendlyName"))
+	static bool FindSocketAdjustmentInMappings(TArray<TSoftObjectPtr<UGGS_SocketRelationshipMapping>> InMappings, const USkeletalMeshComponent* InParentMeshComponent,
+	                                           const UStreamableRenderAsset* InMeshAsset, FName InSocketName,
+	                                           FGGS_SocketAdjustment& OutAdjustment);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS", meta=(TitleProperty="EditorFriendlyName"))
 	TArray<FGGS_SocketRelationship> Relationships;
 
 
