@@ -173,7 +173,7 @@ protected:
 	UPROPERTY(Instanced, meta = (BlueprintProtected, TitleProperty = "TabId"))
 	TArray<TObjectPtr<UDEPRECATED_GUIS_TabDefinition>> TabDefinitions_DEPRECATED;
 
-	UPROPERTY(EditAnywhere, Category="TabList", meta=(TitleProperty="TabId"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="TabList", meta=(TitleProperty="TabId"))
 	TArray<FGUIS_TabDescriptor> PreregisteredTabInfoArray;
 
 	/**
