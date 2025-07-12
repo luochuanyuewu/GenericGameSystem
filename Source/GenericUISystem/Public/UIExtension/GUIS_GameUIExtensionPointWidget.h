@@ -68,7 +68,7 @@ protected:
 	 * 此列表中的Class才被允许注册到此拓展，为空意味着没有约束。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI Extension")
-	TArray<TSoftClassPtr<UClass>> DataClasses;
+	TArray<TSoftClassPtr<UObject>> DataClasses;
 
 	/**
 	 * For non-widget data, Use this event to return widget for this data item.

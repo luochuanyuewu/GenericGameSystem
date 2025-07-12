@@ -158,7 +158,7 @@ TArray<UClass*> UGUIS_GameUIExtensionPointWidget::LoadAllowedDataClasses() const
 	TArray<UClass*> AllowedDataClasses;
 	AllowedDataClasses.Add(UUserWidget::StaticClass());
 
-	for (const TSoftClassPtr<UClass>& DataClass : DataClasses)
+	for (const TSoftClassPtr<UObject>& DataClass : DataClasses)
 	{
 		if (!DataClass.IsNull())
 		{
