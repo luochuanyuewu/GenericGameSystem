@@ -9,8 +9,8 @@
 class UGUIS_WidgetFactory;
 
 /**
- * Extended TileView allow dynamic select "Entry Widget Class" via DataAsset.
- * 经过拓展的TileView，允许你通过数据资产动态地选择“Entry Widget Class”。
+ * Extended TileView allowing dynamic selection of entry widget class via data asset.
+ * 通过数据资产动态选择入口小部件类的扩展TileView。
  */
 UCLASS(Blueprintable, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_TileView : public UCommonTileView
@@ -18,23 +18,44 @@ class GENERICUISYSTEM_API UGUIS_TileView : public UCommonTileView
 	GENERATED_BODY()
 
 public:
+	/**
+	 * Constructor for the TileView widget.
+	 * TileView小部件构造函数。
+	 */
 	UGUIS_TileView(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 #if WITH_EDITOR
+	/**
+	 * Validates compiled defaults in the editor.
+	 * 在编辑器中验证编译默认值。
+	 * @param InCompileLog The widget compiler log. 小部件编译日志。
+	 */
 	virtual void ValidateCompiledDefaults(IWidgetCompilerLog& InCompileLog) const override;
 #endif
 
+	/**
+	 * Sets the entry widget factories for dynamic widget selection.
+	 * 设置动态小部件选择的入口小部件工厂。
+	 * @param NewFactories The array of widget factories. 小部件工厂数组。
+	 */
 	UFUNCTION(BlueprintCallable, Category = "ListEntries")
 	void SetEntryWidgetFactories(TArray<UGUIS_WidgetFactory*> NewFactories);
 
 protected:
+	/**
+	 * Generates an entry widget for the specified item.
+	 * 为指定项生成入口小部件。
+	 * @param Item The item to generate a widget for. 要生成小部件的项。
+	 * @param DesiredEntryClass The desired entry widget class. 期望的入口小部件类。
+	 * @param OwnerTable The owning table view. 所属表格视图。
+	 * @return The generated widget. 生成的小部件。
+	 */
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass, const TSharedRef<STableViewBase>& OwnerTable) override;
-	// virtual bool OnIsSelectableOrNavigableInternal(UObject* SelectedItem) override;
 
 	/**
-		 * EntryWidgetFactories allows you dynamically select Entry Widget Class based on your own rules.
-		 * EntryWidgetFactories 允许你根据你自己的规则动态地选择Entry Widget Class。
-		 */
+	 * Array of widget factories for dynamic entry widget selection.
+	 * 动态入口小部件选择的小部件工厂数组。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ListEntries", meta = (IsBindableEvent = "True"))
 	TArray<TObjectPtr<UGUIS_WidgetFactory>> EntryWidgetFactories;
 };

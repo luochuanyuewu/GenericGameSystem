@@ -5,15 +5,15 @@
 #include "CommonActivatableWidget.h"
 #include "GameplayTagContainer.h"
 #include "GUIS_GameModalTypes.h"
-
 #include "GUIS_GameModal.generated.h"
 
 class UCommonTextBlock;
 class UDynamicEntryBox;
 class UGUIS_GameModalWidget;
+
 /**
- * Definition of a modal.
- * 游戏消息框定义
+ * Definition for a modal dialog.
+ * 模态对话框的定义。
  */
 UCLASS(Abstract, BlueprintType, Blueprintable, Const)
 class GENERICUISYSTEM_API UGUIS_ModalDefinition : public UObject
@@ -22,39 +22,39 @@ class GENERICUISYSTEM_API UGUIS_ModalDefinition : public UObject
 
 public:
 	/**
-	 * The header of the message to display
-	 * 消息框标题。
+	 * Header text for the modal.
+	 * 模态对话框的标题文本。
 	 */
 	UPROPERTY(EditAnywhere, Category="GUIS", BlueprintReadWrite)
 	FText Header;
 
 	/**
-	 * The body of the message to display
-	 * 消息框正文。
+	 * Body text for the modal.
+	 * 模态对话框的正文文本。
 	 */
 	UPROPERTY(EditAnywhere, Category="GUIS", BlueprintReadWrite)
 	FText Body;
 
 	/**
-	 * Widget used to represent this modal.
-	 * 使用哪一个ModalWidget来表示该消息框。
+	 * Widget class used to represent the modal.
+	 * 表示模态对话框的小部件类。
 	 */
 	UPROPERTY(EditAnywhere, Category="GUIS", BlueprintReadWrite)
 	TSoftClassPtr<UGUIS_GameModalWidget> ModalWidget;
 
 	/**
-	 * The confirm button's input action to use.
-	 * 有哪些消息框操作及其对应按钮。
+	 * Map of modal actions to their configurations.
+	 * 模态动作及其配置的映射。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (ForceInlineRow, Categories = "GUIS.Modal.Action"))
 	TMap<FGameplayTag, FGUIS_GameModalAction> ModalActions;
 };
 
 /**
- * Basic widget for modal.
- * @attention Widget must bind an "DynamicEntryBox" named EntryBox_Buttons to register buttons.
- * 游戏Modal基础UI
- * @注意 Widget必须添加一个名为EntryBox_Buttons的"DynamicEntryBox"来展示按钮。
+ * Base widget for modal dialogs.
+ * 模态对话框的基础小部件。
+ * @note Must bind a DynamicEntryBox named "EntryBox_Buttons" for button registration.
+ * @注意 必须绑定一个名为"EntryBox_Buttons"的DynamicEntryBox以注册按钮。
  */
 UCLASS(Abstract, meta = (Category = "Generic UI"))
 class GENERICUISYSTEM_API UGUIS_GameModalWidget : public UCommonActivatableWidget
@@ -62,36 +62,68 @@ class GENERICUISYSTEM_API UGUIS_GameModalWidget : public UCommonActivatableWidge
 	GENERATED_BODY()
 
 public:
+	/**
+	 * Constructor for the modal widget.
+	 * 模态小部件构造函数。
+	 */
 	UGUIS_GameModalWidget();
 
+	/**
+	 * Sets up the modal with the provided definition.
+	 * 使用提供的定义设置模态对话框。
+	 * @param ModalDefinition The modal definition. 模态定义。
+	 * @param ModalActionCallback Callback for modal actions. 模态动作回调。
+	 */
 	virtual void SetupModal(const UGUIS_ModalDefinition* ModalDefinition, FGUIS_ModalActionResultSignature ModalActionCallback);
 
 	/**
-	 * Close current modal with result. 以指定结果关闭此Modal
-	 * @param ModalActionResult The modal action result. Modal操作结果。
+	 * Closes the modal with the specified result.
+	 * 以指定结果关闭模态对话框。
+	 * @param ModalActionResult The modal action result. 模态动作结果。
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS", meta = (Categories = "UI.Modal.Action,GUIS.Modal.Action"))
 	void CloseModal(FGameplayTag ModalActionResult);
 
+	/**
+	 * Terminates the modal.
+	 * 终止模态对话框。
+	 */
 	virtual void KillModal();
 
 protected:
 	/**
-	 * Implement this event to apply data from descriptor to this modal ui elements. 通过实现此事件把来自Descriptor的信息传递到UI上。
-	 * @param ModalDefinition The object contains required information about this modal. 包含了这个Modal所需信息的对象。
+	 * Event to apply modal definition data to UI elements.
+	 * 将模态定义数据应用于UI元素的事件。
+	 * @param ModalDefinition The modal definition. 模态定义。
 	 */
 	UFUNCTION(BlueprintImplementableEvent, Category="GUIS")
 	void OnSetupModal(const UGUIS_ModalDefinition* ModalDefinition);
 
+	/**
+	 * Callback for modal action results.
+	 * 模态动作结果的回调。
+	 */
 	FGUIS_ModalActionResultSignature OnModalActionCallback;
 
 private:
+	/**
+	 * Dynamic entry box for modal buttons.
+	 * 模态按钮的动态入口框。
+	 */
 	UPROPERTY(Meta = (BindWidget))
 	TObjectPtr<UDynamicEntryBox> EntryBox_Buttons;
 
+	/**
+	 * Text block for the modal header.
+	 * 模态标题的文本块。
+	 */
 	UPROPERTY(Meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> Text_Header;
 
+	/**
+	 * Text block for the modal body.
+	 * 模态正文的文本块。
+	 */
 	UPROPERTY(Meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> Text_Body;
 };

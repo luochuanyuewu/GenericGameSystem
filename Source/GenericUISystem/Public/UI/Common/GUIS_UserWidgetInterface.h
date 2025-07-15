@@ -6,50 +6,57 @@
 #include "UObject/Interface.h"
 #include "GUIS_UserWidgetInterface.generated.h"
 
-// This class does not need to be modified.
+/**
+ * Interface for UserWidget functionality.
+ * 通用UserWidget功能的接口。
+ * @note Designed for UserWidgets (except UCommonActivatableWidget and its derivatives).
+ * @注意 专为UserWidget设计（不包括UCommonActivatableWidget及其派生类）。
+ * @details Automatically called when used as an extension UI.
+ * @细节 用作扩展UI时自动调用。
+ */
 UINTERFACE()
-class UGUIS_UserWidgetInterface : public UInterface
+class GENERICUISYSTEM_API UGUIS_UserWidgetInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
 /**
- * Interface adds frequently used api for regular UserWidget.
- * @attention Designed to be implemented on any UserWidget(excepting UCommonActivatableWidget, and it's derived classes.)
- * @details UserWidget with this interface will be called automatically when used as extension ui.
+ * Implementation class for UserWidget interface.
+ * UserWidget接口的实现类。
  */
 class GENERICUISYSTEM_API IGUIS_UserWidgetInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	/**
-	 * Return the owning actor of this UserWidget. 
-	 * @return The logic owner of this UserWidget.
-	 * @details Although each UserWidget has an owning player, sometimes you want to have an Actor that exists in the game world as a logical owning actor of the UI and keep track of its data.
-	 * 获取此UserWidget的OwningActor。
-	 * @返回 此UserWidget的逻辑拥有者。
-	 * @细节 虽然每个 UserWidget 都有一个自己的玩家拥有者，但有时你也希望有一个 Actor 存在于游戏世界中，作为用户界面的逻辑拥有者，并跟踪其数据。
+	 * Retrieves the owning actor of the UserWidget.
+	 * 获取UserWidget的所属演员。
+	 * @return The logical owning actor. 逻辑所属演员。
+	 * @note Tracks data for an actor in the game world.
+	 * @注意 跟踪游戏世界中演员的数据。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GUIS")
 	AActor* GetOwningActor();
 
 	/**
-	 * Set the owning actor of this UserWidget. 设置此UserWidget的所属Actor。
-	 * @param NewOwningActor The logic owner of this UserWidget. 此UserWidget的逻辑拥有者。
+	 * Sets the owning actor of the UserWidget.
+	 * 设置UserWidget的所属演员。
+	 * @param NewOwningActor The new owning actor. 新的所属演员。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GUIS")
 	void SetOwningActor(AActor* NewOwningActor);
 
 	/**
-	 * Notify this UserWidget was activated.通知此UserWidget被激活。
+	 * Called when the UserWidget is activated.
+	 * UserWidget激活时调用。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GUIS")
 	void OnActivated();
 
 	/**
-	 * Notify this UserWidget was deactivated.通知此UserWidget被禁用。
+	 * Called when the UserWidget is deactivated.
+	 * UserWidget禁用时调用。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GUIS")
 	void OnDeactivated();

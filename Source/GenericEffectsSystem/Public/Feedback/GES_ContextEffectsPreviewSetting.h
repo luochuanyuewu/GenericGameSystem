@@ -10,7 +10,8 @@
 #include "GES_ContextEffectsPreviewSetting.generated.h"
 
 /**
- * DataAsset contains context effects preview data.
+ * Data asset for context effects preview settings.
+ * 情景效果预览设置的数据资产。
  */
 UCLASS()
 class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsPreviewSetting : public UDataAsset
@@ -18,23 +19,38 @@ class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsPreviewSetting : public UDataA
 	GENERATED_BODY()
 
 public:
-	// If true, will attempt to match selected Surface Type to Context Tag via Project Settings
+	/**
+	 * Whether to use physical surface as context for preview.
+	 * 是否使用物理表面作为预览情景。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
 	bool bPreviewPhysicalSurfaceAsContext = true;
 
-	// Surface Type
+	/**
+	 * Physical surface type for preview.
+	 * 预览的物理表面类型。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (EditCondition = "bPreviewPhysicalSurfaceAsContext"))
 	TEnumAsByte<EPhysicalSurface> PreviewPhysicalSurface = EPhysicalSurface::SurfaceType_Default;
 
-	// Preview Libraries
+	/**
+	 * Context effects libraries for preview.
+	 * 预览的情景效果库。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta = (AllowedClasses = "/Script/GenericEffectsSystem.GES_ContextEffectsLibrary"))
 	TArray<FSoftObjectPath> PreviewContextEffectsLibraries;
 
-	// Preview Source Context
+	/**
+	 * Source context tags for preview.
+	 * 预览的源情景标签。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
 	FGameplayTagContainer PreviewSourceContext;
 
-	// Preview Target Context
+	/**
+	 * Target context tags for preview.
+	 * 预览的目标情景标签。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview)
 	FGameplayTagContainer PreviewTargetContext;
 };

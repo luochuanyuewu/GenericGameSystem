@@ -24,6 +24,16 @@ void FGUIS_GameUIExtPointHandle::Unregister()
 
 //=========================================================
 
+FGUIS_GameUIExtHandle::FGUIS_GameUIExtHandle()
+{
+}
+
+FGUIS_GameUIExtHandle::FGUIS_GameUIExtHandle(UGUIS_ExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExt>& InDataPtr)
+{
+	ExtensionSource = InExtensionSource;
+	DataPtr = InDataPtr;
+}
+
 void FGUIS_GameUIExtHandle::Unregister()
 {
 	if (UGUIS_ExtensionSubsystem* ExtensionSourcePtr = ExtensionSource.Get())
@@ -60,6 +70,16 @@ bool FGUIS_GameUIExtPoint::DoesExtensionPassContract(const FGUIS_GameUIExt* Exte
 	}
 
 	return false;
+}
+
+FGUIS_GameUIExtPointHandle::FGUIS_GameUIExtPointHandle()
+{
+}
+
+FGUIS_GameUIExtPointHandle::FGUIS_GameUIExtPointHandle(UGUIS_ExtensionSubsystem* InExtensionSource, const TSharedPtr<FGUIS_GameUIExtPoint>& InDataPtr)
+{
+	ExtensionSource = InExtensionSource;
+	DataPtr = InDataPtr;
 }
 
 //=========================================================
@@ -366,6 +386,10 @@ FGUIS_GameUIExtHandle UGUIS_ExtensionSubsystem::K2_RegisterExtensionAsDataForCon
 }
 
 //=========================================================
+
+UGUIS_ExtensionFunctionLibrary::UGUIS_ExtensionFunctionLibrary()
+{
+}
 
 void UGUIS_ExtensionFunctionLibrary::UnregisterExtension(FGUIS_GameUIExtHandle& Handle)
 {

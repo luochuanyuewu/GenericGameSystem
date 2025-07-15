@@ -9,9 +9,9 @@
 
 class UGUIS_UIAction;
 
-
 /**
- * ListEntry(as CommonButton) will represent a list item(Item of ListView/TileView)
+ * List entry widget representing an item in a ListView or TileView.
+ * 表示ListView或TileView中项的列表入口小部件。
  */
 UCLASS(Abstract, meta = (Category = "Generic UI", DisableNativeTick))
 class GENERICUISYSTEM_API UGUIS_ListEntry : public UGUIS_ButtonBase, public IUserObjectListEntry
