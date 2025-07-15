@@ -80,6 +80,21 @@ bool UGUIS_GameUIPolicy::AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameU
 	return false;
 }
 
+UGUIS_GameUIContext* UGUIS_GameUIPolicy::FindContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass)
+{
+	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
+	{
+		for (int32 i = 0; i < LayoutInfo->Contexts.Num(); i++)
+		{
+			if (LayoutInfo->Contexts[i] && LayoutInfo->Contexts[i]->GetClass() == ContextClass)
+			{
+				return LayoutInfo->Contexts[i];
+			}
+		}
+	}
+	return nullptr;
+}
+
 void UGUIS_GameUIPolicy::RemoveContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass)
 {
 	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))

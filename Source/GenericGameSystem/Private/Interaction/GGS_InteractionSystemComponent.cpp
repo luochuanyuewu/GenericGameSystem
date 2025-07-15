@@ -94,6 +94,11 @@ void UGGS_InteractionSystemComponent::SetInteractableActors(TArray<AActor*> NewA
 				SetInteractableActor(nullptr);
 			}
 		}
+
+		if (IsValid(InteractableActor) && InteractableActors.IsValidIndex(0) && InteractableActors[0] != InteractableActor)
+		{
+			SetInteractableActor(NewActors[0]);
+		}
 	}
 }
 
@@ -149,7 +154,7 @@ void UGGS_InteractionSystemComponent::EndInteraction()
 {
 	if (!bInteracting)
 	{
-		INTERACTION_RLOG(Warning, TEXT("no need to end interaction when there's no any active interaction."))
+		//INTERACTION_RLOG(Warning, TEXT("no need to end interaction when there's no any active interaction."))
 		return;
 	}
 
@@ -171,7 +176,7 @@ void UGGS_InteractionSystemComponent::InstantInteraction(int32 NewIndex)
 		INTERACTION_RLOG(Warning, TEXT("Try trigger invalid interaction(%d)"), NewIndex)
 		return;
 	}
-	
+
 	int32 Prev = InteractingOption;
 	InteractingOption = NewIndex;
 	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractingOption, this);

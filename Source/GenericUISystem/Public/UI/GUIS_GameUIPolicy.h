@@ -11,7 +11,6 @@ class UCommonUserWidget;
 class UGUIS_GameUIContext;
 class ULocalPlayer;
 class UGUIS_GameUISubsystem;
-class ULocalPlayer;
 class UGUIS_GameUILayout;
 
 /**
@@ -56,10 +55,12 @@ public:
 
 	virtual UGUIS_GameUIContext* GetContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 	virtual bool AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* NewContext);
+	virtual UGUIS_GameUIContext* FindContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 	virtual void RemoveContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 
-	virtual void AddUIAction(const ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, const FDataTableRowHandle& InputAction, bool bShouldDisplayInActionBar, const FGUIS_UIActionExecutedDelegate& Callback,
-	                 FGUIS_UIActionBindingHandle& BindingHandle);
+	virtual void AddUIAction(const ULocalPlayer* LocalPlayer, UCommonUserWidget* Target, const FDataTableRowHandle& InputAction, bool bShouldDisplayInActionBar,
+	                         const FGUIS_UIActionExecutedDelegate& Callback,
+	                         FGUIS_UIActionBindingHandle& BindingHandle);
 
 	virtual void RemoveUIAction(const ULocalPlayer* LocalPlayer, FGUIS_UIActionBindingHandle& BindingHandle);
 

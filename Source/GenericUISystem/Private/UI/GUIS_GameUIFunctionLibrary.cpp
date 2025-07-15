@@ -3,6 +3,7 @@
 #include "UI/GUIS_GameUIFunctionLibrary.h"
 #include "CommonInputSubsystem.h"
 #include "CommonInputTypeEnum.h"
+#include "GUIS_LogChannels.h"
 #include "Components/ListView.h"
 #include "Engine/GameInstance.h"
 #include "UI/GUIS_GameUILayout.h"
@@ -52,7 +53,7 @@ bool UGUIS_GameUIFunctionLibrary::IsOwningPlayerUsingGamepad(const UUserWidget* 
 }
 
 UCommonActivatableWidget* UGUIS_GameUIFunctionLibrary::PushContentToUILayer_ForPlayer(const APlayerController* PlayerController, FGameplayTag LayerName,
-                                                                                     TSubclassOf<UCommonActivatableWidget> WidgetClass)
+                                                                                      TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
 	if (!ensure(PlayerController) || !ensure(WidgetClass != nullptr))
 	{
@@ -68,6 +69,34 @@ UCommonActivatableWidget* UGUIS_GameUIFunctionLibrary::PushContentToUILayer_ForP
 	}
 
 	return UILayout->PushWidgetToLayerStack(LayerName, WidgetClass);
+}
+
+void UGUIS_GameUIFunctionLibrary::PopContentFromUILayer_ForPlayer(const APlayerController* PlayerController, FGameplayTag LayerName, int32 RemainNum)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	UGUIS_GameUILayout* UILayout = GetGameUILayoutForPlayer(PlayerController);
+
+	if (UILayout == nullptr)
+	{
+		FFrame::KismetExecutionMessage(TEXT("PopContentFromUILayer_ForPlayer failed to find UILayout for player."), ELogVerbosity::Error);
+		return;
+	}
+
+	if (UCommonActivatableWidgetContainerBase* Layer = UILayout->GetLayerWidget(LayerName))
+	{
+		const TArray<UCommonActivatableWidget*>& List = Layer->GetWidgetList();
+
+		int32 MinIdx = RemainNum >= 1 ? RemainNum - 1 : 0;
+
+		for (int32 i = List.Num() - 1; i >= MinIdx; i--)
+		{
+			Layer->RemoveWidget(*List[i]);
+		}
+	}
 }
 
 // void UGUIS_GameUIFunctionLibrary::PushStreamedContentToLayer_ForPlayer(const ULocalPlayer* LocalPlayer, FGameplayTag LayerName, TSoftClassPtr<UCommonActivatableWidget> WidgetClass)
@@ -102,7 +131,26 @@ void UGUIS_GameUIFunctionLibrary::PopContentFromUILayer(UCommonActivatableWidget
 	{
 		if (UGUIS_GameUILayout* UILayout = GetGameUILayoutForPlayer(PlayerController))
 		{
+			UE_LOG(LogGUIS, Verbose, TEXT("Popped content:%s from ui layer."), *GetNameSafe(ActivatableWidget))
 			UILayout->FindAndRemoveWidgetFromLayer(ActivatableWidget);
+		}
+	}
+}
+
+void UGUIS_GameUIFunctionLibrary::PopContentsFromUILayer(TArray<UCommonActivatableWidget*> ActivatableWidgets, bool bReverse)
+{
+	if (bReverse)
+	{
+		for (int32 i = ActivatableWidgets.Num() - 1; i >= 0; i--)
+		{
+			PopContentFromUILayer(ActivatableWidgets[i]);
+		}
+	}
+	else
+	{
+		for (int32 i = 0; i < ActivatableWidgets.Num(); i++)
+		{
+			PopContentFromUILayer(ActivatableWidgets[i]);
 		}
 	}
 }

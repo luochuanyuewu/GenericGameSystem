@@ -30,6 +30,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="GGS|Interaction")
 	FText GetInteractionDisplayName() const;
+	virtual FText GetInteractionDisplayNameText_Implementation() const;
 
 	/**
 	 * Called when this actor is selected by the interaction system

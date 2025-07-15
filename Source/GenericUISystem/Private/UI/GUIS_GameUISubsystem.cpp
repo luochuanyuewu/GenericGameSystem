@@ -197,6 +197,15 @@ bool UGUIS_GameUISubsystem::FindUIContextForPlayer(ULocalPlayer* LocalPlayer, TS
 	return false;
 }
 
+bool UGUIS_GameUISubsystem::FindUIContextFromHandle(FGUIS_UIContextBindingHandle& BindingHandle, TSubclassOf<UGUIS_GameUIContext> ContextClass, UGUIS_GameUIContext*& OutContext)
+{
+	if (BindingHandle.LocalPlayer && BindingHandle.ContextClass && CurrentPolicy)
+	{
+		OutContext = CurrentPolicy->FindContext(BindingHandle.LocalPlayer, BindingHandle.ContextClass);
+	}
+	return OutContext != nullptr;
+}
+
 void UGUIS_GameUISubsystem::UnregisterUIContextForPlayer(FGUIS_UIContextBindingHandle& BindingHandle)
 {
 	if (BindingHandle.LocalPlayer && BindingHandle.ContextClass && CurrentPolicy)
