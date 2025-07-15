@@ -11,6 +11,10 @@ TSubclassOf<UUserWidget> UGUIS_WidgetFactory::FindWidgetClassForData_Implementat
 	return TSubclassOf<UUserWidget>();
 }
 
+UGUIS_WidgetFactory::UGUIS_WidgetFactory()
+{
+}
+
 bool UGUIS_WidgetFactory::OnDataValidation_Implementation(FText& ValidationMessage) const
 {
 	return true;

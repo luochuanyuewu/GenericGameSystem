@@ -36,6 +36,11 @@ void UGUIS_TabListWidgetBase::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+FGUIS_TabDescriptor::FGUIS_TabDescriptor()
+{
+	bHidden = false;
+}
+
 UGUIS_TabListWidgetBase::UGUIS_TabListWidgetBase()
 {
 	bAutoListenForInput = false;

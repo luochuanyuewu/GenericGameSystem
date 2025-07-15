@@ -53,7 +53,7 @@ struct GENERICUISYSTEM_API FGUIS_TabDescriptor
 	 * 选项卡是否隐藏。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Tab Definition", Transient)
-	bool bHidden;
+	bool bHidden{false};
 
 	/**
 	 * Button type for the tab, must implement GUIS_TabButtonInterface.
