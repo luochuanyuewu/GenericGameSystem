@@ -79,27 +79,7 @@ void UGGS_InteractionSystemComponent::SetInteractableActors(TArray<AActor*> NewA
 
 	InteractableActors = NewActors;
 	SetInteractableActorsNum(InteractableActors.Num());
-
-	if (!bInteracting)
-	{
-		// update potential actor.
-		if (!IsValid(InteractableActor) || !InteractableActors.Contains(InteractableActor))
-		{
-			if (NewActors.IsValidIndex(0) && IsValid(NewActors[0]))
-			{
-				SetInteractableActor(NewActors[0]);
-			}
-			else
-			{
-				SetInteractableActor(nullptr);
-			}
-		}
-
-		if (IsValid(InteractableActor) && InteractableActors.IsValidIndex(0) && InteractableActors[0] != InteractableActor)
-		{
-			SetInteractableActor(NewActors[0]);
-		}
-	}
+	OnInteractableActorsChanged();
 }
 
 void UGGS_InteractionSystemComponent::SetInteractableActorsNum(int32 NewNum)
@@ -109,7 +89,7 @@ void UGGS_InteractionSystemComponent::SetInteractableActorsNum(int32 NewNum)
 		const int32 PrevNum = NumsOfInteractableActors;
 		NumsOfInteractableActors = NewNum;
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, NumsOfInteractableActors, this)
-		OnInteractableActorsNumChanged(PrevNum);
+		OnInteractableActorsNumChanged();
 	}
 }
 
@@ -218,9 +198,36 @@ void UGGS_InteractionSystemComponent::OnInteractableActorChanged(AActor* OldActo
 	OnInteractableActorChangedEvent.Broadcast(OldActor, InteractableActor);
 }
 
-void UGGS_InteractionSystemComponent::OnInteractableActorsNumChanged(int32 PrevNum)
+void UGGS_InteractionSystemComponent::OnInteractableActorsNumChanged()
 {
 	OnInteractableActorNumChangedEvent.Broadcast(NumsOfInteractableActors);
+}
+
+void UGGS_InteractionSystemComponent::OnInteractableActorsChanged_Implementation()
+{
+	if (!bInteracting)
+	{
+		// update potential actor.
+		if (!IsValid(InteractableActor) || !InteractableActors.Contains(InteractableActor))
+		{
+			if (InteractableActors.IsValidIndex(0) && IsValid(InteractableActors[0]))
+			{
+				SetInteractableActor(InteractableActors[0]);
+			}
+			else
+			{
+				SetInteractableActor(nullptr);
+			}
+		}
+
+		if (bNewActorHasPriority)
+		{
+			if (IsValid(InteractableActor) && InteractableActors.IsValidIndex(0) && InteractableActors[0] != InteractableActor)
+			{
+				SetInteractableActor(InteractableActors[0]);
+			}
+		}
+	}
 }
 
 void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObjectEventData& EventData)
@@ -249,7 +256,7 @@ void UGGS_InteractionSystemComponent::OnInteractionOptionsChanged()
 	OnInteractionOptionsChangedEvent.Broadcast();
 }
 
-void UGGS_InteractionSystemComponent::OnInteractingOptionChanged(int32 PrevOptionIndex)
+void UGGS_InteractionSystemComponent::OnInteractingOptionChanged_Implementation(int32 PrevOptionIndex)
 {
 	bool bPrevInteracting = bInteracting;
 	bInteracting = InteractingOption != INDEX_NONE;

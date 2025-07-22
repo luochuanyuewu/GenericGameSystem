@@ -124,7 +124,6 @@ void UGUIS_GameUIPolicy::AddUIAction(const ULocalPlayer* LocalPlayer, UCommonUse
 			{
 				Callback.ExecuteIfBound(InputAction.RowName);
 			}));
-
 			BindingHandle.Handle = Target->RegisterUIActionBinding(BindArgs);
 			LayoutInfo->BindingHandles.Add(BindingHandle.Handle);
 		}

@@ -190,7 +190,7 @@ public:
 	 * 执行与指定选项索引的即时交互。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
-	virtual void InstantInteraction(int32 NewIndex = 0);
+	void InstantInteraction(int32 NewIndex = 0);
 
 	/**
 	 * Checks if an interaction is in progress.
@@ -228,10 +228,16 @@ protected:
 	/**
 	 * Called when the number of interactable actors changes.
 	 * 可交互演员数量变更时调用。
-	 * @param ActorsNum The new number of interactable actors. 可交互演员的新数量。
 	 */
 	UFUNCTION()
-	virtual void OnInteractableActorsNumChanged(int32 ActorsNum);
+	virtual void OnInteractableActorsNumChanged();
+
+	/**
+	 * Called when the potential interactable actors changes.
+	 * 可交互演员变更时调用。
+	 */
+	UFUNCTION(BlueprintNativeEvent, Category="GGS|InteractionSystem")
+	void OnInteractableActorsChanged();
 
 	/**
 	 * Called when a smart object event occurs.
@@ -253,8 +259,8 @@ protected:
 	 * 交互选项索引变更时调用。
 	 * @param PrevOptionIndex The previous option index. 之前的选项索引。
 	 */
-	UFUNCTION()
-	virtual void OnInteractingOptionChanged(int32 PrevOptionIndex);
+	UFUNCTION(BlueprintNativeEvent, Category="GGS|InteractionSystem")
+	void OnInteractingOptionChanged(int32 PrevOptionIndex);
 
 	/**
 	 * Refreshes interaction options based on smart object request results.
@@ -289,6 +295,13 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	FSmartObjectRequestFilter DefaultRequestFilter;
+
+	/**
+	 * If checked, whenever potential interactable actors changes, the first actor in the list will be selected as currency interactable actor.
+	 * 如果勾选，始终使用潜在交互演员中的第一个作为当前选择。
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnInteractableActorsNumChanged, Category="GGS|InteractionSystem")
+	bool bNewActorHasPriority{false};
 
 	/**
 	 * Current available interaction options, replicated for owner only.
