@@ -1,4 +1,4 @@
-﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
+﻿// Copyright 2025 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UIExtension/GUIS_GameUIExtensionSubsystem.h"
 

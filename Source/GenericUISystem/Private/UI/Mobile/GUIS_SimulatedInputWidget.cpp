@@ -1,4 +1,4 @@
-﻿// Copyright 2024 https://yuewu.dev/en  All Rights Reserved.
+﻿// Copyright 2025 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/Mobile/GUIS_SimulatedInputWidget.h"
 #include "Runtime/Launch/Resources/Version.h"
