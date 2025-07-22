@@ -24,7 +24,6 @@ public class GenericGameSystem : ModuleRules
                 "SlateCore",
                 "GameplayTags",
                 "UMG",
-                "StructUtils",
                 "TargetingSystem",
                 "GameplayTasks",
                 "GameplayAbilities",
