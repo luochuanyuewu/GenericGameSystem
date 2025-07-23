@@ -2,6 +2,7 @@
 
 
 #include "UI/GUIS_GameUIStructLibrary.h"
+#include "Engine/LocalPlayer.h"
 #include "UI/GUIS_GameUIContext.h"
 #include "UI/GUIS_GameUILayout.h"
 

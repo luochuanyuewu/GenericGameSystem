@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "Engine/DataAsset.h"
 #include "GGS_InteractionDefinition.generated.h"
 

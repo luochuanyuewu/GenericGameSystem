@@ -4,7 +4,7 @@
 
 #include "GUIS_GameUIStructLibrary.h"
 #include "Engine/World.h"
-
+#include "Engine/DataTable.h"
 #include "GUIS_GameUIPolicy.generated.h"
 
 class UCommonUserWidget;
@@ -20,9 +20,9 @@ class UGUIS_GameUILayout;
 UENUM()
 enum class EGUIS_LocalMultiplayerInteractionMode : uint8
 {
-	PrimaryOnly,    // Fullscreen viewport for the primary player only. 仅为主玩家显示全屏视口。
-	SingleToggle,   // Fullscreen viewport with player swapping control. 全屏视口，玩家可切换控制。
-	Simultaneous    // Simultaneous viewports for all players. 为所有玩家同时显示视口。
+	PrimaryOnly, // Fullscreen viewport for the primary player only. 仅为主玩家显示全屏视口。
+	SingleToggle, // Fullscreen viewport with player swapping control. 全屏视口，玩家可切换控制。
+	Simultaneous // Simultaneous viewports for all players. 为所有玩家同时显示视口。
 };
 
 /**

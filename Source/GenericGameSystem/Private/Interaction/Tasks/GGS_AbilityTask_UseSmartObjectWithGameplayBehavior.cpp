@@ -2,7 +2,8 @@
 
 
 #include "Interaction/Tasks/GGS_AbilityTask_UseSmartObjectWithGameplayBehavior.h"
-
+#include "Engine/World.h"
+#include "GameFramework/Pawn.h"
 #include "GameplayBehavior.h"
 #include "GameplayBehaviorConfig.h"
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
@@ -13,6 +14,7 @@
 
 UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
+	bBehaviorFinished = false;
 }
 
 UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior* UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::UseSmartObjectWithGameplayBehavior(UGameplayAbility* OwningAbility,

@@ -9,6 +9,7 @@
 
 class UGUIS_GameUIContext;
 class UGUIS_GameUILayout;
+class ULocalPlayer;
 
 /**
  * Delegate for handling UI action execution.

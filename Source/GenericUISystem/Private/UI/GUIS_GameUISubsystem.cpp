@@ -1,6 +1,7 @@
 ﻿// Copyright 2025 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/GUIS_GameUISubsystem.h"
+#include "GameFramework/Pawn.h"
 #include "GUIS_GenericUISystemSettings.h"
 #include "CommonUserWidget.h"
 #include "GUIS_LogChannels.h"

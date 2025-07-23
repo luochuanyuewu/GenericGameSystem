@@ -2,7 +2,7 @@
 
 
 #include "Interaction/Abilities/GGS_GameplayAbility_Interaction.h"
-
+#include "Engine/World.h"
 #include "GGS_LogChannels.h"
 #include "SmartObjectBlueprintFunctionLibrary.h"
 #include "Interaction/GGS_InteractionDefinition.h"

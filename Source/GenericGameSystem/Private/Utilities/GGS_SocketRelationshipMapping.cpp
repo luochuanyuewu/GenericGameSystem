@@ -2,7 +2,10 @@
 
 
 #include "Utilities/GGS_SocketRelationshipMapping.h"
-
+#include "Engine/StreamableRenderAsset.h"
+#include "Engine/SkeletalMesh.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/Skeleton.h"
 #include "UObject/ObjectSaveContext.h"
 
 bool UGGS_SocketRelationshipMapping::FindSocketAdjustment(const USkeletalMeshComponent* InParentMeshComponent, const UStreamableRenderAsset* InMeshAsset, FName InSocketName,
@@ -18,7 +21,7 @@ bool UGGS_SocketRelationshipMapping::FindSocketAdjustment(const USkeletalMeshCom
 		return false;
 	}
 	FString SkeletonName = Skeleton->GetName();
-	
+
 	for (const FGGS_SocketRelationship& Relationship : Relationships)
 	{
 		UStreamableRenderAsset* Key{nullptr};
@@ -30,10 +33,10 @@ bool UGGS_SocketRelationshipMapping::FindSocketAdjustment(const USkeletalMeshCom
 		{
 			continue;
 		}
-		for (int32 i=Relationship.Adjustments.Num() -1; i>=0;i--)
+		for (int32 i = Relationship.Adjustments.Num() - 1; i >= 0; i--)
 		{
 			const FGGS_SocketAdjustment& Adjustment = Relationship.Adjustments[i];
-			bool bMatchSkeleton = Adjustment.ForSkeletons.IsEmpty()?true:Adjustment.ForSkeletons.Contains(SkeletonName);
+			bool bMatchSkeleton = Adjustment.ForSkeletons.IsEmpty() ? true : Adjustment.ForSkeletons.Contains(SkeletonName);
 			if (bMatchSkeleton && Adjustment.SocketName == InSocketName)
 			{
 				OutAdjustment = Adjustment;
@@ -41,12 +44,13 @@ bool UGGS_SocketRelationshipMapping::FindSocketAdjustment(const USkeletalMeshCom
 			}
 		}
 	}
-	
+
 	return false;
 }
 
-bool UGGS_SocketRelationshipMapping::FindSocketAdjustmentInMappings(TArray<TSoftObjectPtr<UGGS_SocketRelationshipMapping>> InMappings,const USkeletalMeshComponent* InParentMeshComponent, const UStreamableRenderAsset* InMeshAsset, FName InSocketName,
-	FGGS_SocketAdjustment& OutAdjustment)
+bool UGGS_SocketRelationshipMapping::FindSocketAdjustmentInMappings(TArray<TSoftObjectPtr<UGGS_SocketRelationshipMapping>> InMappings, const USkeletalMeshComponent* InParentMeshComponent,
+                                                                    const UStreamableRenderAsset* InMeshAsset, FName InSocketName,
+                                                                    FGGS_SocketAdjustment& OutAdjustment)
 {
 	for (TSoftObjectPtr<UGGS_SocketRelationshipMapping> Mapping : InMappings)
 	{
@@ -73,7 +77,8 @@ void UGGS_SocketRelationshipMapping::PreSave(FObjectPreSaveContext SaveContext)
 		if (Relationship.MeshAsset.IsNull())
 		{
 			Relationship.EditorFriendlyName = TEXT("Invalid!");
-		}else
+		}
+		else
 		{
 			UStreamableRenderAsset* MeshAsset = Relationship.MeshAsset.LoadSynchronous();
 			Relationship.EditorFriendlyName = MeshAsset->GetName();
@@ -90,11 +95,11 @@ void UGGS_SocketRelationshipMapping::PreSave(FObjectPreSaveContext SaveContext)
 				else
 				{
 					FString SkeletonNames;
-					for (const FString&  ForSkeleton: Adjustment.ForSkeletons)
+					for (const FString& ForSkeleton : Adjustment.ForSkeletons)
 					{
 						SkeletonNames = SkeletonNames.Append(ForSkeleton);
 					}
-					Adjustment.EditorFriendlyName = FString::Format(TEXT("{0} on {1}"),{Adjustment.SocketName.ToString(),SkeletonNames});
+					Adjustment.EditorFriendlyName = FString::Format(TEXT("{0} on {1}"), {Adjustment.SocketName.ToString(), SkeletonNames});
 				}
 			}
 		}
