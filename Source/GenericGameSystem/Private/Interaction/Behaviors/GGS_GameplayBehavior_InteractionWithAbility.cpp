@@ -21,14 +21,14 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, con
 
 	if (!InteractionSystem)
 	{
-		INTERACTION_RLOG(Error, TEXT("Missing InteractionSystem Component!"))
+		GGS_CLOG(Error, "Missing InteractionSystem Component!")
 		return false;
 	}
 
 	UAbilitySystemComponent* Asc = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(&InAvatar);
 	if (!Asc)
 	{
-		INTERACTION_RLOG(Error, TEXT("Missing Ability System Component!"))
+		GGS_CLOG(Error, "Missing Ability System Component!")
 		return false;
 	}
 
@@ -41,7 +41,7 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, con
 
 	if (FGameplayAbilitySpec* Handle = Asc->FindAbilitySpecFromClass(AbilityClass))
 	{
-		INTERACTION_RLOG(Error, TEXT("Try granting repeated interaction ability of class:%s, which is not supported!"), *AbilityClass->GetName())
+		GGS_CLOG(Error, "Try granting repeated interaction ability of class:%s, which is not supported!", *AbilityClass->GetName())
 		return false;
 	}
 
@@ -54,7 +54,7 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, con
 
 	if (!AbilitySpecHandle.IsValid())
 	{
-		INTERACTION_RLOG(Error, TEXT("Can't active ability of class:%s! Check ability settings!"), *AbilityClass->GetName())
+		GGS_CLOG(Error, "Can't active ability of class:%s! Check ability settings!", *AbilityClass->GetName())
 		return false;
 	}
 
@@ -67,17 +67,17 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, con
 
 	if (AbilitySpecHandle.IsValid() && bAbilityEnded)
 	{
-		INTERACTION_RLOG(Verbose, TEXT("Instantly executed interaction ability:%s,handle%s"), *AbilityClass->GetName(), *AbilitySpecHandle.ToString())
+		GGS_CLOG(Verbose, "Instantly executed interaction ability:%s,handle%s", *AbilityClass->GetName(), *AbilitySpecHandle.ToString())
 		EndBehavior(InAvatar, false);
 		return false;
 	}
 
-	INTERACTION_RLOG(Verbose, TEXT("Granted and activate interaction ability:%s,handle%s"), *AbilityClass->GetName(), *AbilitySpecHandle.ToString())
+	GGS_CLOG(Verbose, "Granted and activate interaction ability:%s,handle%s", *AbilityClass->GetName(), *AbilitySpecHandle.ToString())
 
 	//TODO what happens when avatar or target get destoryied?
 	// SOOwner销毁的时候, 需要Abort当前行为, 目的是清除赋予的Ability
 	// SmartObjectOwner->OnDestroyed.AddDynamic(this, &ThisClass::OnSmartObjectOwnerDestroyed);
-	INTERACTION_RLOG(Verbose, TEXT("Interaction begins with ability:%s"), *AbilityClass->GetName())
+	GGS_CLOG(Verbose, "Interaction begins with ability:%s", *AbilityClass->GetName())
 
 	bTransientIsTriggering = false;
 	bTransientIsActive = true;
@@ -86,7 +86,7 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, con
 
 void UGGS_GameplayBehavior_InteractionWithAbility::EndBehavior(AActor& Avatar, const bool bInterrupted)
 {
-	INTERACTION_RLOG(Verbose, TEXT("Interaction behavior ended %s"), bInterrupted?TEXT("due to interruption!"):TEXT("normally!"))
+	GGS_CLOG(Verbose, "Interaction behavior ended %s", bInterrupted?TEXT("due to interruption!"):TEXT("normally!"))
 
 	// clear ability stuff.
 	if (UAbilitySystemComponent* Asc = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(&Avatar))
@@ -102,7 +102,7 @@ void UGGS_GameplayBehavior_InteractionWithAbility::EndBehavior(AActor& Avatar, c
 		{
 			if (const FGameplayAbilitySpec* Spec = Asc->FindAbilitySpecFromHandle(AbilitySpecHandle))
 			{
-				INTERACTION_RLOG(Verbose, TEXT("Cancel ability(%s) because behavior was interrupted."), *Spec->Ability.GetClass()->GetName())
+				GGS_CLOG(Verbose, "Cancel ability(%s) because behavior was interrupted.", *Spec->Ability.GetClass()->GetName())
 				Asc->CancelAbilityHandle(AbilitySpecHandle);
 			}
 		}
@@ -124,14 +124,14 @@ bool UGGS_GameplayBehavior_InteractionWithAbility::CheckValidAbilitySetting(cons
 	const UGGS_GameplayBehaviorConfig_InteractionWithAbility* InteractionConfig = Cast<const UGGS_GameplayBehaviorConfig_InteractionWithAbility>(Config);
 	if (!InteractionConfig)
 	{
-		INTERACTION_RLOG(Error, TEXT("Invalid GameplayBehaviorConfig! expect Config be type of %s."), *UGGS_GameplayBehaviorConfig_InteractionWithAbility::StaticClass()->GetName())
+		GGS_CLOG(Error, "Invalid GameplayBehaviorConfig! expect Config be type of %s.", *UGGS_GameplayBehaviorConfig_InteractionWithAbility::StaticClass()->GetName())
 		return false;
 	}
 
 	const TSubclassOf<UGameplayAbility> AbilityClass = InteractionConfig->AbilityToGrant.LoadSynchronous();
 	if (!AbilityClass)
 	{
-		INTERACTION_RLOG(Error, TEXT("Invalid AbilityToGrant Class!"))
+		GGS_CLOG(Error, "Invalid AbilityToGrant Class!")
 		return false;
 	}
 	OutAbilityClass = AbilityClass;
@@ -154,8 +154,8 @@ void UGGS_GameplayBehavior_InteractionWithAbility::OnAbilityEndedCallback(const 
 		// Special case: behavior already active and abilities ended, ending behavior normally.
 		if (!bTransientIsTriggering && bTransientIsActive)
 		{
-			INTERACTION_RLOG(Verbose, TEXT("Interaction ability(%s) %s."), *EndedData.AbilityThatEnded.GetClass()->GetName(),
-			                 EndedData.bWasCancelled?TEXT("was canceled"):TEXT("ended normally"))
+			GGS_CLOG(Verbose, "Interaction ability(%s) %s.", *EndedData.AbilityThatEnded.GetClass()->GetName(),
+			         EndedData.bWasCancelled?TEXT("was canceled"):TEXT("ended normally"))
 			EndBehavior(*GetAvatar(), false);
 		}
 	}

@@ -47,19 +47,19 @@ bool UGGS_GameplayAbility_Interaction::TryClaimInteraction(int32 Index, FSmartOb
 	const TArray<FGGS_InteractionOption>& InteractionInstances = InteractionSystem->GetInteractionOptions();
 	if (!InteractionInstances.IsValidIndex(Index))
 	{
-		INTERACTION_RLOG(Error, TEXT("Interaction at index(%d) not exist!!"), Index)
+		GGS_CLOG(Error, "Interaction at index(%d) not exist!!", Index)
 		return false;
 	}
 
 	if (InteractionInstances[Index].Definition == nullptr)
 	{
-		INTERACTION_RLOG(Error, TEXT("Interaction at index(%d) has invalid definition!"), Index)
+		GGS_CLOG(Error, "Interaction at index(%d) has invalid definition!", Index)
 		return false;
 	}
 
 	if (InteractionInstances[Index].SlotState != ESmartObjectSlotState::Free)
 	{
-		INTERACTION_RLOG(Error, TEXT("Interaction(%s) was Claimed/Occupied!"), *InteractionInstances[Index].Definition->Text.ToString())
+		GGS_CLOG(Error, "Interaction(%s) was Claimed/Occupied!", *InteractionInstances[Index].Definition->Text.ToString())
 		return false;
 	}
 
@@ -70,7 +70,7 @@ bool UGGS_GameplayAbility_Interaction::TryClaimInteraction(int32 Index, FSmartOb
 	// A valid claimed handle can point to an object that is no longer part of the simulation
 	if (!Subsystem->IsClaimedSmartObjectValid(NewlyClaimedHandle))
 	{
-		INTERACTION_RLOG(Error, TEXT("Interaction(%s) refers to an object that is no longer available.!"), *InteractionInstances[Index].Definition->Text.ToString())
+		GGS_CLOG(Error, "Interaction(%s) refers to an object that is no longer available.!", *InteractionInstances[Index].Definition->Text.ToString())
 		return false;
 	}
 

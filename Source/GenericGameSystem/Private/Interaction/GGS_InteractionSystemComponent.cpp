@@ -114,13 +114,13 @@ void UGGS_InteractionSystemComponent::StartInteraction(int32 NewIndex)
 {
 	if (bInteracting)
 	{
-		INTERACTION_RLOG(Warning, TEXT("Can't start interaction(%d) while already interacting(%d)"), NewIndex, InteractingOption)
+		GGS_CLOG(Warning, "Can't start interaction(%d) while already interacting(%d)", NewIndex, InteractingOption)
 		return;
 	}
 
 	if (!InteractionOptions.IsValidIndex(NewIndex))
 	{
-		INTERACTION_RLOG(Warning, TEXT("Try start invalid interaction(%d)"), NewIndex)
+		GGS_CLOG(Warning, "Try start invalid interaction(%d)", NewIndex)
 		return;
 	}
 
@@ -134,7 +134,7 @@ void UGGS_InteractionSystemComponent::EndInteraction()
 {
 	if (!bInteracting)
 	{
-		//INTERACTION_RLOG(Warning, TEXT("no need to end interaction when there's no any active interaction."))
+		//GGS_CLOG(Warning, TEXT("no need to end interaction when there's no any active interaction."))
 		return;
 	}
 
@@ -148,12 +148,12 @@ void UGGS_InteractionSystemComponent::InstantInteraction(int32 NewIndex)
 {
 	if (bInteracting)
 	{
-		INTERACTION_RLOG(Warning, TEXT("Can't trigger instant interaction(%d) while already interacting(%d)"), NewIndex, InteractingOption)
+		GGS_CLOG(Warning, "Can't trigger instant interaction(%d) while already interacting(%d)", NewIndex, InteractingOption)
 		return;
 	}
 	if (!InteractionOptions.IsValidIndex(NewIndex))
 	{
-		INTERACTION_RLOG(Warning, TEXT("Try trigger invalid interaction(%d)"), NewIndex)
+		GGS_CLOG(Warning, "Try trigger invalid interaction(%d)", NewIndex)
 		return;
 	}
 
@@ -251,7 +251,7 @@ void UGGS_InteractionSystemComponent::OnInteractionOptionsChanged()
 {
 	for (FGGS_InteractionOption& InteractionOption : InteractionOptions)
 	{
-		INTERACTION_RLOG(Verbose, TEXT("Available Options:%s"), *InteractionOption.ToString())
+		GGS_CLOG(Verbose, "Available Options:%s", *InteractionOption.ToString())
 	}
 	OnInteractionOptionsChangedEvent.Broadcast();
 }
@@ -372,7 +372,7 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 		InteractionOptions = NewOptions;
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, InteractionOptions, this)
 
-		INTERACTION_RLOG(Verbose, TEXT("Interaction options changed, nums of options:%d"), InteractionOptions.Num())
+		GGS_CLOG(Verbose, "Interaction options changed, nums of options:%d", InteractionOptions.Num())
 
 		// register slot event callbacks.
 		// for (int32 i = 0; i < InteractionOptions.Num(); i++)

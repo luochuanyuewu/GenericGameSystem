@@ -55,7 +55,7 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::Activate()
 	APawn* Pawn = Cast<APawn>(GetAvatarActor());
 	if (Pawn == nullptr)
 	{
-		INTERACTION_RLOG(Error, TEXT("Pawn required to use GameplayBehavior with claim handle: %s."), *LexToString(ClaimedHandle));
+		GGS_CLOG(Error, "Pawn required to use GameplayBehavior with claim handle: %s.", *LexToString(ClaimedHandle));
 		return;
 	}
 	USmartObjectSubsystem* SmartObjectSubsystem = USmartObjectSubsystem::GetCurrent(Pawn->GetWorld());
@@ -67,7 +67,7 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::Activate()
 	// A valid claimed handle can point to an object that is no longer part of the simulation
 	if (!SmartObjectSubsystem->IsClaimedSmartObjectValid(ClaimedHandle))
 	{
-		INTERACTION_RLOG(Log, TEXT("Claim handle: %s refers to an object that is no longer available."), *LexToString(ClaimedHandle));
+		GGS_CLOG(Log, "Claim handle: %s refers to an object that is no longer available.", *LexToString(ClaimedHandle));
 		return;
 	}
 

@@ -127,7 +127,7 @@ void UGES_ContextEffectComponent::PlayContextEffectsWithInput_Implementation(FGE
 			FGES_SpawnContextEffectsOutput Output;
 
 			// Spawn effects
-			ContextEffectsSubsystem->SpawnContextEffectsExt(GetOwner(), Input,Output);
+			ContextEffectsSubsystem->SpawnContextEffectsExt(GetOwner(), Input, Output);
 
 			// Append resultant effects
 			AudioComponentsToAdd.Append(Output.AudioComponents);
@@ -189,7 +189,7 @@ void UGES_ContextEffectComponent::InjectPhysicalSurfaceToContexts(const FHitResu
 		{
 			if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
 			{
-				UE_LOG(LogGES, Warning, TEXT("No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!"));
+				GES_CLOG(Warning, "No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!");
 				if (FallbackPhysicalSurface.IsValid())
 				{
 					Contexts.AddTag(FallbackPhysicalSurface);
@@ -206,7 +206,7 @@ void UGES_ContextEffectComponent::InjectPhysicalSurfaceToContexts(const FHitResu
 				}
 				else
 				{
-					UE_LOG(LogGES, Warning, TEXT("No surface type(%d) to context map found, Please check ContextEffectsSetting in ProjectSettings!"), PhysicalSurfaceType.GetValue());
+					GES_CLOG(Warning, "No surface type(%d) to context map found, Please check ContextEffectsSetting in ProjectSettings!", PhysicalSurfaceType.GetValue());
 					if (FallbackPhysicalSurface.IsValid())
 					{
 						Contexts.AddTag(FallbackPhysicalSurface);
@@ -228,7 +228,6 @@ void UGES_ContextEffectComponent::SetGameplayTagsProvider(UObject* Provider)
 {
 	if (!IsValid(Provider))
 	{
-		UE_LOG(LogGES, Warning, TEXT("Passed invalid GameplayTagsProvider. Actor:%s  %S"), *GetName(), __FUNCTION__);
 		return;
 	}
 	if (IGameplayTagAssetInterface* TagAssetInterface = Cast<IGameplayTagAssetInterface>(Provider))
@@ -237,9 +236,7 @@ void UGES_ContextEffectComponent::SetGameplayTagsProvider(UObject* Provider)
 	}
 	else
 	{
-		UE_LOG(LogGES, Warning, TEXT("Passed in GameplayTagsProvider(%s) Doesn't implement GameplayTagAssetInterface, it can't provide gameplay tags. Actor:%s  %S"), *Provider->GetClass()->GetName(),
-		       *GetName(), __FUNCTION__);
-		return;
+		GES_CLOG(Warning, "Passed in GameplayTagsProvider(%s) Doesn't implement GameplayTagAssetInterface, it can't provide gameplay tags.", *GetNameSafe(Provider->GetClass()));
 	}
 }
 

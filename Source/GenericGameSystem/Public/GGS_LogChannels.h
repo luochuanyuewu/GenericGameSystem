@@ -5,22 +5,46 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 
+/**
+ * Gets the context string for logging purposes.
+ * 获取用于日志记录的上下文字符串。
+ * @param ContextObject The object providing the context (optional). 提供上下文的对象（可选）。
+ * @return The context string. 上下文字符串。
+ */
 FString GetGGSLogContextString(const UObject* ContextObject = nullptr);
 
-GENERICGAMESYSTEM_API DECLARE_LOG_CATEGORY_EXTERN(LogGGS_Interaction, Log, All)
+/**
+ * Log category for generic game system messages.
+ * 通用游戏系统消息的日志类别。
+ */
+GENERICGAMESYSTEM_API DECLARE_LOG_CATEGORY_EXTERN(LogGGS, Log, All);
 
-#define INTERACTION_LOG(Verbosity, Format, ...) \
+/**
+ * Macro for logging generic game system messages.
+ * 用于记录通用游戏系统消息的宏。
+ * @details Logs messages with function name and formatted message. 记录包含函数名和格式化消息的日志。
+ */
+#define GGS_LOG(Verbosity, Format, ...) \
 { \
-UE_LOG(LogGGS_Interaction, Verbosity, Format, ##__VA_ARGS__); \
+UE_LOG(LogGGS, Verbosity, TEXT("%S: %s"),__FUNCTION__, *FString::Printf(TEXT(Format), ##__VA_ARGS__)) \
 }
 
-// Context rich log for interaction.
-#define INTERACTION_RLOG(Verbosity, Format, ...) \
+/**
+ * Macro for context-based logging for generic game system.
+ * 用于通用游戏系统的基于上下文的日志记录宏。
+ * @details Logs messages with function name, context, and formatted message. 记录包含函数名、上下文和格式化消息的日志。
+ */
+#define GGS_CLOG(Verbosity, Format, ...) \
 { \
-UE_LOG(LogGGS_Interaction, Verbosity, TEXT("%s " Format " %S"),*GetGGSLogContextString(this), ##__VA_ARGS__,__FUNCTION__) \
+UE_LOG(LogGGS, Verbosity, TEXT("%S: ctx(%s) %s"),__FUNCTION__, *GetGGSLogContextString(this), *FString::Printf(TEXT(Format), ##__VA_ARGS__)) \
 }
 
-#define INTERACTION_VRLOG(LogOwner, Verbosity, Format, ...) \
+/**
+ * Macro for context-based logging with an explicit owner.
+ * 使用显式拥有者进行基于上下文的日志记录宏。
+ * @details Logs messages with function name, owner context, and formatted message. 记录包含函数名、拥有者上下文和格式化消息的日志。
+ */
+#define GGS_OWNED_CLOG(LogOwner, Verbosity, Format, ...) \
 { \
-UE_VLOG(LogOwner,LogGGS_Interaction, Verbosity, TEXT("%s " Format " %S"),*GetGGSLogContextString(LogOwner), ##__VA_ARGS__,__FUNCTION__) \
+UE_LOG(LogGGS, Verbosity, TEXT("%S: ctx(%s) %s"),__FUNCTION__, *GetGGSLogContextString(LogOwner), *FString::Printf(TEXT(Format), ##__VA_ARGS__)) \
 }

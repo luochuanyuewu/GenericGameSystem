@@ -2,12 +2,14 @@
 
 
 #include "GGS_LogChannels.h"
-
-#include "GameplayBehavior.h"
-#include "Abilities/GameplayAbility.h"
+#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "GameplayBehavior.h"
 #include "GameplayTask.h"
-DEFINE_LOG_CATEGORY(LogGGS_Interaction)
+#include "Abilities/GameplayAbility.h"
+#include "GameplayTask.h"
+
+DEFINE_LOG_CATEGORY(LogGGS)
 
 FString GetGGSLogContextString(const UObject* ContextObject)
 {

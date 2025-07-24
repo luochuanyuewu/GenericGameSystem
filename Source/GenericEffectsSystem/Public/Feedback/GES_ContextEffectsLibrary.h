@@ -18,7 +18,7 @@ struct FFrame;
  * Instance of context effects for runtime use.
  * 用于运行时的情景效果实例。
  */
-UCLASS(DisplayName="GMS Context Effects Instance")
+UCLASS(DisplayName="GES Context Effects Instance")
 class GENERICEFFECTSSYSTEM_API UGES_ActiveContextEffects : public UObject
 {
 	GENERATED_BODY()
