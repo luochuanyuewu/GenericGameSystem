@@ -30,7 +30,7 @@ public:
 	 * Activates the interaction ability.
 	 * 激活交互技能。
 	 * @param Handle The ability specification handle. 技能规格句柄。
-	 * @param ActorInfo Information about the actor using the ability. 使用技能的演员信息。
+	 * @param ActorInfo Information about the actor using the ability. 使用技能的Actor信息。
 	 * @param ActivationInfo Information about the ability activation. 技能激活信息。
 	 * @param TriggerEventData Optional event data triggering the ability. 触发技能的可选事件数据。
 	 */
@@ -41,7 +41,7 @@ public:
 	 * Ends the interaction ability.
 	 * 结束交互技能。
 	 * @param Handle The ability specification handle. 技能规格句柄。
-	 * @param ActorInfo Information about the actor using the ability. 使用技能的演员信息。
+	 * @param ActorInfo Information about the actor using the ability. 使用技能的Actor信息。
 	 * @param ActivationInfo Information about the ability activation. 技能激活信息。
 	 * @param bReplicateEndAbility Whether to replicate the end ability call. 是否同步结束技能调用。
 	 * @param bWasCancelled Whether the ability was cancelled. 技能是否被取消。
