@@ -69,19 +69,17 @@ bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSmartObjectSl
 	{
 		if (USmartObjectSubsystem* Subsystem = WorldContext->GetWorld()->GetSubsystem<USmartObjectSubsystem>())
 		{
-			const FSmartObjectSlotView SlotView = Subsystem->GetSlotView(SmartObjectSlotHandle);
-			if (SlotView.IsValid() && SlotView.GetSlotHandle().IsValid())
+			Subsystem->ReadSlotData(SmartObjectSlotHandle, [ &OutDefinition](FConstSmartObjectSlotView SlotView)
 			{
 				if (const FGGS_SmartObjectInteractionEntranceData* Entry = SlotView.GetDefinitionDataPtr<FGGS_SmartObjectInteractionEntranceData>())
 				{
 					if (!Entry->DefinitionDA.IsNull())
 					{
 						OutDefinition = Entry->DefinitionDA.LoadSynchronous();
-						return true;
 					}
 				}
-			}
+			});
 		}
 	}
-	return false;
+	return OutDefinition != nullptr;
 }
