@@ -65,6 +65,7 @@ struct GENERICGAMESYSTEM_API FGGS_SocketRelationship
 	/**
 	 * Array of socket adjustments for the mesh.
 	 * 网格的插槽调整数组。
+	 * @note Will look from bottom to top; 从下往上查询。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GGS", meta=(TitleProperty="EditorFriendlyName"))
 	TArray<FGGS_SocketAdjustment> Adjustments;
