@@ -19,7 +19,9 @@ public class GenericGameSystem : ModuleRules
 			new[]
 			{
 				"CoreUObject",
+				"ModularGameplay",
 				"NetCore",
+				"PhysicsCore",
 				"Engine",
 				"Slate",
 				"SlateCore",
