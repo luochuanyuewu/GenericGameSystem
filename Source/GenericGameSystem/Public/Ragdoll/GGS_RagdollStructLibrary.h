@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Animation/PoseSnapshot.h"
 #include "GGS_RagdollStructLibrary.generated.h"
 
 USTRUCT(BlueprintType)

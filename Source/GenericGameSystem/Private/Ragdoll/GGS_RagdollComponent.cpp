@@ -2,10 +2,12 @@
 
 
 #include "Ragdoll/GGS_RagdollComponent.h"
-
 #include "GGS_LogChannels.h"
+#include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkinnedAsset.h"
+#include "Animation/AnimInstance.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,7 +46,8 @@ bool UGGS_RagdollComponent::IsRagdollAllowedToStart() const
 	FBodyInstance* SpineBodyInstance = MeshComponent->GetBodyInstance(SpineBoneName);
 	if (PelvisBodyInstance == nullptr || SpineBodyInstance == nullptr)
 	{
-		GGS_CLOG(Warning, "A physics asset with the %s and %s bones are required for the Ragdoll to work.", *PelvisBoneName.ToString(), *SpineBoneName.ToString())
+		GGS_CLOG(Warning, "A physics asset with the %s and %s bones are required for the Ragdoll to work.(Also ensure mesh component has collision enabled)", *PelvisBoneName.ToString(),
+		         *SpineBoneName.ToString())
 		return false;
 	}
 	return true;
