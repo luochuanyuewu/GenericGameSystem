@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
-  "Version": 6,
-  "VersionName": "1.5",
+  "Version": 7,
+  "VersionName": "1.5.1",
   "FriendlyName": "GenericGameSystem",
   "Description": "Common functionalities for Interaction, context based svf/vfx play, Camera modes management, and CommonUI extensions.",
   "Category": "Gameplay",
