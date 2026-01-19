@@ -15,15 +15,31 @@ UGGS_GameplayAbility_Interaction::UGGS_GameplayAbility_Interaction()
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 }
 
+bool UGGS_GameplayAbility_Interaction::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+	UGGS_InteractionSystemComponent* InteractionSys = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(ActorInfo->AvatarActor.Get());
+	if (InteractionSys == nullptr)
+	{
+		GGS_OWNED_CLOG(ActorInfo->AvatarActor.Get(),Error,"Mising InteractionSystemComponent on avatar.")
+		return false;
+	}
+	return true;
+}
+
 void UGGS_GameplayAbility_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                        const FGameplayEventData* TriggerEventData)
 {
-	InteractionSystem = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(ActorInfo->AvatarActor.Get());
-	if (InteractionSystem == nullptr)
+	if (!ActorInfo->AvatarActor.IsValid())
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	InteractionSystem = UGGS_InteractionSystemComponent::GetInteractionSystemComponent(ActorInfo->AvatarActor.Get());
 	InteractionSystem->OnInteractableActorChangedEvent.AddDynamic(this, &ThisClass::OnInteractActorChanged);
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);

@@ -25,6 +25,8 @@ public:
 	 * 交互游戏技能构造函数。
 	 */
 	UGGS_GameplayAbility_Interaction();
+	
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
 	/**
 	 * Activates the interaction ability.
