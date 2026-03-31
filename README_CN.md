@@ -3,13 +3,13 @@
 <div align="center">
 
 ![GenericGameSystem](https://img.shields.io/badge/版本-1.6-blue)
-![UE5.6+](https://img.shields.io/badge/UE5.6-兼容-green)
+![UE5.7+](https://img.shields.io/badge/UE5.6-兼容-green)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Platform](https://img.shields.io/badge/平台-Windows%20%7C%20Android%20%7C%20Linux-lightgrey)
 
 [**官网**](https://yuewu.dev) • [**文档**](https://www.yuewu.dev/wiki/a1d2yzik8sZuC3aj3Il3X) • [**Discord**](https://discord.com/invite/xMRXAB2) • [**Fab**](https://www.fab.com/listings/98b2c4a0-9520-4d6b-8bc2-86d5c82612ca) • [**English**](README.md)
 
-**一个为虚幻引擎 5.6+ 提供核心游戏系统的综合多模块插件**
+**一个为虚幻引擎 5.7+ 提供核心游戏系统的综合多模块插件**
 
 </div>
 
@@ -65,7 +65,7 @@ GGS 采用模块化架构，由四个独立模块组成：
 ## 🚀 安装
 
 ### 方法 1：Fab 市场（推荐）
-1. 打开虚幻引擎 5.6
+1. 打开虚幻引擎 5.7
 2. 导航至 **Fab** 市场
 3. 搜索 "Generic Game System"
 4. 点击 **Add to Project**
@@ -85,7 +85,7 @@ git submodule add https://github.com/luochuanyuewu/GenericGameSystem.git
 
 ## 📋 系统要求
 
-- **虚幻引擎**：5.6 或更高版本
+- **虚幻引擎**：5.7 或更高版本
 - **必需插件**：
   - Niagara（粒子效果）
   - CommonUI（UI 系统）

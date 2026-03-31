@@ -3,13 +3,13 @@
 <div align="center">
 
 ![GenericGameSystem](https://img.shields.io/badge/Version-1.6-blue)
-![UE5.6+](https://img.shields.io/badge/UE5.6-Compatible-green)
+![UE5.7+](https://img.shields.io/badge/UE5.7-Compatible-green)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android%20%7C%20Linux-lightgrey)
 
 [**Website**](https://yuewu.dev/en) • [**Documentation**](https://www.yuewu.dev/wiki/a1d2yzik8sZuC3aj3Il3X) • [**Discord**](https://discord.com/invite/xMRXAB2) • [**Fab**](https://www.fab.com/listings/98b2c4a0-9520-4d6b-8bc2-86d5c82612ca) • [**中文**](README_CN.md)
 
-**A comprehensive multi-module plugin for Unreal Engine 5.6+ providing essential game systems**
+**A comprehensive multi-module plugin for Unreal Engine 5.7+ providing essential game systems**
 
 </div>
 
@@ -65,7 +65,7 @@ GGS is built with a modular architecture consisting of four independent modules:
 ## 🚀 Installation
 
 ### Method 1: Fab Marketplace (Recommended)
-1. Open Unreal Engine 5.6
+1. Open Unreal Engine 5.7
 2. Navigate to **Fab** marketplace
 3. Search for "Generic Game System"
 4. Click **Add to Project**
@@ -85,7 +85,7 @@ git submodule add https://github.com/luochuanyuewu/GenericGameSystem.git
 
 ## 📋 Requirements
 
-- **Unreal Engine**: 5.6 or higher
+- **Unreal Engine**: 5.7 or higher
 - **Required Plugins**:
   - Niagara (for particle effects)
   - CommonUI (for UI system)
