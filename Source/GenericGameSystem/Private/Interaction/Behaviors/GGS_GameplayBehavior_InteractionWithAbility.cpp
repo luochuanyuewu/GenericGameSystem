@@ -10,6 +10,12 @@
 #include "Interaction/Behaviors/GGS_GameplayBehaviorConfig_InteractionWithAbility.h"
 #include "Interaction/GGS_InteractionSystemComponent.h"
 
+UGGS_GameplayBehavior_InteractionWithAbility::UGGS_GameplayBehavior_InteractionWithAbility(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	InstantiationPolicy = EGameplayBehaviorInstantiationPolicy::Instantiate;
+}
+
 bool UGGS_GameplayBehavior_InteractionWithAbility::Trigger(AActor& InAvatar, const UGameplayBehaviorConfig* Config, AActor* SmartObjectOwner)
 {
 	bTransientIsTriggering = true;
@@ -159,4 +165,9 @@ void UGGS_GameplayBehavior_InteractionWithAbility::OnAbilityEndedCallback(const 
 			EndBehavior(*GetAvatar(), false);
 		}
 	}
+}
+
+bool UGGS_GameplayBehavior_InteractionWithAbility::NeedsInstance(const UGameplayBehaviorConfig* Config) const
+{
+	return true;
 }

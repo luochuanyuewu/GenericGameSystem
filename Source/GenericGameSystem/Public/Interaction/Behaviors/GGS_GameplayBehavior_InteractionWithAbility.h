@@ -19,6 +19,12 @@ class GENERICGAMESYSTEM_API UGGS_GameplayBehavior_InteractionWithAbility : publi
 
 public:
 	/**
+	 * Constructor for the interaction gameplay behavior.
+	 * 交互游戏行为构造函数。
+	 */
+	UGGS_GameplayBehavior_InteractionWithAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	/**
 	 * Triggers the interaction behavior.
 	 * 触发交互行为。
 	 * @param InAvatar The avatar actor. 化身演员。
@@ -89,4 +95,11 @@ public:
 	 * @param EndedData The ability end data. 技能结束数据。
 	 */
 	virtual void OnAbilityEndedCallback(const FAbilityEndedData& EndedData);
+	
+protected:
+	/**
+	 * Interaction behavior stores per-run ability state, so it must not run on a shared CDO.
+	 * 交互行为保存每次运行的技能状态，因此不能在共享 CDO 上执行。
+	 */
+	virtual bool NeedsInstance(const UGameplayBehaviorConfig* Config) const override;
 };
