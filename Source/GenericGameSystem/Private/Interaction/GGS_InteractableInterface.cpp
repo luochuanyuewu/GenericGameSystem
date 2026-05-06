@@ -6,7 +6,7 @@
 
 // Add default functionality here for any IGGS_InteractableInterface functions that are not pure virtual.
 
-FText IGGS_InteractableInterface::GetInteractionDisplayNameText_Implementation() const
+FText IGGS_InteractableInterface::GetInteractionDisplayName_Implementation() const
 {
 	if (UObject* Object = _getUObject())
 	{

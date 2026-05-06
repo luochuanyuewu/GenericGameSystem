@@ -54,7 +54,7 @@ bool UGGS_SmartObjectFunctionLibrary::FindSmartObjectsWithInteractionEntranceInA
 	// filter results which has definiton entry.
 	for (int32 i = 0; i < Results.Num(); i++)
 	{
-		UGGS_InteractionDefinition* FoundDefinition;
+		UGGS_InteractionDefinition* FoundDefinition = nullptr;
 		if (FindInteractionDefinitionFromSmartObjectSlot(SearchActor, Results[i].SlotHandle, FoundDefinition))
 		{
 			OutResults.Add(Results[i]);
@@ -65,6 +65,8 @@ bool UGGS_SmartObjectFunctionLibrary::FindSmartObjectsWithInteractionEntranceInA
 
 bool UGGS_SmartObjectFunctionLibrary::FindInteractionDefinitionFromSmartObjectSlot(UObject* WorldContext, FSmartObjectSlotHandle SmartObjectSlotHandle, UGGS_InteractionDefinition*& OutDefinition)
 {
+	OutDefinition = nullptr;
+
 	if (WorldContext && WorldContext->GetWorld() && SmartObjectSlotHandle.IsValid())
 	{
 		if (USmartObjectSubsystem* Subsystem = WorldContext->GetWorld()->GetSubsystem<USmartObjectSubsystem>())
