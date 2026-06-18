@@ -21,8 +21,10 @@ struct FFrame;
 struct FHitResult;
 
 /**
- * Component that implements context effects interface for handling effects playback.
- * 实现情景效果接口的组件，用于处理效果播放。
+ * Actor-level context effect bridge that resolves gameplay tags into data-driven VFX/SFX playback.
+ * Actor 级情景特效桥接组件：将 GameplayTag 解析为数据驱动的 VFX/SFX 播放。
+ * @details Runtime context is composed from input, component state, and optional tag provider before dispatching to subsystem.
+ * @细节 运行时上下文由输入、组件状态和可选标签提供者共同构成，随后交给子系统执行。
  */
 UCLASS(ClassGroup = (GES), hidecategories = (Variable, Tags, ComponentTick, ComponentReplication, Activation, Cooking, AssetUserData, Collision), CollapseCategories,
 	meta = (BlueprintSpawnableComponent))
@@ -66,15 +68,15 @@ public:
 	virtual void PlayContextEffectsWithInput_Implementation(FGES_SpawnContextEffectsInput Input) override;
 
 	/**
-	 * Aggregates context tags for effect playback.
-	 * 为效果播放聚合情景标签。
+	 * Merges input context with component/provider context according to SourceContextType contract.
+	 * 按 SourceContextType 契约合并输入上下文与组件/提供者上下文。
 	 * @param Input The context effects input data. 情景效果输入数据。
 	 */
 	void AggregateContexts(FGES_SpawnContextEffectsInput& Input) const;
 
 	/**
-	 * Injects physical surface information into context tags.
-	 * 将物理表面信息注入情景标签。
+	 * Translates hit physical surface into context tags with fallback behavior from project settings.
+	 * 将命中物理表面翻译为上下文标签，并在配置缺失时使用回退策略。
 	 * @param InHitResult The hit result. 命中结果。
 	 * @param Contexts The context tags (output). 情景标签（输出）。
 	 */
@@ -110,8 +112,8 @@ public:
 	FGameplayTagContainer DefaultEffectContexts;
 
 	/**
-	 * Default context effects libraries for this actor.
-	 * 此演员的默认情景效果库。
+	 * Startup library set loaded into subsystem for this owner; hot-swappable at runtime via UpdateLibraries.
+	 * 该拥有者启动时加载到子系统的库集合；可通过 UpdateLibraries 在运行时热切换。
 	 */
 	UPROPERTY(EditAnywhere, Category="Settings")
 	TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> DefaultContextEffectsLibraries;
@@ -155,8 +157,8 @@ private:
 	TObjectPtr<UObject> GameplayTagsProvider{nullptr};
 
 	/**
-	 * Current context effects libraries in use.
-	 * 当前使用的情景效果库。
+	 * Runtime library snapshot currently registered for this owner in subsystem.
+	 * 当前在子系统中为该拥有者注册的运行时库快照。
 	 */
 	UPROPERTY(Transient)
 	TSet<TSoftObjectPtr<UGES_ContextEffectsLibrary>> CurrentContextEffectsLibraries;

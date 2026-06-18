@@ -81,6 +81,8 @@ void UGES_ContextEffectComponent::SetupTagsProvider()
 
 void UGES_ContextEffectComponent::PlayContextEffectsWithInput_Implementation(FGES_SpawnContextEffectsInput Input)
 {
+	// Normalize input first so downstream library matching always sees fully composed source context.
+	// 先归一化输入，确保后续库匹配始终基于完整聚合后的源上下文。
 	AggregateContexts(Input);
 	InjectPhysicalSurfaceToContexts(Input.HitResult, Input.SourceContext);
 
@@ -152,6 +154,8 @@ void UGES_ContextEffectComponent::AggregateContexts(FGES_SpawnContextEffectsInpu
 {
 	if (Input.SourceContextType == EGES_EffectsContextType::Merge)
 	{
+		// Merge order: caller input -> component runtime state -> provider tags.
+		// 合并顺序：调用方输入 -> 组件运行时状态 -> 提供者标签。
 		FGameplayTagContainer TotalContexts;
 		// Aggregate contexts
 		TotalContexts.AppendTags(Input.SourceContext);
@@ -192,6 +196,8 @@ void UGES_ContextEffectComponent::InjectPhysicalSurfaceToContexts(const FHitResu
 				GES_CLOG(Warning, "No surface type to context map, Please check ContextEffectsSetting in ProjectSettings!");
 				if (FallbackPhysicalSurface.IsValid())
 				{
+					// Fallback keeps effect route deterministic even when project mapping is incomplete.
+					// 即使工程映射不完整，回退标签也可保证特效路由具有确定性。
 					Contexts.AddTag(FallbackPhysicalSurface);
 				}
 			}

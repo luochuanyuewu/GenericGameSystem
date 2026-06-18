@@ -64,14 +64,16 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::Activate()
 		return;
 	}
 
-	// A valid claimed handle can point to an object that is no longer part of the simulation
+	// Claim handle validity and simulation validity are different checks; both are required.
+	// Claim 句柄“格式有效”不等于“仍在仿真中有效”，两者都必须检查。
 	if (!SmartObjectSubsystem->IsClaimedSmartObjectValid(ClaimedHandle))
 	{
 		GGS_CLOG(Log, "Claim handle: %s refers to an object that is no longer available.", *LexToString(ClaimedHandle));
 		return;
 	}
 
-	// Register a callback to be notified if the claimed slot became unavailable
+	// Keep listening for slot invalidation so task can abort immediately on ownership loss.
+	// 持续监听槽位失效，确保占用权丢失时任务立即中止。
 	SmartObjectSubsystem->RegisterSlotInvalidationCallback(ClaimedHandle, FOnSlotInvalidated::CreateUObject(this, &UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnSlotInvalidated));
 
 	bSuccess = StartInteraction();
@@ -99,7 +101,8 @@ bool UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::StartInteraction()
 	AActor& InteractorActor = *GetAvatarActor();
 	AActor* InteracteeActor = SmartObjectComponent ? SmartObjectComponent->GetOwner() : nullptr;
 	const bool bBehaviorActive = UGameplayBehaviorSubsystem::TriggerBehavior(*GameplayBehavior, InteractorActor, GameplayBehaviorConfig, InteracteeActor);
-	// Behavior can be successfully triggered AND ended synchronously. We are only interested to register callback when still running
+	// Behavior can complete synchronously on trigger; callback is only needed for still-running behaviors.
+	// 行为可能在触发当帧同步结束；仅对仍在运行的行为注册完成回调。
 	if (bBehaviorActive)
 	{
 		OnBehaviorFinishedNotifyHandle = GameplayBehavior->GetOnBehaviorFinishedDelegate().AddUObject(this, &UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnSmartObjectBehaviorFinished);
@@ -129,6 +132,8 @@ void UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior::OnDestroy(bool bInOwne
 	{
 		USmartObjectSubsystem* SmartObjectSubsystem = USmartObjectSubsystem::GetCurrent(GetWorld());
 		check(SmartObjectSubsystem);
+		// Always release slot on task teardown to avoid leaked occupancy across ability cancellation paths.
+		// 任务结束时始终释放槽位，避免技能取消路径留下占用泄漏。
 		SmartObjectSubsystem->MarkSlotAsFree(ClaimedHandle);
 		SmartObjectSubsystem->UnregisterSlotInvalidationCallback(ClaimedHandle);
 		ClaimedHandle.Invalidate();

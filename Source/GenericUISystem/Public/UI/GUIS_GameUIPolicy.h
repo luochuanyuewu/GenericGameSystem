@@ -14,8 +14,8 @@ class UGUIS_GameUISubsystem;
 class UGUIS_GameUILayout;
 
 /**
- * Enumeration for local multiplayer UI interaction modes.
- * 本地多人UI交互模式的枚举。
+ * Local-multiplayer focus ownership strategy for root layouts.
+ * 本地多人根布局的焦点所有权策略。
  */
 UENUM()
 enum class EGUIS_LocalMultiplayerInteractionMode : uint8
@@ -26,10 +26,10 @@ enum class EGUIS_LocalMultiplayerInteractionMode : uint8
 };
 
 /**
- * Manages UI layouts for different local players.
- * 为不同本地玩家管理UI布局。
- * @details Controls the creation, addition, and removal of UI layouts and contexts.
- * @细节 控制UI布局和上下文的创建、添加和移除。
+ * Policy object that owns root layout lifecycle, context registry, and per-player action bindings.
+ * 负责根布局生命周期、上下文注册和按玩家动作绑定的策略对象。
+ * @details Treat this as the UI authority layer inside one game instance; subsystem forwards requests into this policy.
+ * @细节 可将其视为单个 GameInstance 内的 UI 权威层；子系统会把请求转发到该策略。
  */
 UCLASS(Abstract, Blueprintable, Within = GUIS_GameUISubsystem)
 class GENERICUISYSTEM_API UGUIS_GameUIPolicy : public UObject
@@ -89,8 +89,8 @@ public:
 	virtual UGUIS_GameUIContext* GetContext(const ULocalPlayer* LocalPlayer, TSubclassOf<UGUIS_GameUIContext> ContextClass);
 
 	/**
-	 * Adds a UI context for a local player.
-	 * 为本地玩家添加UI上下文。
+	 * Adds a unique context instance per class for a player to avoid ambiguous lookups.
+	 * 为每个玩家按类唯一注册上下文实例，避免查询歧义。
 	 * @param LocalPlayer The local player. 本地玩家。
 	 * @param NewContext The UI context to add. 要添加的UI上下文。
 	 * @return True if the context was added, false otherwise. 如果上下文添加成功则返回true，否则返回false。
@@ -144,8 +144,8 @@ public:
 	EGUIS_LocalMultiplayerInteractionMode GetLocalMultiplayerInteractionMode() const { return LocalMultiplayerInteractionMode; }
 
 	/**
-	 * Requests primary control for a specific layout.
-	 * 为特定布局请求主要控制权。
+	 * Requests interactive focus handoff in SingleToggle mode.
+	 * 在 SingleToggle 模式下请求交互焦点切换。
 	 * @param Layout The layout requesting primary control. 请求主要控制权的布局。
 	 */
 	void RequestPrimaryControl(UGUIS_GameUILayout* Layout);
@@ -248,8 +248,8 @@ private:
 	TSoftClassPtr<UGUIS_GameUILayout> LayoutClass;
 
 	/**
-	 * Array of root viewport layout information.
-	 * 根视口布局信息的数组。
+	 * Per-local-player root layout records, including contexts and action binding handles.
+	 * 按本地玩家保存的根布局记录，同时承载上下文和动作绑定句柄。
 	 */
 	UPROPERTY(Transient)
 	TArray<FGUIS_RootViewportLayoutInfo> RootViewportLayouts;

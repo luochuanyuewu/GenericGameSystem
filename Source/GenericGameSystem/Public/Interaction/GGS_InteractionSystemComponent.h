@@ -36,8 +36,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractingStateChangedSignature, b
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractableActorNumChangedSignature, int32, ActorsNum);
 
 /**
- * Component for managing interactions with smart objects.
- * 管理与智能对象交互的组件。
+ * Server-authoritative interaction coordinator for SmartObject-driven gameplay.
+ * 基于 SmartObject 的服务端权威交互协调组件。
+ * @details The server owns candidate selection and option refresh; owner clients receive replicated presentation state only.
+ * @细节 服务端负责候选体选择与选项刷新；拥有者客户端只接收复制后的展示状态。
  */
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(GGS), meta=(BlueprintSpawnableComponent))
 class GENERICGAMESYSTEM_API UGGS_InteractionSystemComponent : public UActorComponent
@@ -68,23 +70,23 @@ public:
 	static UGGS_InteractionSystemComponent* GetInteractionSystemComponent(const AActor* Actor);
 
 	/**
-	 * Cycles through interactable actors.
-	 * 循环切换可交互演员。
+	 * Owner-requested target switching, executed on server to keep authority on selection.
+	 * 拥有者请求切换目标，在服务端执行以保持目标选择的权威性。
 	 * @param bNext Whether to cycle to the next actor. 是否切换到下一个演员。
 	 */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category="GGS|InteractionSystem")
 	void CycleInteractableActors(bool bNext);
 
 	/**
-	 * Triggers a search for potential interactable actors.
-	 * 触发潜在可交互演员的搜索。
+	 * Broadcast-only search trigger; concrete trace/query strategy is expected in external listeners.
+	 * 仅负责广播搜索触发；具体的检测/查询策略由外部监听方实现。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void SearchInteractableActors();
 
 	/**
-	 * Sets a new array of interactable actors.
-	 * 设置新的可交互演员数组。
+	 * Replaces server-side candidate cache and drives owner-only replicated view state refresh.
+	 * 替换服务端候选缓存，并触发面向拥有者复制的展示状态刷新。
 	 * @param NewActors The new interactable actors. 新的可交互演员。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
@@ -112,8 +114,8 @@ public:
 	int32 GetNumOfInteractableActors() const { return NumsOfInteractableActors; }
 
 	/**
-	 * Sets the current interactable actor.
-	 * 设置当前可交互演员。
+	 * Updates current focus target; call path is expected to preserve authority ownership semantics.
+	 * 更新当前焦点目标；调用方应保证符合权威端所有权语义。
 	 * @param InActor The actor to set. 要设置的演员。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
@@ -162,8 +164,8 @@ public:
 	FInteractionEventSignature OnSearchInteractableActorsEvent;
 
 	/**
-	 * Retrieves the smart object request filter.
-	 * 获取智能对象请求过滤器。
+	 * Provides per-component query filter used by option refresh and actor search.
+	 * 提供组件级查询过滤器，供选项刷新与候选搜索复用。
 	 * @return The smart object request filter. 智能对象请求过滤器。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintNativeEvent, Category="GGS|InteractionSystem")
@@ -171,23 +173,23 @@ public:
 	virtual FSmartObjectRequestFilter GetSmartObjectRequestFilter_Implementation();
 
 	/**
-	 * Starts an interaction with the specified option index.
-	 * 开始与指定选项索引的交互。
+	 * Starts persistent interaction state for a validated option index.
+	 * 针对合法选项索引启动持续交互状态。
 	 * @param NewIndex The interaction option index. 交互选项索引。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	virtual void StartInteraction(int32 NewIndex = 0);
 
 	/**
-	 * Ends the current interaction.
-	 * 结束当前交互。
+	 * Clears persistent interaction state and emits transition callbacks.
+	 * 清理持续交互状态并触发状态迁移回调。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	virtual void EndInteraction();
 
 	/**
-	 * Performs an instant interaction with the specified option index.
-	 * 执行与指定选项索引的即时交互。
+	 * Executes a one-shot interaction pulse (start then immediate end) for trigger-like actions.
+	 * 执行一次性脉冲交互（开始后立即结束），用于触发式动作。
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="GGS|InteractionSystem")
 	void InstantInteraction(int32 NewIndex = 0);
@@ -233,8 +235,8 @@ protected:
 	virtual void OnInteractableActorsNumChanged();
 
 	/**
-	 * Called when the potential interactable actors changes.
-	 * 可交互演员变更时调用。
+	 * Handles candidate list replacement and focus fallback logic after search/update.
+	 * 处理搜索/更新后的候选列表替换与焦点回退逻辑。
 	 */
 	UFUNCTION(BlueprintNativeEvent, Category="GGS|InteractionSystem")
 	void OnInteractableActorsChanged();
@@ -263,70 +265,70 @@ protected:
 	void OnInteractingOptionChanged(int32 PrevOptionIndex);
 
 	/**
-	 * Refreshes interaction options based on smart object request results.
-	 * 根据智能对象请求结果刷新交互选项。
+	 * Rebuilds option snapshot from slot query results, then rebinds slot callbacks atomically.
+	 * 基于槽位查询结果重建选项快照，并原子化重绑槽位回调。
 	 */
 	virtual void RefreshOptionsForActor();
 
 	/**
-	 * Array of potential interactable actors. Not replicated.
-	 * 潜在可交互演员数组。未网络同步。
+	 * Authority-side candidate cache; not replicated because only derived UI state is synced.
+	 * 权威端候选缓存；不直接复制，仅同步其派生 UI 状态。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	TArray<TObjectPtr<AActor>> InteractableActors;
 
 	/**
-	 * Number of potential interactable actors, replicated to owning client.
-	 * 潜在可交互演员数量，同步到拥有客户端。
+	 * Lightweight replicated count for owner-side UI hints without exposing full candidate list.
+	 * 轻量复制的候选数量，用于拥有者 UI 提示且不暴露完整候选列表。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnInteractableActorsNumChanged, Category="GGS|InteractionSystem")
 	int32 NumsOfInteractableActors{0};
 
 	/**
-	 * Current selected interactable actor, replicated for owner only.
-	 * 当前选中的可交互演员，仅针对拥有者同步。
+	 * Current focused target replicated owner-only to drive local prompts/highlight.
+	 * 当前焦点目标仅复制给拥有者，用于本地提示与高亮。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GGS|InteractionSystem", ReplicatedUsing=OnInteractableActorChanged)
 	TObjectPtr<AActor> InteractableActor;
 
 	/**
-	 * Default filter for searching interactable smart objects.
-	 * 搜索可交互智能对象的默认过滤器。
+	 * Baseline SmartObject filter; per-pawn overrides can be provided via GetSmartObjectRequestFilter.
+	 * SmartObject 基础过滤器；可通过 GetSmartObjectRequestFilter 提供角色级覆盖。
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	FSmartObjectRequestFilter DefaultRequestFilter;
 
 	/**
-	 * If checked, whenever potential interactable actors changes, the first actor in the list will be selected as currency interactable actor.
-	 * 如果勾选，始终使用潜在交互演员中的第一个作为当前选择。
+	 * When true, newest candidate ordering can preempt current focus to keep "nearest/highest-priority first" UX.
+	 * 为 true 时，新候选排序可抢占当前焦点，以维持“最近/最高优先级优先”的交互体验。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing=OnInteractableActorsNumChanged, Category="GGS|InteractionSystem")
 	bool bNewActorHasPriority{false};
 
 	/**
-	 * Current available interaction options, replicated for owner only.
-	 * 当前可用的交互选项，仅针对拥有者同步。
+	 * Owner-facing option snapshot derived from authoritative slot query and slot state filtering.
+	 * 面向拥有者的选项快照，由权威端槽位查询与槽位状态过滤结果派生。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractionOptionsChanged)
 	TArray<FGGS_InteractionOption> InteractionOptions;
 
 	/**
-	 * Indicates if an interaction is in progress.
-	 * 表示是否正在进行交互。
+	 * Local runtime flag derived from InteractingOption transitions for fast branch checks.
+	 * 由 InteractingOption 迁移推导的本地运行时标记，用于快速分支判断。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem")
 	bool bInteracting{false};
 
 	/**
-	 * Current interacting option index (-1 if no interaction).
-	 * 当前交互选项索引（无交互时为-1）。
+	 * Replicated interaction cursor; INDEX_NONE means "no active interaction".
+	 * 复制的交互游标；INDEX_NONE 表示“无进行中交互”。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GGS|InteractionSystem", ReplicatedUsing=OnInteractingOptionChanged)
 	int32 InteractingOption{INDEX_NONE};
 
 	/**
-	 * Map of smart object slot handles to delegate handles.
-	 * 智能对象槽句柄到委托句柄的映射。
+	 * Slot-event subscription registry used to safely unsubscribe stale callbacks during option rebuild.
+	 * 槽位事件订阅表，用于在选项重建时安全解绑陈旧回调。
 	 */
 	TMap<FSmartObjectSlotHandle, FDelegateHandle> SlotCallbacks;
 };

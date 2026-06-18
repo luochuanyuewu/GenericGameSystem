@@ -70,6 +70,8 @@ void UGGS_RagdollComponent::StartRagdoll()
 		return;
 	}
 
+	// Authority triggers multicast directly; autonomous proxy forwards request after flushing prediction moves.
+	// 权威端直接多播；自治代理先刷新预测移动再上报请求。
 	if (GetOwner()->GetLocalRole() >= ROLE_Authority)
 	{
 		MulticastStartRagdoll();
@@ -105,6 +107,8 @@ void UGGS_RagdollComponent::LocalStartRagdoll()
 		return;
 	}
 
+	// Enter physics-driven phase: detach mesh, disable capsule collision, and switch movement authority.
+	// 进入物理驱动阶段：分离网格体、关闭胶囊碰撞、切换移动控制权。
 	MeshComponent->bUpdateJointsFromAnimation = true; // Required for the flail animation to work properly.
 
 	if (!MeshComponent->IsRunningParallelEvaluation() && !MeshComponent->GetBoneSpaceTransforms().IsEmpty())
@@ -177,6 +181,8 @@ void UGGS_RagdollComponent::LocalStartRagdoll()
 
 	if (PawnOwner->IsLocallyControlled() || (PawnOwner->GetLocalRole() >= ROLE_Authority && !IsValid(PawnOwner->GetController())))
 	{
+		// Locally controlled side seeds target location; remotes will converge by replicated correction.
+		// 本地控制侧负责播种目标位置；远端通过复制纠正逐步收敛。
 		SetRagdollTargetLocation(PelvisLocation);
 	}
 
@@ -240,6 +246,8 @@ void UGGS_RagdollComponent::LocalStopRagdoll()
 		return;
 	}
 
+	// Snapshot pose before physics teardown so anim graph can recover with a stable transition frame.
+	// 关闭物理前先快照姿态，保证动画图可以稳定衔接恢复帧。
 	MeshComponent->SnapshotPose(RagdollState.FinalRagdollPose);
 
 	const auto PelvisTransform{MeshComponent->GetSocketTransform(PelvisBoneName)};
@@ -321,6 +329,8 @@ void UGGS_RagdollComponent::LocalStopRagdoll()
 		}
 		else
 		{
+			// Preserve outgoing ragdoll velocity when returning to falling mode for momentum continuity.
+			// 回到下落模式时保留布娃娃末速度，以维持动量连续性。
 			CharacterOwner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 			CharacterOwner->GetCharacterMovement()->Velocity = RagdollState.Velocity;
 		}
@@ -367,6 +377,8 @@ void UGGS_RagdollComponent::SetRagdollTargetLocation(const FVector& NewTargetLoc
 
 		if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy)
 		{
+			// Autonomous proxy is the only client role that upstreams local correction targets to server.
+			// 仅自治代理会把本地纠正目标上行到服务端。
 			ServerSetRagdollTargetLocation(RagdollTargetLocation);
 		}
 	}
@@ -416,7 +428,8 @@ void UGGS_RagdollComponent::RefreshRagdoll(float DeltaTime)
 
 	if (!bLocallyControlled && !RagdollTargetLocation.IsZero())
 	{
-		// Apply ragdoll location corrections.
+		// Remote simulation pulls toward replicated target to hide divergence without hard teleport jitter.
+		// 远端物理体向复制目标施加拉力，避免硬传送造成抖动。
 
 		static constexpr auto PullForce{750.0f};
 		static constexpr auto InterpolationHalfLife{1.2f};
@@ -594,6 +607,8 @@ void UGGS_RagdollComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Parameters.bIsPushBased = true;
 
 	Parameters.Condition = COND_SkipOwner;
+	// Owner already has authoritative local target; replicate only to simulated peers.
+	// 拥有者已持有本地权威目标，仅向模拟端复制。
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, RagdollTargetLocation, Parameters)
 }

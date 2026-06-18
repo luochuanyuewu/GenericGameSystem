@@ -16,10 +16,10 @@ class UGUIS_GameUIPolicy;
 class UObject;
 
 /**
- * Game UI subsystem for managing UI policies and player UI interactions.
- * 管理UI策略和玩家UI交互的游戏UI子系统。
- * @details Intended to be subclassed for game-specific UI functionality.
- * @细节 旨在为特定游戏的UI功能进行子类化。
+ * Game-instance UI gateway that owns policy lifetime and per-local-player registration.
+ * 挂在 GameInstance 上的 UI 网关，负责 Policy 生命周期和本地玩家注册。
+ * @details This subsystem routes player/context/action binding calls to the active policy rather than owning per-screen state directly.
+ * @细节 该子系统将玩家/上下文/动作绑定调用转发给当前 Policy，而不直接持有各屏幕状态。
  */
 UCLASS()
 class GENERICUISYSTEM_API UGUIS_GameUISubsystem : public UGameInstanceSubsystem
@@ -45,8 +45,8 @@ public:
 	virtual void Deinitialize() override;
 
 	/**
-	 * Determines if the subsystem should be created.
-	 * 确定是否应创建子系统。
+	 * Guards subsystem creation for client worlds and base-class fallback scenarios.
+	 * 控制子系统仅在客户端世界和基类兜底场景下创建。
 	 * @param Outer The outer object. 外部对象。
 	 * @return True if the subsystem should be created, false otherwise. 如果应创建子系统则返回true，否则返回false。
 	 */
@@ -160,8 +160,8 @@ public:
 	void RegisterUIContextForPlayer(ULocalPlayer* LocalPlayer, UGUIS_GameUIContext* Context, FGUIS_UIContextBindingHandle& BindingHandle);
 
 	/**
-	 * Registers a UI context for an actor.
-	 * 为演员注册UI上下文。
+	 * Convenience registration path for locally controlled pawns that resolves owning local player.
+	 * 面向本地受控 Pawn 的便捷注册路径，会自动解析其所属 LocalPlayer。
 	 * @param Actor The actor to associate with the context. 与上下文关联的演员。
 	 * @param Context The UI context to register. 要注册的UI上下文。
 	 * @param BindingHandle The handle for the context binding. 上下文绑定的句柄。
@@ -216,8 +216,8 @@ private:
 	TObjectPtr<UGUIS_GameUIPolicy> CurrentPolicy = nullptr;
 
 	/**
-	 * Array of UI action binding handles.
-	 * UI动作绑定句柄的数组。
+	 * Legacy binding cache used by deprecated register/unregister APIs for cleanup safety.
+	 * 旧版注册/反注册 API 的绑定缓存，用于安全清理遗留句柄。
 	 */
 	TArray<FUIActionBindingHandle> BindingHandles;
 };

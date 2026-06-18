@@ -11,8 +11,10 @@
 class UGameplayBehavior;
 
 /**
- * Ability task for using a smart object with gameplay behavior.
- * 使用智能对象和游戏行为的技能任务。
+ * AbilityTask wrapper that binds SmartObject claim lifecycle to gameplay behavior execution.
+ * 将 SmartObject claim 生命周期与 GameplayBehavior 执行绑定的 AbilityTask。
+ * @details Task is responsible for occupying/freeing slot and aborting behavior when slot invalidates.
+ * @细节 任务负责占用/释放槽位，并在槽位失效时终止行为。
  */
 UCLASS()
 class GENERICGAMESYSTEM_API UGGS_AbilityTask_UseSmartObjectWithGameplayBehavior : public UAbilityTask
@@ -76,8 +78,8 @@ protected:
 	void OnSmartObjectBehaviorFinished(UGameplayBehavior& Behavior, AActor& Avatar, const bool bInterrupted);
 
 	/**
-	 * Called when the smart object slot is invalidated.
-	 * 智能对象槽失效时调用。
+	 * Handles external slot invalidation and forces task shutdown to avoid acting on stale occupancy.
+	 * 处理外部槽位失效并强制结束任务，避免继续操作过期占用。
 	 * @param ClaimHandle The claim handle. 认领句柄。
 	 * @param State The slot state. 槽状态。
 	 */

@@ -27,6 +27,8 @@ void UGGS_InteractionSystemComponent::GetLifetimeReplicatedProps(TArray<class FL
 	FDoRepLifetimeParams Params;
 	Params.bIsPushBased = true;
 	Params.Condition = COND_OwnerOnly;
+	// Replicate owner-facing interaction state only; full candidate/query data stays authority-side.
+	// 仅复制拥有者侧交互展示状态；完整候选与查询数据保留在权威端。
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractableActor, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, NumsOfInteractableActors, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InteractingOption, Params);
@@ -182,6 +184,8 @@ void UGGS_InteractionSystemComponent::OnInteractableActorChanged(AActor* OldActo
 {
 	if (GetOwner()->GetLocalRole() >= ROLE_Authority)
 	{
+		// Server refreshes options whenever focus target changes to keep replicated owner snapshot coherent.
+		// 服务端在焦点目标变化时刷新选项，保证复制给拥有者的快照一致。
 		RefreshOptionsForActor();
 	}
 
@@ -234,6 +238,8 @@ void UGGS_InteractionSystemComponent::OnSmartObjectEventCallback(const FSmartObj
 {
 	check(InteractableActor != nullptr);
 
+	// Only occupancy/claim/release transitions can invalidate current option availability.
+	// 仅占用/认领/释放这类状态迁移会使当前选项可用性失效。
 	for (int32 i = 0; i < InteractionOptions.Num(); i++)
 	{
 		const FGGS_InteractionOption& Option = InteractionOptions[i];
@@ -285,7 +291,8 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 		return;
 	}
 
-	// getting new options for current interact actor.
+	// Build a fresh option snapshot from current focused actor and request filter.
+	// 基于当前焦点目标与请求过滤器重建最新选项快照。
 	TArray<FGGS_InteractionOption> NewOptions;
 	{
 		TArray<FSmartObjectRequestResult> Results;
@@ -308,7 +315,8 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 		}
 	}
 
-	// check any options changed.
+	// Compare normalized snapshots to avoid redundant replication/callback churn.
+	// 比较归一化快照，避免不必要的复制与回调抖动。
 	bool bOptionsChanged = false;
 	{
 		if (NewOptions.Num() == InteractionOptions.Num())
@@ -335,7 +343,8 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 
 	if (bOptionsChanged)
 	{
-		// unregister event callbacks for existing options.
+		// Always unbind old slot delegates before replacing option array to prevent stale callbacks.
+		// 在替换选项数组前先解绑旧槽位委托，避免陈旧回调残留。
 		for (int32 i = 0; i < InteractionOptions.Num(); i++)
 		{
 			auto& Handle = InteractionOptions[i].RequestResult.SlotHandle;
@@ -374,7 +383,8 @@ void UGGS_InteractionSystemComponent::RefreshOptionsForActor()
 
 		GGS_CLOG(Verbose, "Interaction options changed, nums of options:%d", InteractionOptions.Num())
 
-		// register slot event callbacks.
+		// Register delegates for the new snapshot so occupancy changes can trigger incremental refresh.
+		// 为新快照注册委托，后续占用状态变化可触发增量刷新。
 		// for (int32 i = 0; i < InteractionOptions.Num(); i++)
 		// {
 		// 	FGGS_InteractionOption& Option = InteractionOptions[i];

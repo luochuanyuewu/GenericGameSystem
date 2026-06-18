@@ -58,6 +58,8 @@ bool UGUIS_GameUISubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
 	if (CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance())
 	{
+		// UI policy is client-only; dedicated server should not allocate UI subsystem state.
+		// UI Policy 仅服务客户端；Dedicated Server 不应创建该子系统状态。
 		return false;
 	}
 
@@ -66,6 +68,8 @@ bool UGUIS_GameUISubsystem::ShouldCreateSubsystem(UObject* Outer) const
 
 	if (ChildClasses.Num() == 0)
 	{
+		// Create base subsystem only when no project-specific subclass exists.
+		// 仅在项目未提供派生实现时创建基础子系统。
 		UE_LOG(LogGUIS, Display, TEXT("No override implementation found for UGUIS_GameUISubsystem, So creating it."))
 		return true;
 	}
@@ -170,6 +174,8 @@ void UGUIS_GameUISubsystem::RegisterUIContextForActor(AActor* Actor, UGUIS_GameU
 	APawn* Pawn = Cast<APawn>(Actor);
 	if (Pawn == nullptr || !Pawn->IsLocallyControlled())
 	{
+		// Context routing relies on local input ownership; remote pawns cannot host local UI context.
+		// 上下文路由依赖本地输入所有权；远端 Pawn 不能承载本地 UI 上下文。
 		UE_LOG(LogGUIS, Error, TEXT("Trying to register ui context for actor(%s) which is not locally controlled pawn!"), *Pawn->GetName())
 		return;
 	}

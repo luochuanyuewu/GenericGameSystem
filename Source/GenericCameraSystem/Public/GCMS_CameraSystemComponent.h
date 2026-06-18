@@ -25,9 +25,10 @@ DECLARE_DELEGATE_RetVal(TSubclassOf<UGCMS_CameraMode>, FGMSCameraModeDelegate);
 
 
 /**
- * UGCMS_CameraSystemComponent
- *
- *	The base camera component class used by GMS camera system.
+ * Runtime entry component for camera-mode-stack driven view updates.
+ * 基于相机模式栈驱动视角更新的运行时入口组件。
+ * @details Intended to live on the view target actor and push one camera mode decision each tick.
+ * @细节 设计上挂载在视角目标 Actor 上，并在每帧推入一个相机模式决策。
  */
 UCLASS(ClassGroup=GCMS, meta=(BlueprintSpawnableComponent))
 class GENERICCAMERASYSTEM_API UGCMS_CameraSystemComponent : public UActorComponent
@@ -49,9 +50,11 @@ public:
 	virtual AActor* GetTargetActor() const { return GetOwner(); }
 
 	// Delegate used to query for the best camera mode.
+	// 每帧用于查询“当前最优模式”的委托，应保持幂等且避免副作用。
 	FGMSCameraModeDelegate DetermineCameraModeDelegate;
 
 	// Add an offset to the field of view.  The offset is only for one frame, it gets cleared once it is applied.
+	// 为 FOV 追加单帧偏移；该偏移用于临时镜头冲击感，不应作为持久配置。
 	void AddFieldOfViewOffset(float FovOffset) { FieldOfViewOffset += FovOffset; }
 
 	// Push specified Camera Mode.
@@ -62,7 +65,8 @@ public:
 	void PushDefaultCameraMode();
 
 	/**
-	 * Initialize it with camera component and sprint arm component. 
+	 * Binds concrete camera/spring-arm pair that will receive blended mode outputs.
+	 * 绑定接收模式混合输出的相机与弹簧臂组件。
 	 */
 	UFUNCTION(BlueprintCallable, Category="GCMS|Camera")
 	void Initialize(UCameraComponent* NewCameraComponent, USpringArmComponent* NewSpringArmComponent);

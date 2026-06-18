@@ -68,6 +68,8 @@ bool UGUIS_GameUIPolicy::AddContext(const ULocalPlayer* LocalPlayer, UGUIS_GameU
 {
 	if (FGUIS_RootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer))
 	{
+		// Enforce one context instance per class for deterministic retrieval and teardown.
+		// 强制每个类仅注册一个上下文实例，保证检索和销毁行为确定。
 		if (const UObject* ExistingContext = GetContext(LocalPlayer, NewContext->GetClass()))
 		{
 			UE_LOG(LogGUIS, Warning, TEXT("[%s] is trying to add repeat context of type(%s) for %s, which is not allowed!"), *GetName(), *NewContext->GetClass()->GetName(), *GetNameSafe(LocalPlayer));
@@ -174,6 +176,8 @@ void UGUIS_GameUIPolicy::NotifyPlayerRemoved(ULocalPlayer* LocalPlayer)
 			if (RootLayout && !RootLayout->IsDormant())
 			{
 				// We're removing a secondary player's root while it's in control - transfer control back to the primary player's root
+				// Secondary root losing ownership must hand control back to primary to keep input focus valid.
+				// 次级根布局被移除且仍在控制时，必须把控制权归还主布局以保持输入焦点有效。
 				RootLayout->SetIsDormant(true);
 				for (const FGUIS_RootViewportLayoutInfo& RootLayoutInfo : RootViewportLayouts)
 				{
@@ -259,6 +263,8 @@ void UGUIS_GameUIPolicy::RequestPrimaryControl(UGUIS_GameUILayout* Layout)
 {
 	if (LocalMultiplayerInteractionMode == EGUIS_LocalMultiplayerInteractionMode::SingleToggle && Layout->IsDormant())
 	{
+		// SingleToggle guarantees only one active interactive root at a time.
+		// SingleToggle 模式保证同一时刻只有一个可交互根布局。
 		for (const FGUIS_RootViewportLayoutInfo& LayoutInfo : RootViewportLayouts)
 		{
 			UGUIS_GameUILayout* RootLayout = LayoutInfo.RootLayout;

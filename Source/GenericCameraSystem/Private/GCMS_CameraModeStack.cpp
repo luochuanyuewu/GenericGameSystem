@@ -94,7 +94,8 @@ void UGCMS_CameraModeStack::PushCameraMode(TSubclassOf<UGCMS_CameraMode> CameraM
 		ExistingStackContribution = 0.0f;
 	}
 
-	// Decide what initial weight to start with.
+	// Re-entry keeps historical contribution as starting weight to avoid abrupt visual pops.
+	// 模式回栈时沿用历史贡献度作为初始权重，避免突兀跳变。
 	const bool bShouldBlend = ((NewCameraMode->GetBlendTime() > 0.0f) && (StackSize > 0));
 	const float BlendWeight = (bShouldBlend ? ExistingStackContribution : 1.0f);
 
@@ -103,7 +104,8 @@ void UGCMS_CameraModeStack::PushCameraMode(TSubclassOf<UGCMS_CameraMode> CameraM
 	// Add new entry to top of stack.
 	CameraModeStack.Insert(NewCameraMode, 0);
 
-	// Make sure stack bottom is always weighted 100%.
+	// Bottom layer remains full weight as final fallback view.
+	// 底层始终保持满权重，作为最终兜底视角。
 	CameraModeStack.Last()->SetBlendWeight(1.0f);
 
 	// Let the camera mode know if it's being added to the stack.
@@ -205,7 +207,8 @@ void UGCMS_CameraModeStack::BlendStack(FGCMS_CameraModeView& OutCameraModeView) 
 		return;
 	}
 
-	// Start at the bottom and blend up the stack
+	// Start from fallback(bottom) then blend toward higher-priority entries.
+	// 从兜底层（底部）开始，向更高优先级层逐级混合。
 	const UGCMS_CameraMode* CameraMode = CameraModeStack[StackSize - 1];
 	check(CameraMode);
 

@@ -56,6 +56,8 @@ void UGCMS_CameraSystemComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		CameraModeStack->EvaluateStack(DeltaTime, CameraModeView);
 
 		// Keep player controller in sync with the latest view.
+		// Controller rotation is synchronized from camera output so aim/input logic reads the same orientation.
+		// 将控制器旋转同步为相机输出，确保瞄准/输入逻辑读取同一朝向。
 		if (APawn* TargetPawn = Cast<APawn>(GetTargetActor()))
 		{
 			if (APlayerController* PC = TargetPawn->GetController<APlayerController>())
@@ -116,6 +118,8 @@ void UGCMS_CameraSystemComponent::UpdateCameraModes()
 	{
 		if (DetermineCameraModeDelegate.IsBound())
 		{
+			// Policy chooses one desired mode per tick; stack handles blending and persistence.
+			// 每帧由策略给出一个期望模式，模式栈负责混合与持续化。
 			if (const TSubclassOf<UGCMS_CameraMode> CameraMode = DetermineCameraModeDelegate.Execute())
 			{
 				CameraModeStack->PushCameraMode(CameraMode);

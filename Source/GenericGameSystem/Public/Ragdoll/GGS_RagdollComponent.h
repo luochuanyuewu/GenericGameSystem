@@ -14,6 +14,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGGS_RagdollStartedSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGGS_RagdollEndedSignature, bool, bGrounded);
 
+/**
+ * Network-aware ragdoll controller with explicit authority transition and remote pose correction.
+ * 具备明确权威切换与远端姿态纠正的网络化布娃娃控制组件。
+ */
 UCLASS(ClassGroup=(GGS), Blueprintable, meta=(BlueprintSpawnableComponent))
 class GENERICGAMESYSTEM_API UGGS_RagdollComponent : public UPawnComponent
 {
@@ -34,6 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "GGS|Ragdoll")
 	bool IsRagdolling() const;
 
+	/**
+	 * Entry point for ragdoll start request; authority decides final multicast execution.
+	 * 布娃娃开始请求入口；最终是否多播执行由权威端裁决。
+	 */
 	UFUNCTION(BlueprintCallable, Category = "GGS|Ragdoll")
 	void StartRagdoll();
 
@@ -59,6 +67,10 @@ protected:
 public:
 	bool IsRagdollAllowedToStop() const;
 
+	/**
+	 * Entry point for ragdoll stop request; returns false when role/state does not allow transition.
+	 * 布娃娃停止请求入口；当角色权限或状态不允许切换时返回 false。
+	 */
 	UFUNCTION(BlueprintCallable, Category = "GGS|Ragdoll", Meta = (ReturnDisplayName = "Success"))
 	bool StopRagdoll();
 
@@ -73,6 +85,10 @@ private:
 	void MulticastStopRagdoll();
 
 protected:
+	/**
+	 * Chooses montage according to final grounded orientation after physics settles.
+	 * 根据物理稳定后的最终朝向选择起身蒙太奇。
+	 */
 	UFUNCTION(BlueprintNativeEvent, Category = "GGS|Ragdoll")
 	UAnimMontage* SelectGetUpMontage(bool bRagdollFacingUpward);
 
@@ -113,6 +129,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ragdoll Settings")
 	uint8 bLimitInitialRagdollSpeed : 1 {true};
 
+	/**
+	 * If enabled, play get-up montage only when stop result is grounded to avoid airborne pose conflicts.
+	 * 启用后仅在落地停止时播放起身蒙太奇，避免与空中状态姿态冲突。
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ragdoll Settings")
 	bool bPlayGetupMontageAfterRagdollEndedOnGround{false};
 
@@ -125,6 +145,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ragdoll State", Transient)
 	bool bRagdolling{false};
 
+	/**
+	 * Authoritative pelvis target used for remote correction; quantized for bandwidth stability.
+	 * 用于远端纠正的权威骨盆目标点；采用量化以稳定带宽成本。
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ragdoll State", Transient, Replicated)
 	FVector_NetQuantize RagdollTargetLocation{ForceInit};
 
