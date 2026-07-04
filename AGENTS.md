@@ -11,7 +11,7 @@
 
 - `GenericGameSystem` 是一个面向 Unreal Engine 5.7+ 的代码型插件仓库，不包含可运行游戏工程。
 - 插件不包含内容资产；`GenericGameSystem.uplugin` 中 `CanContainContent` 为 `false`。
-- 插件面向 Windows、Android、Linux，主打通用游戏基础能力：上下文特效、相机模式、CommonUI 扩展、交互、布娃娃和 Smart Objects 集成。
+- 插件面向 Windows、macOS、Android、Linux，主打通用游戏基础能力：上下文特效、相机模式、CommonUI 扩展、交互、布娃娃和 Smart Objects 集成。
 - 根目录中的 `README.md`、`README_CN.md` 面向使用者；本文件面向 Codex 和维护者，说明如何安全地修改代码。
 
 ## 模块边界
@@ -76,10 +76,16 @@
 
 - 本仓库没有独立构建脚本，也没有内置自动化测试套件。
 - 最可靠的验证方式是在安装了本插件的宿主 Unreal 项目中，用 Unreal Build Tool 构建宿主 Editor Target。
-- 当前常用宿主构建命令：
+- Windows UE 5.7 路径：`G:\UE_5.7`；macOS UE 5.7 路径：`/Applications/UE_5.7`。
+- Windows 宿主工程：`E:\GenericGame\GenericGame.uproject`；macOS 宿主工程：`/Users/kinson/Unreal/GenericGame/GenericGame.uproject`。
+- 当前常用宿主构建命令按系统选择：
 
 ```powershell
 & 'G:\UE_5.7\Engine\Build\BatchFiles\Build.bat' GenericGameEditor Win64 Development 'E:\GenericGame\GenericGame.uproject' -WaitMutex -NoHotReloadFromIDE
+```
+
+```bash
+/Applications/UE_5.7/Engine/Build/BatchFiles/Mac/Build.sh GenericGameEditor Mac Development /Users/kinson/Unreal/GenericGame/GenericGame.uproject -WaitMutex -NoHotReloadFromIDE
 ```
 
 - 如果新增或重命名反射类型、模块依赖或插件配置，必要时先重新生成项目文件。
