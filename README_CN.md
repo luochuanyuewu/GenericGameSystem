@@ -3,9 +3,9 @@
 <div align="center">
 
 ![GenericGameSystem](https://img.shields.io/badge/版本-1.6-blue)
-![UE5.7+](https://img.shields.io/badge/UE5.6-兼容-green)
+![UE5.7+](https://img.shields.io/badge/UE5.7%2B-兼容-green)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Platform](https://img.shields.io/badge/平台-Windows%20%7C%20Android%20%7C%20Linux-lightgrey)
+![Platform](https://img.shields.io/badge/平台-Windows%20%7C%20macOS%20%7C%20Android%20%7C%20Linux-lightgrey)
 
 [**官网**](https://yuewu.dev) • [**文档**](https://www.yuewu.dev/wiki/a1d2yzik8sZuC3aj3Il3X) • [**Discord**](https://discord.com/invite/xMRXAB2) • [**Fab**](https://www.fab.com/listings/98b2c4a0-9520-4d6b-8bc2-86d5c82612ca) • [**English**](README.md)
 
@@ -25,7 +25,7 @@
 - **高级相机管理**：灵活的相机模式管理系统
 - **UI 扩展**：增强的 CommonUI 组件和工具
 - **交互系统**：用于游戏对象的健壮交互框架
-- **跨平台支持**：支持 Windows、Android 和 Linux
+- **跨平台支持**：支持 Windows、macOS、Android 和 Linux
 
 ## 🏗️ 架构
 

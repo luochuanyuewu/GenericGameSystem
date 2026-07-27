@@ -5,7 +5,7 @@
 ![GenericGameSystem](https://img.shields.io/badge/Version-1.6-blue)
 ![UE5.7+](https://img.shields.io/badge/UE5.7-Compatible-green)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android%20%7C%20Linux-lightgrey)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Android%20%7C%20Linux-lightgrey)
 
 [**Website**](https://yuewu.dev/en) • [**Documentation**](https://www.yuewu.dev/wiki/a1d2yzik8sZuC3aj3Il3X) • [**Discord**](https://discord.com/invite/xMRXAB2) • [**Fab**](https://www.fab.com/listings/98b2c4a0-9520-4d6b-8bc2-86d5c82612ca) • [**中文**](README_CN.md)
 
@@ -25,7 +25,7 @@
 - **Advanced Camera Management**: Flexible camera mode management system
 - **UI Extensions**: Enhanced CommonUI components and utilities
 - **Interaction System**: Robust interaction framework for gameplay objects
-- **Cross-Platform**: Supports Windows, Android, and Linux
+- **Cross-Platform**: Supports Windows, macOS, Android, and Linux
 
 ## 🏗️ Architecture
 
