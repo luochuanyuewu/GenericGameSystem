@@ -1,4 +1,4 @@
-﻿// Copyright 2025 https://yuewu.dev/en  All Rights Reserved.
+﻿// Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
 
 #include "Feedback/GES_ContextEffectsStructLibrary.h"
