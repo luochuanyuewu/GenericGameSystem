@@ -94,4 +94,11 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	EMouseCaptureMode GameMouseCaptureMode = EMouseCaptureMode::CapturePermanently;
+
+	/**
+	 * Whether to hide the cursor while the viewport captures the mouse.
+	 * 是否在视口捕获鼠标期间隐藏光标。
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	bool bHideCursorDuringViewportCapture = true;
 };

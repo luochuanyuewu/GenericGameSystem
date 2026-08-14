@@ -22,14 +22,14 @@ TOptional<FUIInputConfig> UGUIS_ActivatableWidget::GetDesiredInputConfig() const
 	switch (InputConfig)
 	{
 	case EGUIS_ActivatableWidgetInputMode::GameAndMenu:
-		return FUIInputConfig(ECommonInputMode::All, GameMouseCaptureMode);
+		return FUIInputConfig(ECommonInputMode::All, GameMouseCaptureMode, bHideCursorDuringViewportCapture);
 	case EGUIS_ActivatableWidgetInputMode::Game:
-		return FUIInputConfig(ECommonInputMode::Game, GameMouseCaptureMode);
+		return FUIInputConfig(ECommonInputMode::Game, GameMouseCaptureMode, bHideCursorDuringViewportCapture);
 	case EGUIS_ActivatableWidgetInputMode::Menu:
-		return FUIInputConfig(ECommonInputMode::Menu, EMouseCaptureMode::NoCapture);
+		return FUIInputConfig(ECommonInputMode::Menu, EMouseCaptureMode::NoCapture, bHideCursorDuringViewportCapture);
 	case EGUIS_ActivatableWidgetInputMode::Default:
 	default:
-		return TOptional<FUIInputConfig>();
+		return Super::GetDesiredInputConfig();
 	}
 }
 
