@@ -16,11 +16,12 @@
 
 ## 模块边界
 
-插件由 `Source/` 下四个 Runtime 模块组成：
+插件由 `Source/` 下五个 Runtime 模块组成：
 
 - `GenericEffectsSystem`：基于 Gameplay Tags 和 Niagara 的上下文 VFX/SFX 播放。
 - `GenericCameraSystem`：相机模式栈、相机混合、第三人称相机和穿透规避。
 - `GenericUISystem`：基于 CommonUI 的 UI 子系统、布局策略、扩展点和输入路由。
+- `GenericSettingsSystem`：面向本地玩家的通用运行时设置模型、注册表、动态数据源和变更追踪。
 - `GenericGameSystem`：共享 gameplay 工具、交互、布娃娃、Smart Objects、Targeting 和跨模块集成。
 
 维护时优先在行为所属模块内扩展，不要为了方便把跨模块逻辑塞进无关模块。不要包含其他模块的 `Private` 头文件。
@@ -71,6 +72,7 @@
 - 布娃娃组件：`Source/GenericGameSystem/Public/Ragdoll/GGS_RagdollComponent.h`
 - UI 子系统：`Source/GenericUISystem/Public/UI/GUIS_GameUISubsystem.h`
 - UI Policy：`Source/GenericUISystem/Public/UI/GUIS_GameUIPolicy.h`
+- 设置注册表：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingRegistry.h`
 
 ## 构建和验证
 

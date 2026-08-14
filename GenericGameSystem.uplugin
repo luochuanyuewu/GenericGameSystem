@@ -48,6 +48,17 @@
       ]
     },
     {
+      "Name": "GenericSettingsSystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac",
+        "Android",
+        "Linux"
+      ]
+    },
+    {
       "Name": "GenericGameSystem",
       "Type": "Runtime",
       "LoadingPhase": "Default",

@@ -29,7 +29,7 @@
 
 ## 🏗️ Architecture
 
-GGS is built with a modular architecture consisting of four independent modules:
+GGS is built with a modular architecture consisting of five independent modules:
 
 ### GenericEffectsSystem
 - **Purpose**: Context-based visual and sound effects playback
@@ -54,6 +54,13 @@ GGS is built with a modular architecture consisting of four independent modules:
   - Input routing and action handling
   - Data-driven UI systems
   - Localization support
+
+### GenericSettingsSystem
+- **Purpose**: Generic runtime game-settings framework
+- **Features**:
+  - Per-local-player setting registries and setting collections
+  - Discrete and scalar values with dynamic data sources
+  - Apply, restore, filtering, and edit-condition support
 
 ### GenericGameSystem
 - **Purpose**: Core utilities and shared functionality
