@@ -32,6 +32,15 @@ void UGSS_GameSettingCollection::AddSetting(UGSS_GameSetting* Setting)
 	}
 }
 
+void UGSS_GameSettingCollection::RemoveSetting(UGSS_GameSetting* Setting)
+{
+	if (Setting)
+	{
+		Settings.Remove(Setting);
+		Setting->SetSettingParent(nullptr);
+	}
+}
+
 TArray<UGSS_GameSettingCollection*> UGSS_GameSettingCollection::GetChildCollections() const
 {
 	TArray<UGSS_GameSettingCollection*> CollectionSettings;
@@ -120,4 +129,3 @@ void UGSS_GameSettingCollectionPage::ExecuteNavigation()
 }
 
 #undef LOCTEXT_NAMESPACE
-

@@ -3,26 +3,29 @@
 #pragma once
 
 #include "GSS_GameSettingValueScalar.h"
+#include "GSS_SettingValueAccessor.h"
 
 #include "GSS_GameSettingValueScalarDynamic.generated.h"
 
 struct FNumberFormattingOptions;
 
-class FGSS_GameSettingDataSource;
 class UObject;
 
 //////////////////////////////////////////////////////////////////////////
 // UGSS_GameSettingValueScalarDynamic
 //////////////////////////////////////////////////////////////////////////
 
+/** Formats a source-space and normalized value for UI display. / 将源数值和归一化值格式化为 UI 文本。 */
 typedef TFunction<FText(double SourceValue, double NormalizedValue)> FSettingScalarFormatFunction;
 
+/** Numeric value with runtime range, pending edits and Accessor-backed Apply. / 具有运行时范围、待应用编辑及 Accessor 支持 Apply 的数值。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueScalarDynamic : public UGSS_GameSettingValueScalar
 {
 	GENERATED_BODY()
 
 public:
+	/** Built-in display formatters for common numeric presentations. / 常用数值展示的内置格式化器。 */
 	static FSettingScalarFormatFunction Raw;
 	static FSettingScalarFormatFunction RawOneDecimal;
 	static FSettingScalarFormatFunction RawTwoDecimals;
@@ -37,8 +40,6 @@ private:
 public:
 	UGSS_GameSettingValueScalarDynamic();
 
-	/** UGSS_GameSettingValue */
-	virtual void Startup() override;
 	virtual void StoreInitial() override;
 	virtual void ResetToDefault() override;
 	virtual void RestoreToInitial() override;
@@ -51,48 +52,35 @@ public:
 	virtual double GetSourceStep() const override;
 	virtual FText GetFormattedText() const override;
 
-	/** UGSS_GameSettingValueDiscreteDynamic */
-	void SetDynamicGetter(const TSharedRef<FGSS_GameSettingDataSource>& InGetter);
-	void SetDynamicSetter(const TSharedRef<FGSS_GameSettingDataSource>& InSetter);
+	/** Assigns the bridge used to load and commit this value. / 指定用于加载和提交该值的桥接。 */
+	void SetAccessor(const FGSS_SettingValueAccessor& InAccessor);
+	/** Sets the fallback source-space value. / 设置回退源数值。 */
 	void SetDefaultValue(double InValue);
 
-	/**  */
+	/** Selects the function used by GetFormattedText. / 指定 GetFormattedText 所使用的函数。 */
 	void SetDisplayFormat(FSettingScalarFormatFunction InDisplayFormat);
 	
-	/**  */
+	/** Sets the complete source range and positive edit step. / 设置完整源数值范围及正编辑步长。 */
 	void SetSourceRangeAndStep(const TRange<double>& InRange, double InSourceStep);
 	
-	/**
-	 * The SetSourceRangeAndStep defines the actual range the numbers could move in, but often
-	 * the true minimum for the user is greater than the minimum source range, so for example, the range
-	 * of some slider might be 0..100, but you want to restrict the slider so that while it shows 
-	 * a bar that travels from 0 to 100, the user can't set anything lower than some minimum, e.g. 1.
-	 * That is the Minimum Limit.
-	 */
+	/** Sets an optional lower value limit within the source range. / 在源范围内设置可选的较低数值限制。 */
 	void SetMinimumLimit(const TOptional<double>& InMinimum);
 
-	/**
-	 * The SetSourceRangeAndStep defines the actual range the numbers could move in, but rarely
-	 * the true maximum for the user is less than the maximum source range, so for example, the range
-	 * of some slider might be 0..100, but you want to restrict the slider so that while it shows
-	 * a bar that travels from 0 to 100, the user can't set anything lower than some maximum, e.g. 95.
-	 * That is the Maximum Limit.
-	 */
+	/** Sets an optional upper value limit within the source range. / 在源范围内设置可选的较高数值限制。 */
 	void SetMaximumLimit(const TOptional<double>& InMaximum);
 	
 protected:
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-
-	void OnDataSourcesReady();
+	virtual bool OnApply() override;
 
 protected:
 
-	TSharedPtr<FGSS_GameSettingDataSource> Getter;
-	TSharedPtr<FGSS_GameSettingDataSource> Setter;
+	FGSS_SettingValueAccessor Accessor;
 
 	TOptional<double> DefaultValue;
 	double InitialValue = 0;
+	double PendingValue = 0;
 
 	TRange<double> SourceRange = TRange<double>(0, 1);
 	double SourceStep = 0.01;

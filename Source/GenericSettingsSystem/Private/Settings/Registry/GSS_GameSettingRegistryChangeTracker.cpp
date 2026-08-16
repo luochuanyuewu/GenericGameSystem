@@ -54,16 +54,25 @@ void FGSS_GameSettingRegistryChangeTracker::ClearDirtyState()
 
 void FGSS_GameSettingRegistryChangeTracker::ApplyChanges()
 {
+	TArray<FObjectKey> AppliedSettings;
 	for (auto Entry : DirtySettings)
 	{
 		if (UGSS_GameSettingValue* SettingValue = Cast<UGSS_GameSettingValue>(Entry.Value))
 		{
-			SettingValue->Apply();
+			if (!SettingValue->Apply())
+			{
+				continue;
+			}
 			SettingValue->StoreInitial();
 		}
+		AppliedSettings.Add(Entry.Key);
 	}
 
-	ClearDirtyState();
+	for (const FObjectKey& Key : AppliedSettings)
+	{
+		DirtySettings.Remove(Key);
+	}
+	bSettingsChanged = DirtySettings.Num() > 0;
 }
 
 void FGSS_GameSettingRegistryChangeTracker::RestoreToInitial()
@@ -86,6 +95,15 @@ void FGSS_GameSettingRegistryChangeTracker::RestoreToInitial()
 	}
 
 	ClearDirtyState();
+}
+
+void FGSS_GameSettingRegistryChangeTracker::DiscardSetting(UGSS_GameSetting* Setting)
+{
+	if (Setting)
+	{
+		DirtySettings.Remove(FObjectKey(Setting));
+		bSettingsChanged = DirtySettings.Num() > 0;
+	}
 }
 
 void FGSS_GameSettingRegistryChangeTracker::HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason)

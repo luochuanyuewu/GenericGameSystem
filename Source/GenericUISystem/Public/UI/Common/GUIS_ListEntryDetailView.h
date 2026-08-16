@@ -34,7 +34,7 @@ public:
 	 * @param InListItemObject The object to display. 要显示的对象。
 	 */
 	UFUNCTION(BlueprintCallable, Category="GUIS")
-	void SetListItemObject(UObject* InListItemObject);
+	virtual void SetListItemObject(UObject* InListItemObject);
 
 	/**
 	 * Sets the associated detail sections builder.

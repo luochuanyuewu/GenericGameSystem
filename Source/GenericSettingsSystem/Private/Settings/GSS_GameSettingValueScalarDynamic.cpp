@@ -2,7 +2,6 @@
 
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
 
-#include "Settings/DataSource/GSS_GameSettingDataSource.h"
 #include "UObject/WeakObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueScalarDynamic)
@@ -78,28 +77,10 @@ UGSS_GameSettingValueScalarDynamic::UGSS_GameSettingValueScalarDynamic()
 {
 }
 
-void UGSS_GameSettingValueScalarDynamic::Startup()
-{
-	// Should I also do something with Setter?
-	Getter->Startup(LocalPlayer, FSimpleDelegate::CreateUObject(this, &ThisClass::OnDataSourcesReady));
-}
-
-void UGSS_GameSettingValueScalarDynamic::OnDataSourcesReady()
-{
-	StartupComplete();
-}
-
 void UGSS_GameSettingValueScalarDynamic::OnInitialized()
 {
 #if !UE_BUILD_SHIPPING
 	ensureAlwaysMsgf(DisplayFormat, TEXT("%s: Has no DisplayFormat set.  Please call SetDisplayFormat."), *GetDevName().ToString());
-#endif
-
-#if !UE_BUILD_SHIPPING
-	ensureAlways(Getter);
-	ensureAlwaysMsgf(Getter->Resolve(LocalPlayer), TEXT("%s: %s did not resolve, are all functions and properties valid, and are they UFunctions/UProperties?"), *GetDevName().ToString(), *Getter->ToString());
-	ensureAlways(Setter);
-	ensureAlwaysMsgf(Setter->Resolve(LocalPlayer), TEXT("%s: %s did not resolve, are all functions and properties valid, and are they UFunctions/UProperties?"), *GetDevName().ToString(), *Setter->ToString());
 #endif
 
 	Super::OnInitialized();
@@ -107,7 +88,10 @@ void UGSS_GameSettingValueScalarDynamic::OnInitialized()
 
 void UGSS_GameSettingValueScalarDynamic::StoreInitial()
 {
-	InitialValue = GetValue();
+	FString StoredValue;
+	Accessor.GetValue(LocalPlayer, StoredValue);
+	InitialValue = StoredValue.IsEmpty() ? DefaultValue.Get(0.0) : FCString::Atod(*StoredValue);
+	PendingValue = InitialValue;
 }
 
 void UGSS_GameSettingValueScalarDynamic::ResetToDefault()
@@ -123,14 +107,9 @@ void UGSS_GameSettingValueScalarDynamic::RestoreToInitial()
 	SetValue(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
 }
 
-void UGSS_GameSettingValueScalarDynamic::SetDynamicGetter(const TSharedRef<FGSS_GameSettingDataSource>& InGetter)
+void UGSS_GameSettingValueScalarDynamic::SetAccessor(const FGSS_SettingValueAccessor& InAccessor)
 {
-	Getter = InGetter;
-}
-
-void UGSS_GameSettingValueScalarDynamic::SetDynamicSetter(const TSharedRef<FGSS_GameSettingDataSource>& InSetter)
-{
-	Setter = InSetter;
+	Accessor = InAccessor;
 }
 
 void UGSS_GameSettingValueScalarDynamic::SetDefaultValue(double InValue)
@@ -161,12 +140,7 @@ void UGSS_GameSettingValueScalarDynamic::SetMaximumLimit(const TOptional<double>
 
 double UGSS_GameSettingValueScalarDynamic::GetValue() const
 {
-	const FString OutValue = Getter->GetValueAsString(LocalPlayer);
-
-	double Value;
-	LexFromString(Value, *OutValue);
-
-	return Value;
+	return PendingValue;
 }
 
 TRange<double> UGSS_GameSettingValueScalarDynamic::GetSourceRange() const
@@ -199,10 +173,13 @@ void UGSS_GameSettingValueScalarDynamic::SetValue(double InValue, EGSS_GameSetti
 		InValue = FMath::Min(Maximum.GetValue(), InValue);
 	}
 
-	const FString StringValue = LexToString(InValue);
-	Setter->SetValue(LocalPlayer, StringValue);
-
+	PendingValue = InValue;
 	NotifySettingChanged(Reason);
+}
+
+bool UGSS_GameSettingValueScalarDynamic::OnApply()
+{
+	return Accessor.SetValue(LocalPlayer, LexToString(PendingValue));
 }
 
 FText UGSS_GameSettingValueScalarDynamic::GetFormattedText() const

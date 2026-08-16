@@ -59,6 +59,28 @@
       ]
     },
     {
+      "Name": "GenericSettingsSystemCommon",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac",
+        "Android",
+        "Linux"
+      ]
+    },
+    {
+      "Name": "GenericSettingsSystemUI",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac",
+        "Android",
+        "Linux"
+      ]
+    },
+    {
       "Name": "GenericGameSystem",
       "Type": "Runtime",
       "LoadingPhase": "Default",
@@ -67,6 +89,15 @@
         "Mac",
         "Android",
         "Linux"
+      ]
+    },
+    {
+      "Name": "GenericGameSystemEditor",
+      "Type": "UncookedOnly",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac"
       ]
     }
   ],

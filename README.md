@@ -29,7 +29,7 @@
 
 ## 🏗️ Architecture
 
-GGS is built with a modular architecture consisting of five independent modules:
+GGS is built with seven Runtime modules plus an editor-only integration module:
 
 ### GenericEffectsSystem
 - **Purpose**: Context-based visual and sound effects playback
@@ -59,8 +59,18 @@ GGS is built with a modular architecture consisting of five independent modules:
 - **Purpose**: Generic runtime game-settings framework
 - **Features**:
   - Per-local-player setting registries and setting collections
-  - Discrete and scalar values with dynamic data sources
+  - Discrete and scalar values with unified Local/Shared accessors
   - Apply, restore, filtering, and edit-condition support
+  - Data Asset authoring plus Local/Shared reflected accessors for Blueprint/C++ targets
+	- Runtime provider registration, local `UGameUserSettings`, and per-LocalPlayer Shared SaveGame preferences
+	- `GenericSettingsSystemCommon` supplies optional Video, Audio, Input, and Accessibility providers. Set `UGSS_CommonSettingsShared` (or a subclass) as Shared Settings Class to use its default portable preferences. Input covers device preferences only; gameplay policy, Enhanced Input rebinding, platform device selection, performance telemetry, and online/DLC settings remain project or optional integration Providers.
+  - `GenericSettingsSystemUI` adapts GSS registries to the existing CommonUI/GUIS layout without coupling the runtime core to UI
+
+**Quick setup**: Set **Project Settings → Generic Settings System → Shared Settings Class** to `UGSS_CommonSettingsShared` or a subclass, then add any needed `UGSS_VideoSettingsProvider`, `UGSS_AudioSettingsProvider`, `UGSS_InputSettingsProvider`, and `UGSS_AccessibilitySettingsProvider` classes to **Startup Provider Classes**. A standard value uses a Local or Shared Accessor with zero-argument `UFUNCTION` Getter and one-argument `UFUNCTION` Setter. Create a Blueprint derived from `UGSS_SettingsScreen`, bind a `UGSS_SettingsPanel` named `Settings_Panel`, then configure the panel list's `UGSS_SettingsEntryWidgetFactory` with Blueprint entry widgets for discrete, scalar, action, and navigation nodes. Settings entries derive from `CommonUserWidget`, so each entry Blueprint owns its own buttons, sliders, and focus behavior. For optional standard details, add a `UGSS_SettingsDetailView` named `Details_Settings` and bind any of its title, description, dynamic-details, warning and disabled-details fields. It also inherits `UGUIS_ListEntryDetailView`: bind `Box_DetailSections`, assign a `UGSS_SettingsDetailSectionBuilder`, and map `UGSS_GameSetting` or its subclasses to one or more Section Blueprints derived from `UGSS_SettingsDetailSection`.
+
+**Automatic top tabs**: Enable `bAutoBuildTopSettingsTabs` on the Screen Blueprint and assign `TopSettingsTabButtonType` to build tabs from top-level GSS Collections. The Screen uses each Collection's tag name and display name, and navigates on the automatically created tabs only.
+
+**Built-in layout**: Video contains Display, Graphics Quality (including individual scalability groups), and Advanced rendering settings. Audio contains Volume and Sound. Input contains Mouse & Keyboard and Gamepad collections. Accessibility contains Subtitles, Color Vision, and Motion. Every non-Video setting is a preference: subscribe to its `GSS.Settings.*` tag in the owning game system to enact it.
 
 ### GenericGameSystem
 - **Purpose**: Core utilities and shared functionality
@@ -68,6 +78,13 @@ GGS is built with a modular architecture consisting of five independent modules:
   - Interaction framework for gameplay objects
   - Common utilities and helper functions
   - Cross-module integration layer
+
+### GenericGameSystemEditor
+
+- **Purpose**: Editor-only Content Browser integration
+- **Features**:
+  - Right-click asset creation under **Generic Game System | Effects**, **Gameplay**, **UI**, and **Settings**
+  - Creation entries for the primary GGS Data Asset and configuration asset types
 
 ## 🚀 Installation
 

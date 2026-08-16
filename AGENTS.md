@@ -16,13 +16,16 @@
 
 ## 模块边界
 
-插件由 `Source/` 下五个 Runtime 模块组成：
+插件由 `Source/` 下七个 Runtime 模块和一个仅编辑器加载的模块组成：
 
 - `GenericEffectsSystem`：基于 Gameplay Tags 和 Niagara 的上下文 VFX/SFX 播放。
 - `GenericCameraSystem`：相机模式栈、相机混合、第三人称相机和穿透规避。
 - `GenericUISystem`：基于 CommonUI 的 UI 子系统、布局策略、扩展点和输入路由。
-- `GenericSettingsSystem`：面向本地玩家的通用运行时设置模型、注册表、动态数据源和变更追踪。
+- `GenericSettingsSystem`：面向本地玩家的通用运行时设置模型、Data Asset 定义、Local/Shared Accessor、注册表、运行时 Provider 和变更追踪。
+- `GenericSettingsSystemCommon`：可选的通用设置 Provider 与 `UGSS_CommonSettingsShared`：Video 使用 `UGameUserSettings`，Audio、Input、Accessibility 存储在按 LocalPlayer 隔离的 Shared SaveGame 中。
+- `GenericSettingsSystemUI`：依赖 `GenericSettingsSystem` 与 `GenericUISystem` 的 CommonUI 设置展示适配层；不在核心 GSS 中放置 UI。
 - `GenericGameSystem`：共享 gameplay 工具、交互、布娃娃、Smart Objects、Targeting 和跨模块集成。
+- `GenericGameSystemEditor`：仅在 Editor 中加载；为主要 GGS Data Asset 和配置资产提供 Content Browser 创建入口。
 
 维护时优先在行为所属模块内扩展，不要为了方便把跨模块逻辑塞进无关模块。不要包含其他模块的 `Private` 头文件。
 
@@ -73,6 +76,8 @@
 - UI 子系统：`Source/GenericUISystem/Public/UI/GUIS_GameUISubsystem.h`
 - UI Policy：`Source/GenericUISystem/Public/UI/GUIS_GameUIPolicy.h`
 - 设置注册表：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingRegistry.h`
+- 通用设置 Provider：`Source/GenericSettingsSystemCommon/Public/Settings/`（Video、Audio、Input、Accessibility）
+- 设置 UI：`Source/GenericSettingsSystemUI/Public/SettingsUI/GSS_SettingsScreen.h`
 
 ## 构建和验证
 

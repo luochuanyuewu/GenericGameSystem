@@ -2,15 +2,17 @@
 
 #pragma once
 
-#include "Settings/GSS_GameSettingFilterState.h"
+#include "Settings/GSS_SettingEditCondition.h"
+#include "GSS_WhenPlayingAsPrimaryPlayer.generated.h"
 
 class ULocalPlayer;
 
-
-class GENERICSETTINGSSYSTEM_API FGSS_WhenPlayingAsPrimaryPlayer : public FGSS_GameSettingEditCondition
+/** Edit condition that exposes a setting only to the primary local player. / 仅向主本地玩家暴露设置的编辑条件。 */
+UCLASS(BlueprintType, EditInlineNew)
+class GENERICSETTINGSSYSTEM_API UGSS_WhenPlayingAsPrimaryPlayer : public UGSS_SettingEditCondition
 {
-public:
-	static TSharedRef<FGSS_WhenPlayingAsPrimaryPlayer> Get();
+	GENERATED_BODY()
 
-	virtual void GatherEditState(const ULocalPlayer* InLocalPlayer, FGSS_GameSettingEditableState& InOutEditState) const override;
+public:
+	virtual void Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState) override;
 };

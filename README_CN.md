@@ -29,7 +29,7 @@
 
 ## 🏗️ 架构
 
-GGS 采用模块化架构，由五个独立模块组成：
+GGS 采用模块化架构，由七个 Runtime 模块和一个仅编辑器集成模块组成：
 
 ### GenericEffectsSystem（特效系统）
 - **用途**：基于上下文的视觉和音效播放
@@ -59,8 +59,18 @@ GGS 采用模块化架构，由五个独立模块组成：
 - **用途**：通用运行时游戏设置框架
 - **特性**：
   - 面向本地玩家的设置注册表和设置集合
-  - 支持动态数据源的离散值与标量值
+  - 支持统一 Local/Shared Accessor 的离散值与标量值
   - 支持应用、恢复、过滤和编辑条件
+  - 支持 Data Asset 配置，以及面向蓝图/C++ 的 Local/Shared 轻量反射值 Accessor
+  - 支持运行时 Provider 注册、本地 `UGameUserSettings` 和按 LocalPlayer 隔离的 Shared SaveGame 偏好
+  - `GenericSettingsSystemCommon` 提供可选的 Video、Audio、Input 和 Accessibility Provider。将 `UGSS_CommonSettingsShared`（或其子类）设为 Shared Settings Class 后，即可使用其内置的可携带偏好。Input 仅负责设备偏好；玩法策略、Enhanced Input 改键、平台设备选择、性能统计和在线/DLC 设置应由项目或可选集成 Provider 提供
+  - `GenericSettingsSystemUI` 将 GSS 注册表适配到现有 CommonUI/GUIS 布局，避免运行时核心依赖 UI
+
+**快速配置**：先在 **项目设置 → Generic Settings System → Shared Settings Class** 中设为 `UGSS_CommonSettingsShared` 或其子类，再在 **Startup Provider Classes** 中按需加入 `UGSS_VideoSettingsProvider`、`UGSS_AudioSettingsProvider`、`UGSS_InputSettingsProvider`、`UGSS_AccessibilitySettingsProvider`。普通值项使用 Local 或 Shared Accessor，并配置零参数 `UFUNCTION` Getter 与单参数 `UFUNCTION` Setter。创建继承 `UGSS_SettingsScreen` 的蓝图，绑定名为 `Settings_Panel` 的 `UGSS_SettingsPanel`；再为 Panel 列表配置 `UGSS_SettingsEntryWidgetFactory`，并提供离散值、标量、Action 和导航节点的蓝图条目 Widget。设置条目继承 `CommonUserWidget`，因此每个条目蓝图自行拥有按钮、滑块及焦点行为。若需标准详情区，在 Panel 中添加名为 `Details_Settings`、继承 `UGSS_SettingsDetailView` 的 Widget，并按需绑定标题、说明、动态详情、警告和禁用详情字段。该类还继承 `UGUIS_ListEntryDetailView`：可绑定 `Box_DetailSections`、指定 `UGSS_SettingsDetailSectionBuilder`，并将 `UGSS_GameSetting` 或其子类映射到一个或多个继承 `UGSS_SettingsDetailSection` 的 Section 蓝图。
+
+**自动顶层 Tab**：在 Screen 蓝图启用 `bAutoBuildTopSettingsTabs`，并为 `TopSettingsTabButtonType` 指定按钮类，即可根据顶层 GSS Collection 自动构建 Tab。Screen 使用每个 Collection 的 Tag 名与显示名，且仅响应它自动创建的 Tab 的导航请求。
+
+**内置布局**：Video 包含 Display、Graphics Quality（含各项 Scalability）和 Advanced 渲染设置；Audio 包含 Volume 与 Sound；Input 包含 Mouse & Keyboard 与 Gamepad；Accessibility 包含 Subtitles、Color Vision 与 Motion。除 Video 外的设置均是偏好值：应由所属游戏系统订阅对应 `GSS.Settings.*` Tag 后实际执行。
 
 ### GenericGameSystem（核心系统）
 - **用途**：核心工具和共享功能
@@ -68,6 +78,13 @@ GGS 采用模块化架构，由五个独立模块组成：
   - 用于游戏对象的交互框架
   - 通用工具和辅助函数
   - 跨模块集成层
+
+### GenericGameSystemEditor（编辑器模块）
+
+- **用途**：仅编辑器的内容浏览器集成
+- **特性**：
+  - 在 **Generic Game System | Effects**、**Gameplay**、**UI**、**Settings** 下提供右键资产创建入口
+  - 为主要 GGS Data Asset 与配置资产提供创建项
 
 ## 🚀 安装
 

@@ -3,10 +3,10 @@
 #pragma once
 
 #include "GSS_GameSettingValueDiscrete.h"
+#include "GSS_SettingValueAccessor.h"
 
 #include "GSS_GameSettingValueDiscreteDynamic.generated.h"
 
-class FGSS_GameSettingDataSource;
 enum class EGSS_GameSettingChangeReason : uint8;
 
 struct FContentControlsRules;
@@ -15,6 +15,7 @@ struct FContentControlsRules;
 // UGSS_GameSettingValueDiscreteDynamic
 //////////////////////////////////////////////////////////////////////////
 
+/** String-backed discrete value populated at runtime and committed through an Accessor. / 在运行时填充、并通过 Accessor 提交的字符串离散值。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic : public UGSS_GameSettingValueDiscrete
 {
@@ -23,8 +24,6 @@ class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic : public UG
 public:
 	UGSS_GameSettingValueDiscreteDynamic();
 
-	/** UGSS_GameSettingValue */
-	virtual void Startup() override;
 	virtual void StoreInitial() override;
 	virtual void ResetToDefault() override;
 	virtual void RestoreToInitial() override;
@@ -35,17 +34,23 @@ public:
 	virtual int32 GetDiscreteOptionDefaultIndex() const override;
 	virtual TArray<FText> GetDiscreteOptions() const override;
 
-	/** UGSS_GameSettingValueDiscreteDynamic */
-	void SetDynamicGetter(const TSharedRef<FGSS_GameSettingDataSource>& InGetter);
-	void SetDynamicSetter(const TSharedRef<FGSS_GameSettingDataSource>& InSetter);
+	/** Assigns the bridge used to load and commit the serialized value. / 指定用于加载与提交序列化值的桥接。 */
+	void SetAccessor(const FGSS_SettingValueAccessor& InAccessor);
+	/** Sets the fallback value used when Accessor has no applied value. / 设置 Accessor 无已应用值时使用的回退值。 */
 	void SetDefaultValueFromString(FString InOptionValue);
+	/** Adds an option and its localized display label. / 添加选项及其本地化显示标签。 */
 	void AddDynamicOption(FString InOptionValue, FText InOptionText);
+	/** Removes an option by serialized value. / 按序列化值移除选项。 */
 	void RemoveDynamicOption(FString InOptionValue);
+	/** Returns serialized option values in UI order. / 按 UI 顺序返回选项的序列化值。 */
 	const TArray<FString>& GetDynamicOptions();
 
+	/** Returns whether the serialized option exists. / 返回该序列化选项是否存在。 */
 	bool HasDynamicOption(const FString& InOptionValue);
 
+	/** Returns the pending serialized value for immediate preview. / 返回可即时预览的待应用序列化值。 */
 	FString GetValueAsString() const;
+	/** Changes the pending serialized value; Apply commits it through its Accessor. / 修改待应用序列化值；Apply 会通过 Accessor 提交。 */
 	void SetValueFromString(FString InStringValue);
 
 protected:
@@ -53,17 +58,16 @@ protected:
 
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-
-	void OnDataSourcesReady();
+	virtual bool OnApply() override;
 
 	bool AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const;
 
 protected:
-	TSharedPtr<FGSS_GameSettingDataSource> Getter;
-	TSharedPtr<FGSS_GameSettingDataSource> Setter;
+	FGSS_SettingValueAccessor Accessor;
 
 	TOptional<FString> DefaultValue;
 	FString InitialValue;
+	FString PendingValue;
 
 	TArray<FString> OptionValues;
 	TArray<FText> OptionDisplayTexts;
@@ -73,6 +77,7 @@ protected:
 // UGSS_GameSettingValueDiscreteDynamic_Bool
 //////////////////////////////////////////////////////////////////////////
 
+/** Convenience boolean specialization with true/false options. / 带有 true/false 选项的布尔便捷特化。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic_Bool : public UGSS_GameSettingValueDiscreteDynamic
 {
@@ -82,6 +87,7 @@ public:
 	UGSS_GameSettingValueDiscreteDynamic_Bool();
 
 public:
+	/** Sets the fallback boolean value. / 设置回退布尔值。 */
 	void SetDefaultValue(bool Value);
 
 	void SetTrueText(const FText& InText);
@@ -97,6 +103,7 @@ public:
 // UGSS_GameSettingValueDiscreteDynamic_Number
 //////////////////////////////////////////////////////////////////////////
 
+/** Template-friendly numeric option specialization. / 适合模板化数值选项的特化。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic_Number : public UGSS_GameSettingValueDiscreteDynamic
 {
@@ -144,6 +151,7 @@ protected:
 // UGSS_GameSettingValueDiscreteDynamic_Enum
 //////////////////////////////////////////////////////////////////////////
 
+/** Template-friendly UEnum option specialization storing enum names. / 存储枚举名称、适合 UEnum 的模板化特化。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic_Enum : public UGSS_GameSettingValueDiscreteDynamic
 {
@@ -190,6 +198,7 @@ protected:
 // UGSS_GameSettingValueDiscreteDynamic_Color
 //////////////////////////////////////////////////////////////////////////
 
+/** FLinearColor option specialization using UE string serialization. / 使用 UE 字符串序列化的 FLinearColor 选项特化。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic_Color : public UGSS_GameSettingValueDiscreteDynamic
 {
@@ -231,6 +240,7 @@ public:
 // UGSS_GameSettingValueDiscreteDynamic_Vector2D
 //////////////////////////////////////////////////////////////////////////
 
+/** FVector2D value specialization using UE string serialization. / 使用 UE 字符串序列化的 FVector2D 值特化。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic_Vector2D : public UGSS_GameSettingValueDiscreteDynamic
 {

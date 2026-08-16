@@ -53,9 +53,9 @@ void UGSS_GameSetting::Initialize(ULocalPlayer* InLocalPlayer)
 	ensureAlwaysMsgf(!DisplayName.IsEmpty(), TEXT("You must provide a DisplayName for settings."));
 #endif
 
-	for (const TSharedRef<FGSS_GameSettingEditCondition>& EditCondition : EditConditions)
+	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
 	{
-		EditCondition->Initialize(LocalPlayer);
+		EditCondition->InitializeCondition(this);
 	}
 
 	// If there are any child settings go ahead and initialize them as well.
@@ -83,28 +83,32 @@ void UGSS_GameSetting::StartupComplete()
 	}
 }
 
-void UGSS_GameSetting::Apply()
+bool UGSS_GameSetting::Apply()
 {
-	OnApply();
+	if (!OnApply())
+	{
+		return false;
+	}
 
 	// Run through any edit conditions and let them know things changed.
-	for (const TSharedRef<FGSS_GameSettingEditCondition>& EditCondition : EditConditions)
+	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
 	{
-		EditCondition->SettingApplied(LocalPlayer, this);
+		EditCondition->OnSettingApplied();
 	}
 
 	OnSettingAppliedEvent.Broadcast(this);
+	return true;
 }
 
 void UGSS_GameSetting::OnInitialized()
 {
 	ensureMsgf(bReady, TEXT("OnInitialized called directly instead of via StartupComplete."));
-	EditableStateCache = ComputeEditableState();
+	ComputeEditableState();
 }
 
-void UGSS_GameSetting::OnApply()
+bool UGSS_GameSetting::OnApply()
 {
-	// No-Op by default.
+	return true;
 }
 
 UWorld* UGSS_GameSetting::GetWorld() const
@@ -117,23 +121,28 @@ void UGSS_GameSetting::SetSettingParent(UGSS_GameSetting* InSettingParent)
 	SettingParent = InSettingParent;
 }
 
-FGSS_GameSettingEditableState UGSS_GameSetting::ComputeEditableState() const
+void UGSS_GameSetting::ComputeEditableState()
 {
-	FGSS_GameSettingEditableState EditState;
+	if (!EditableStateCache)
+	{
+		EditableStateCache = NewObject<UGSS_SettingEditableState>(this);
+	}
+	EditableStateCache->Reset();
 
 	// Does this setting itself have any special rules?
-	OnGatherEditState(EditState);
+	OnGatherEditState(EditableStateCache);
 
 	// Run through any edit conditions
-	for (const TSharedRef<FGSS_GameSettingEditCondition>& EditCondition : EditConditions)
+	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
 	{
-		EditCondition->GatherEditState(LocalPlayer, EditState);
+		if (EditCondition)
+		{
+			EditCondition->Evaluate(EditableStateCache);
+		}
 	}
-
-	return EditState;
 }
 
-void UGSS_GameSetting::OnGatherEditState(FGSS_GameSettingEditableState& InOutEditState) const
+void UGSS_GameSetting::OnGatherEditState(UGSS_SettingEditableState* InOutEditState) const
 {
 
 }
@@ -180,9 +189,12 @@ void UGSS_GameSetting::NotifySettingChanged(EGSS_GameSettingChangeReason Reason)
 	OnSettingChanged(Reason);
 	
 	// Run through any edit conditions and let them know things changed.
-	for (const TSharedRef<FGSS_GameSettingEditCondition>& EditCondition : EditConditions)
+	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
 	{
-		EditCondition->SettingChanged(LocalPlayer, this, Reason);
+		if (EditCondition)
+		{
+			EditCondition->OnSettingValueChanged(Reason);
+		}
 	}
 
 	if (!bOnSettingChangedEventGuard)
@@ -197,11 +209,16 @@ void UGSS_GameSetting::OnSettingChanged(EGSS_GameSettingChangeReason Reason)
 	// No-Op
 }
 
-void UGSS_GameSetting::AddEditCondition(const TSharedRef<FGSS_GameSettingEditCondition>& InEditCondition)
+void UGSS_GameSetting::AddEditCondition(UGSS_SettingEditCondition* InEditCondition)
 {
-	EditConditions.Add(InEditCondition);
-
-	InEditCondition->OnEditConditionChangedEvent.AddUObject(this, &ThisClass::RefreshEditableState);
+	if (InEditCondition)
+	{
+		EditConditions.Add(InEditCondition);
+		if (LocalPlayer)
+		{
+			InEditCondition->InitializeCondition(this);
+		}
+	}
 }
 
 void UGSS_GameSetting::AddEditDependency(UGSS_GameSetting* DependencySetting)
@@ -233,7 +250,7 @@ void UGSS_GameSetting::RefreshEditableState(bool bNotifyEditConditionsChanged)
 	{
 		TGuardValue<bool> Guard(bOnEditConditionsChangedEventGuard, true);
 	
-		EditableStateCache = ComputeEditableState();
+		ComputeEditableState();
 
 		if (bNotifyEditConditionsChanged)
 		{
@@ -334,4 +351,3 @@ FString UGSS_GameSetting::FStringCultureCache::Get() const
 }
 
 #undef LOCTEXT_NAMESPACE
-

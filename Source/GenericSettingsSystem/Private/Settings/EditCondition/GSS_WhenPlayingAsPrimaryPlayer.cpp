@@ -6,17 +6,11 @@
 
 #define LOCTEXT_NAMESPACE "GSS_GameSetting"
 
-TSharedRef<FGSS_WhenPlayingAsPrimaryPlayer> FGSS_WhenPlayingAsPrimaryPlayer::Get()
+void UGSS_WhenPlayingAsPrimaryPlayer::Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState)
 {
-	static TSharedRef<FGSS_WhenPlayingAsPrimaryPlayer> Instance = MakeShared<FGSS_WhenPlayingAsPrimaryPlayer>();
-	return Instance;
-}
-
-void FGSS_WhenPlayingAsPrimaryPlayer::GatherEditState(const ULocalPlayer* InLocalPlayer, FGSS_GameSettingEditableState& InOutEditState) const
-{
-	if (!InLocalPlayer->IsPrimaryPlayer())
+	if (Setting && !Setting->GetOwningLocalPlayer()->IsPrimaryPlayer())
 	{
-		InOutEditState.Disable(LOCTEXT("OnlyPrimaryPlayerEditable", "Can only be changed by the primary player."));
+		InOutEditState->Disable(LOCTEXT("OnlyPrimaryPlayerEditable", "Can only be changed by the primary player."));
 	}
 }
 

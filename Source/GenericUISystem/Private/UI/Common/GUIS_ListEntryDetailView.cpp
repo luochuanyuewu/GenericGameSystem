@@ -43,10 +43,16 @@ void UGUIS_ListEntryDetailView::NativeConstruct()
 
 void UGUIS_ListEntryDetailView::SetListItemObject(UObject* InListItemObject)
 {
-	// Ignore requests to show the same setting multiple times in a row. 
+	// Ignore requests to show the same object multiple times in a row.
 	if (InListItemObject && InListItemObject == CurrentListItemObject)
 	{
 		return;
+	}
+
+	if (StreamingHandle.IsValid())
+	{
+		StreamingHandle->CancelHandle();
+		StreamingHandle.Reset();
 	}
 
 	CurrentListItemObject = InListItemObject;
@@ -56,6 +62,10 @@ void UGUIS_ListEntryDetailView::SetListItemObject(UObject* InListItemObject)
 		// First release the widgets back into the pool.
 		for (UWidget* ChildExtension : Box_DetailSections->GetAllChildren())
 		{
+			if (UGUIS_ListEntryDetailSection* Section = Cast<UGUIS_ListEntryDetailSection>(ChildExtension))
+			{
+				Section->SetListItemObject(nullptr);
+			}
 			ExtensionWidgetPool.Release(Cast<UUserWidget>(ChildExtension));
 		}
 
@@ -68,11 +78,6 @@ void UGUIS_ListEntryDetailView::SetListItemObject(UObject* InListItemObject)
 			if (SectionsBuilder)
 			{
 				SectionClasses = SectionsBuilder->GatherDetailSections(InListItemObject);
-			}
-
-			if (StreamingHandle.IsValid())
-			{
-				StreamingHandle->CancelHandle();
 			}
 
 			bool bEverythingAlreadyLoaded = true;
@@ -102,7 +107,11 @@ void UGUIS_ListEntryDetailView::SetListItemObject(UObject* InListItemObject)
 					MoveTemp(SectionPaths),
 					FStreamableDelegate::CreateWeakLambda(this, [this, SettingPtr, SectionClasses]
 					                                      {
-						                                      for (TSoftClassPtr<UGUIS_ListEntryDetailSection> SoftClassPtr : SectionClasses)
+					                                      if (CurrentListItemObject != SettingPtr.Get())
+					                                      {
+					                                      return;
+					                                      }
+					                                      for (TSoftClassPtr<UGUIS_ListEntryDetailSection> SoftClassPtr : SectionClasses)
 						                                      {
 							                                      CreateDetailsExtension(SettingPtr.Get(), SoftClassPtr.Get());
 						                                      }

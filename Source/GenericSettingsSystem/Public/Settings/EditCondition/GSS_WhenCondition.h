@@ -2,26 +2,7 @@
 
 #pragma once
 
-#include "GSS_GameSettingFilterState.h"
+#include "Settings/GSS_SettingEditCondition.h"
 
-class FGSS_WhenCondition : public FGSS_GameSettingEditCondition
-{
-public:
-	FGSS_WhenCondition(TFunction<void(const ULocalPlayer* InLocalPlayer, FGSS_GameSettingEditableState&)>&& InInlineEditCondition)
-		: InlineEditCondition(InInlineEditCondition)
-	{
-	}
-
-	virtual void GatherEditState(const ULocalPlayer* InLocalPlayer, FGSS_GameSettingEditableState& InOutEditState) const override
-	{
-		InlineEditCondition(InLocalPlayer, InOutEditState);
-	}
-
-	virtual FString ToString() const override
-	{
-		return TEXT("Inline Edit Condition");
-	}
-
-private:
-	TFunction<void(const ULocalPlayer* InLocalPlayer, FGSS_GameSettingEditableState& InOutEditState)> InlineEditCondition;
-};
+/** Backward-readable name for the C++ inline UObject condition. / C++ 内联 UObject 条件的易读别名。 */
+using FGSS_WhenCondition = UGSS_InlineSettingEditCondition;

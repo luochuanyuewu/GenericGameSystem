@@ -1,7 +1,6 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
 #include "Settings/GSS_GameSettingValueDiscreteDynamic.h"
-#include "Settings/DataSource/GSS_GameSettingDataSource.h"
 #include "UObject/WeakObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueDiscreteDynamic)
@@ -16,14 +15,9 @@ UGSS_GameSettingValueDiscreteDynamic::UGSS_GameSettingValueDiscreteDynamic()
 {
 }
 
-void UGSS_GameSettingValueDiscreteDynamic::SetDynamicGetter(const TSharedRef<FGSS_GameSettingDataSource>& InGetter)
+void UGSS_GameSettingValueDiscreteDynamic::SetAccessor(const FGSS_SettingValueAccessor& InAccessor)
 {
-	Getter = InGetter;
-}
-
-void UGSS_GameSettingValueDiscreteDynamic::SetDynamicSetter(const TSharedRef<FGSS_GameSettingDataSource>& InSetter)
-{
-	Setter = InSetter;
+	Accessor = InAccessor;
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetDefaultValueFromString(FString InOptionValue)
@@ -63,7 +57,7 @@ bool UGSS_GameSettingValueDiscreteDynamic::HasDynamicOption(const FString& InOpt
 
 FString UGSS_GameSettingValueDiscreteDynamic::GetValueAsString() const
 {
-	return Getter->GetValueAsString(LocalPlayer);
+	return PendingValue;
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringValue)
@@ -73,9 +67,7 @@ void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringVa
 
 void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason)
 {
-	check(Setter);
-	Setter->SetValue(LocalPlayer, InStringValue);
-
+	PendingValue = InStringValue;
 	NotifySettingChanged(Reason);
 }
 
@@ -86,31 +78,19 @@ bool UGSS_GameSettingValueDiscreteDynamic::AreOptionsEqual(const FString& InOpti
 
 void UGSS_GameSettingValueDiscreteDynamic::OnInitialized()
 {
-#if !UE_BUILD_SHIPPING
-	ensureAlways(Getter);
-	ensureAlwaysMsgf(Getter->Resolve(LocalPlayer), TEXT("%s: %s did not resolve, are all functions and properties valid, and are they UFunctions/UProperties? Does the getter function have no parameters?"), *GetDevName().ToString(), *Getter->ToString());
-	ensureAlways(Setter);
-	ensureAlwaysMsgf(Setter->Resolve(LocalPlayer), TEXT("%s: %s did not resolve, are all functions and properties valid, and are they UFunctions/UProperties? Does the setting function have exactly one parameter?"), *GetDevName().ToString(), *Setter->ToString());
-#endif
-
 	Super::OnInitialized();
-}
-
-void UGSS_GameSettingValueDiscreteDynamic::Startup()
-{
-	// Should I also do something with Setter?
-	check(Getter);
-	Getter->Startup(LocalPlayer, FSimpleDelegate::CreateUObject(this, &ThisClass::OnDataSourcesReady));
-}
-
-void UGSS_GameSettingValueDiscreteDynamic::OnDataSourcesReady()
-{
-	StartupComplete();
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::StoreInitial()
 {
-	InitialValue = GetValueAsString();
+	FString AppliedValue;
+	Accessor.GetValue(LocalPlayer, AppliedValue);
+	InitialValue = AppliedValue;
+	if (InitialValue.IsEmpty() && DefaultValue.IsSet())
+	{
+		InitialValue = DefaultValue.GetValue();
+	}
+	PendingValue = InitialValue;
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::ResetToDefault()
@@ -124,6 +104,11 @@ void UGSS_GameSettingValueDiscreteDynamic::ResetToDefault()
 void UGSS_GameSettingValueDiscreteDynamic::RestoreToInitial()
 {
 	SetValueFromString(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
+}
+
+bool UGSS_GameSettingValueDiscreteDynamic::OnApply()
+{
+	return Accessor.SetValue(LocalPlayer, PendingValue);
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetDiscreteOptionByIndex(int32 Index)
@@ -164,7 +149,9 @@ int32 UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptionDefaultIndex() cons
 
 TArray<FText> UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptions() const
 {
-	const TArray<FString>& DisabledOptions = GetEditState().GetDisabledOptions();
+	static const TArray<FString> EmptyOptions;
+	const UGSS_SettingEditableState* EditState = GetEditState();
+	const TArray<FString>& DisabledOptions = EditState ? EditState->GetDisabledOptions() : EmptyOptions;
 
 	if (DisabledOptions.Num() > 0)
 	{

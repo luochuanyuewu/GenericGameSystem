@@ -48,8 +48,8 @@ struct GENERICUISYSTEM_API FGUIS_EntryDetailsClassSections
 };
 
 /**
- * Concrete class for mapping object classes to detail sections.
- * 将对象类映射到细节部分的实体类。
+ * Concrete class for mapping settings object classes to settings detail sections.
+ * 将设置对象类映射到设置细节部分的实体类。
  */
 UCLASS(NotBlueprintable)
 class GENERICUISYSTEM_API UGUIS_DetailSectionBuilder_Class : public UGUIS_DetailSectionsBuilder

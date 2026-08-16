@@ -2,6 +2,7 @@
 
 #include "Settings/GSS_GameSettingFilterState.h"
 #include "Settings/GSS_GameSetting.h"
+#include "Settings/GSS_SettingEditCondition.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingFilterState)
 
@@ -54,19 +55,19 @@ void FGSS_GameSettingFilterState::SetSearchText(const FString& InSearchText)
 
 bool FGSS_GameSettingFilterState::DoesSettingPassFilter(const UGSS_GameSetting& InSetting) const
 {
-	const FGSS_GameSettingEditableState& EditableState = InSetting.GetEditState();
+	const UGSS_SettingEditableState* EditableState = InSetting.GetEditState();
 
-	if (!bIncludeHidden && !EditableState.IsVisible())
+	if (!EditableState || (!bIncludeHidden && !EditableState->IsVisible()))
 	{
 		return false;
 	}
 
-	if (!bIncludeDisabled && !EditableState.IsEnabled())
+	if (!bIncludeDisabled && !EditableState->IsEnabled())
 	{
 		return false;
 	}
 
-	if (!bIncludeResetable && !EditableState.IsResetable())
+	if (!bIncludeResetable && !EditableState->IsResettable())
 	{
 		return false;
 	}
@@ -107,46 +108,4 @@ bool FGSS_GameSettingFilterState::DoesSettingPassFilter(const UGSS_GameSetting& 
 	return true;
 }
 
-//--------------------------------------
-// FGSS_GameSettingsEditableState
-//--------------------------------------
-
-void FGSS_GameSettingEditableState::Hide(const FString& DevReason)
-{
-#if !UE_BUILD_SHIPPING
-	ensureAlwaysMsgf(!DevReason.IsEmpty(), TEXT("To hide a setting, you must provide a developer reason."));
-#endif
-
-	bVisible = false;
-
-#if !UE_BUILD_SHIPPING
-	HiddenReasons.Add(DevReason);
-#endif
-}
-
-void FGSS_GameSettingEditableState::Disable(const FText& Reason)
-{
-#if !UE_BUILD_SHIPPING
-	ensureAlwaysMsgf(!Reason.IsEmpty(), TEXT("To disable a setting, you must provide a reason that we can show players."));
-#endif
-
-	bEnabled = false;
-	DisabledReasons.Add(Reason);
-}
-
-void FGSS_GameSettingEditableState::DisableOption(const FString& Option)
-{
-#if !UE_BUILD_SHIPPING
-	ensureAlwaysMsgf(!DisabledOptions.Contains(Option), TEXT("You've already disabled this option."));
-#endif
-
-	DisabledOptions.Add(Option);
-}
-
-void FGSS_GameSettingEditableState::UnableToReset()
-{
-	bResetable = false;
-}
-
 #undef LOCTEXT_NAMESPACE
-

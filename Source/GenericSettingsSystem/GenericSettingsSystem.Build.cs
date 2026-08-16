@@ -16,7 +16,8 @@ public class GenericSettingsSystem : ModuleRules
 				"Engine",
 				"GameplayTags",
 				"PropertyPath",
-				"UMG"
+				"UMG",
+				"DeveloperSettings"
 			}
 		);
 

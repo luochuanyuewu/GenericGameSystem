@@ -4,6 +4,7 @@
 
 #include "Settings/GSS_GameSettingCollection.h"
 #include "Settings/GSS_GameSettingAction.h"
+#include "Settings/GSS_GameSettingValue.h"
 #include "UObject/WeakObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingRegistry)
@@ -21,21 +22,6 @@ UGSS_GameSettingRegistry::UGSS_GameSettingRegistry()
 void UGSS_GameSettingRegistry::Initialize(ULocalPlayer* InLocalPlayer)
 {
 	OwningLocalPlayer = InLocalPlayer;
-	OnInitialize(InLocalPlayer);
-
-	//UGameFeaturesSubsystem
-}
-
-void UGSS_GameSettingRegistry::Regenerate()
-{
-	for (UGSS_GameSetting* Setting : RegisteredSettings)
-	{
-		Setting->MarkAsGarbage();
-	}
-	RegisteredSettings.Reset();
-	TopLevelSettings.Reset();
-
-	OnInitialize(OwningLocalPlayer);
 }
 
 bool UGSS_GameSettingRegistry::IsFinishedInitializing() const
@@ -53,11 +39,6 @@ bool UGSS_GameSettingRegistry::IsFinishedInitializing() const
 	return bReady;
 }
 
-void UGSS_GameSettingRegistry::SaveChanges()
-{
-
-}
-
 void UGSS_GameSettingRegistry::GetSettingsForFilter(const FGSS_GameSettingFilterState& FilterState, TArray<UGSS_GameSetting*>& InOutSettings)
 {
 	TArray<UGSS_GameSetting*> RootSettings;
@@ -72,7 +53,16 @@ void UGSS_GameSettingRegistry::GetSettingsForFilter(const FGSS_GameSettingFilter
 
 	for (UGSS_GameSetting* TopLevelSetting : RootSettings)
 	{
-		if (const UGSS_GameSettingCollection* TopLevelCollection = Cast<UGSS_GameSettingCollection>(TopLevelSetting))
+		// A page at the root is a navigation destination, not a container to expand. This lets providers
+		// independently contribute top-level pages without requiring a shared synthetic root collection.
+		if (Cast<UGSS_GameSettingCollectionPage>(TopLevelSetting))
+		{
+			if (FilterState.DoesSettingPassFilter(*TopLevelSetting))
+			{
+				InOutSettings.Add(TopLevelSetting);
+			}
+		}
+		else if (const UGSS_GameSettingCollection* TopLevelCollection = Cast<UGSS_GameSettingCollection>(TopLevelSetting))
 		{
 			TopLevelCollection->GetSettingsForFilter(FilterState, InOutSettings);
 		}
@@ -99,17 +89,95 @@ UGSS_GameSetting* UGSS_GameSettingRegistry::FindSettingByDevName(const FName& Se
 	return nullptr;
 }
 
-void UGSS_GameSettingRegistry::RegisterSetting(UGSS_GameSetting* InSetting)
+UGSS_GameSetting* UGSS_GameSettingRegistry::FindSettingById(const FGameplayTag& SettingId) const
 {
-	if (InSetting)
+	const TObjectPtr<UGSS_GameSetting>* Found = RegisteredSettings.FindByPredicate([&SettingId](const UGSS_GameSetting* Setting)
+	{
+		return IsValid(Setting) && Setting->GetSettingId() == SettingId;
+	});
+	return Found ? Found->Get() : nullptr;
+}
+
+TArray<UGSS_GameSettingCollection*> UGSS_GameSettingRegistry::GetTopLevelSettingCollections() const
+{
+	TArray<UGSS_GameSettingCollection*> Collections;
+	for (UGSS_GameSetting* TopLevelSetting : TopLevelSettings)
+	{
+		if (UGSS_GameSettingCollection* Collection = Cast<UGSS_GameSettingCollection>(TopLevelSetting);
+			Collection && !Collection->IsA<UGSS_GameSettingCollectionPage>())
+		{
+			Collections.Add(Collection);
+		}
+	}
+	return Collections;
+}
+
+void UGSS_GameSettingRegistry::RegisterSetting(UGSS_GameSetting* InSetting, UGSS_GameSettingCollection* Parent)
+{
+	if (!InSetting)
+	{
+		return;
+	}
+
+	if (Parent)
+	{
+		Parent->AddSetting(InSetting);
+	}
+	else
 	{
 		TopLevelSettings.Add(InSetting);
-		InSetting->SetRegistry(this);
-		RegisterInnerSettings(InSetting);
+	}
+	InSetting->SetRegistry(this);
+	RegisterSettingTree(InSetting);
+	if (OwningLocalPlayer)
+	{
+		InSetting->Initialize(OwningLocalPlayer);
 	}
 }
 
-void UGSS_GameSettingRegistry::RegisterInnerSettings(UGSS_GameSetting* InSetting)
+void UGSS_GameSettingRegistry::UnregisterSetting(UGSS_GameSetting* InSetting)
+{
+	if (!InSetting)
+	{
+		return;
+	}
+
+	TopLevelSettings.Remove(InSetting);
+	if (UGSS_GameSettingCollection* ParentCollection = Cast<UGSS_GameSettingCollection>(InSetting->GetSettingParent()))
+	{
+		ParentCollection->RemoveSetting(InSetting);
+	}
+	for (UGSS_GameSetting* Child : InSetting->GetChildSettings())
+	{
+		UnregisterSetting(Child);
+	}
+	InSetting->OnSettingChangedEvent.RemoveAll(this);
+	InSetting->OnSettingAppliedEvent.RemoveAll(this);
+	InSetting->OnSettingEditConditionChangedEvent.RemoveAll(this);
+	if (UGSS_GameSettingAction* ActionSetting = Cast<UGSS_GameSettingAction>(InSetting))
+	{
+		ActionSetting->OnExecuteNamedActionEvent.RemoveAll(this);
+	}
+	else if (UGSS_GameSettingCollectionPage* PageSetting = Cast<UGSS_GameSettingCollectionPage>(InSetting))
+	{
+		PageSetting->OnExecuteNavigationEvent.RemoveAll(this);
+	}
+	RegisteredSettings.Remove(InSetting);
+}
+
+void UGSS_GameSettingRegistry::ReloadSettingsFromAccessors()
+{
+	for (UGSS_GameSetting* Setting : RegisteredSettings)
+	{
+		if (UGSS_GameSettingValue* SettingValue = Cast<UGSS_GameSettingValue>(Setting))
+		{
+			SettingValue->StoreInitial();
+			SettingValue->RestoreToInitial();
+		}
+	}
+}
+
+void UGSS_GameSettingRegistry::RegisterSettingTree(UGSS_GameSetting* InSetting)
 {
 	InSetting->OnSettingChangedEvent.AddUObject(this, &ThisClass::HandleSettingChanged);
 	InSetting->OnSettingAppliedEvent.AddUObject(this, &ThisClass::HandleSettingApplied);
@@ -135,13 +203,13 @@ void UGSS_GameSettingRegistry::RegisterInnerSettings(UGSS_GameSetting* InSetting
 
 	for (UGSS_GameSetting* ChildSetting : InSetting->GetChildSettings())
 	{
-		RegisterInnerSettings(ChildSetting);
+		RegisterSettingTree(ChildSetting);
 	}
 }
 
 void UGSS_GameSettingRegistry::HandleSettingApplied(UGSS_GameSetting* Setting)
 {
-	OnSettingApplied(Setting);
+	OnSettingAppliedEvent.Broadcast(Setting);
 }
 
 void UGSS_GameSettingRegistry::HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason)
@@ -165,4 +233,3 @@ void UGSS_GameSettingRegistry::HandleSettingNavigation(UGSS_GameSetting* Setting
 }
 
 #undef LOCTEXT_NAMESPACE
-
