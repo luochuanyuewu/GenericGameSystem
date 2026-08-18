@@ -99,7 +99,7 @@ TArray<UGSS_GameSetting*> Settings;
 	{
 		if (UGSS_GameSettingValue* Value = Cast<UGSS_GameSettingValue>(Setting))
 		{
-			if (const UGSS_SettingEditableState* EditState = Value->GetEditState(); EditState && EditState->IsResettable())
+			if (Value->GetEditState().IsResettable())
 			{
 				Value->ResetToDefault();
 			}
@@ -263,8 +263,7 @@ void UGSS_SettingsPanel::HandleNamedAction(UGSS_GameSetting* Setting, FGameplayT
 void UGSS_SettingsPanel::HandleEditableStateChanged(UGSS_GameSetting* Setting)
 {
 	const bool bWasVisible = VisibleSettings.Contains(Setting);
-	const UGSS_SettingEditableState* State = Setting ? Setting->GetEditState() : nullptr;
-	const bool bIsVisible = State && State->IsVisible();
+	const bool bIsVisible = Setting && Setting->GetEditState().IsVisible();
 	if (bWasVisible != bIsVisible)
 	{
 		bAdjustListViewPostRefresh = Setting ? Setting->GetAdjustListViewPostRefresh() : true;

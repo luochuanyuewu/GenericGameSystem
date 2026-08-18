@@ -26,6 +26,55 @@ enum class EGSS_GameSettingChangeReason : uint8
 };
 
 /**
+ * Cached result of a setting's edit-condition evaluation.
+ * 设置编辑条件评估后的缓存结果。
+ *
+ * This is a value type owned by each runtime setting, matching the lifetime of its evaluated state rather than
+ * requiring a separate UObject allocation. Blueprint edit conditions receive it by reference and can mutate it
+ * through UGSS_GameSettingEditableStateLibrary.
+ * 这是每个运行时设置持有的值类型，与评估结果同生命周期，不需要单独分配 UObject。
+ * 蓝图编辑条件会按引用接收它，并可通过 UGSS_GameSettingEditableStateLibrary 修改它。
+ */
+USTRUCT(BlueprintType)
+struct GENERICSETTINGSSYSTEM_API FGSS_GameSettingEditableState
+{
+	GENERATED_BODY()
+
+public:
+	FGSS_GameSettingEditableState();
+
+	bool IsVisible() const { return bVisible; }
+	bool IsEnabled() const { return bEnabled; }
+	bool IsResettable() const { return bResettable; }
+	const TArray<FText>& GetDisabledReasons() const { return DisabledReasons; }
+	const TArray<FString>& GetDisabledOptions() const { return DisabledOptions; }
+#if !UE_BUILD_SHIPPING
+	const TArray<FString>& GetHiddenReasons() const { return HiddenReasons; }
+#endif
+
+	/** Hides this setting and records a developer-facing reason in non-shipping builds. / 隐藏此设置，并在非 Shipping 构建中记录面向开发者的原因。 */
+	void Hide(const FString& DeveloperReason);
+	/** Disables this setting and records the player-facing reason. / 禁用此设置，并记录面向玩家的原因。 */
+	void Disable(const FText& Reason);
+	/** Removes a serialized discrete option from the available UI options. / 从可用 UI 选项中移除一个序列化离散选项。 */
+	void DisableOption(const FString& OptionValue);
+	/** Prevents this setting from participating in reset-to-default commands. / 阻止此设置参与重置为默认值命令。 */
+	void PreventReset();
+	/** Hides this setting and prevents reset. / 隐藏此设置并禁止重置。 */
+	void Kill(const FString& DeveloperReason);
+
+private:
+	bool bVisible = true;
+	bool bEnabled = true;
+	bool bResettable = true;
+	TArray<FString> DisabledOptions;
+	TArray<FText> DisabledReasons;
+#if !UE_BUILD_SHIPPING
+	TArray<FString> HiddenReasons;
+#endif
+};
+
+/**
  * Query parameters controlling which runtime settings a UI receives.
  * 控制 UI 获取哪些运行时设置的查询参数。
  *

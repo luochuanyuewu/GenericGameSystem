@@ -55,9 +55,9 @@ public:
 	void NavigateToSetting(FGameplayTag SettingId);
 	/**
 	 * Resolves a registered Gameplay Tag from a setting name, then restricts the panel to that setting or Collection.
-	 * The request fails and this function returns false when SettingName is None or does not identify a registered Gameplay Tag.
+	 * The request fails and this function returns false when SettingName is None or does not identify a currently registered setting Gameplay Tag.
 	 * 根据设置名称解析已注册的 Gameplay Tag，再将 Panel 限制为该设置或 Collection。
-	 * 当 SettingName 为 None，或未对应已注册的 Gameplay Tag 时，请求失败并返回 false。
+	 * 当 SettingName 为 None，或未对应当前已注册设置的 Gameplay Tag 时，请求失败并返回 false。
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI", meta = (DisplayName = "Navigate To Setting (Name)"))
 	bool NavigateToSettingByName(FName SettingName);
@@ -92,6 +92,9 @@ protected:
 	void HandleSettingAction(FGameplayTag SettingId, UGSS_GameSetting* Setting);
 	UFUNCTION()
 	void HandleSettingChanged(FGameplayTag SettingId, UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
+	/** Refreshes dirty Actions after a Registry commit initiated outside this Screen. / 当本 Screen 外部提交 Registry 修改后刷新脏状态 Action。 */
+	UFUNCTION()
+	void HandleSettingApplied(FGameplayTag SettingId, UGSS_GameSetting* Setting);
 	void HandleBackAction();
 	void HandleApplyAction();
 	void HandleCancelChangesAction();

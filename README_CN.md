@@ -61,12 +61,13 @@ GGS 采用模块化架构，由七个 Runtime 模块和一个仅编辑器集成�
   - 面向本地玩家的设置注册表和设置集合
   - 支持统一 Local/Shared Accessor 的离散值与标量值
   - 支持应用、恢复、过滤和编辑条件
+  - 蓝图编辑条件按引用接收 `FGSS_GameSettingEditableState`，可通过 `UGSS_GameSettingEditableStateLibrary` 隐藏、禁用、排除选项或禁止重置
   - 支持 Data Asset 配置，以及面向蓝图/C++ 的 Local/Shared 轻量反射值 Accessor
   - 支持运行时 Provider 注册、本地 `UGameUserSettings` 和按 LocalPlayer 隔离的 Shared SaveGame 偏好
-  - `GenericSettingsSystemCommon` 提供可选的 Video、Audio、Input 和 Accessibility Provider。将 `UGSS_CommonSettingsShared`（或其子类）设为 Shared Settings Class 后，即可使用其内置的可携带偏好。Input 仅负责设备偏好；玩法策略、Enhanced Input 改键、平台设备选择、性能统计和在线/DLC 设置应由项目或可选集成 Provider 提供
+  - `GenericSettingsSystemCommon` 提供可选的 Video、Audio、Input 和 Accessibility Provider。`UGSS_CommonSettingsShared` 是可携带偏好的预制基类；项目应继承它并重写 `ApplySettings`，将已提交的 Audio、Input 与 Accessibility 值应用到自身系统。Input 仅负责设备偏好；玩法策略、Enhanced Input 改键、平台设备选择、性能统计和在线/DLC 设置应由项目或可选集成 Provider 提供
   - `GenericSettingsSystemUI` 将 GSS 注册表适配到现有 CommonUI/GUIS 布局，避免运行时核心依赖 UI
 
-**快速配置**：先在 **项目设置 → Generic Settings System → Shared Settings Class** 中设为 `UGSS_CommonSettingsShared` 或其子类，再在 **Startup Provider Classes** 中按需加入 `UGSS_VideoSettingsProvider`、`UGSS_AudioSettingsProvider`、`UGSS_InputSettingsProvider`、`UGSS_AccessibilitySettingsProvider`。普通值项使用 Local 或 Shared Accessor，并配置零参数 `UFUNCTION` Getter 与单参数 `UFUNCTION` Setter。创建继承 `UGSS_SettingsScreen` 的蓝图，绑定名为 `Settings_Panel` 的 `UGSS_SettingsPanel`；再为 Panel 列表配置 `UGSS_SettingsEntryWidgetFactory`，并提供离散值、标量、Action 和导航节点的蓝图条目 Widget。设置条目继承 `CommonUserWidget`，因此每个条目蓝图自行拥有按钮、滑块及焦点行为。若需标准详情区，在 Panel 中添加名为 `Details_Settings`、继承 `UGSS_SettingsDetailView` 的 Widget，并按需绑定标题、说明、动态详情、警告和禁用详情字段。该类还继承 `UGUIS_ListEntryDetailView`：可绑定 `Box_DetailSections`、指定 `UGSS_SettingsDetailSectionBuilder`，并将 `UGSS_GameSetting` 或其子类映射到一个或多个继承 `UGSS_SettingsDetailSection` 的 Section 蓝图。
+**快速配置**：创建 `UGSS_CommonSettingsShared` 的蓝图或 C++ 子类，重写 `ApplySettings` 将已提交的可携带偏好同步到项目系统，并在 **项目设置 → Generic Settings System → Shared Settings Class** 中配置该子类。再在 **Startup Provider Classes** 中按需加入 `UGSS_VideoSettingsProvider`、`UGSS_AudioSettingsProvider`、`UGSS_InputSettingsProvider`、`UGSS_AccessibilitySettingsProvider`。普通值项使用 Local 或 Shared Accessor，并配置零参数 `UFUNCTION` Getter 与单参数 `UFUNCTION` Setter。创建继承 `UGSS_SettingsScreen` 的蓝图，绑定名为 `Settings_Panel` 的 `UGSS_SettingsPanel`；再为 Panel 列表配置 `UGSS_SettingsEntryWidgetFactory`，并提供离散值、标量、Action 和导航节点的蓝图条目 Widget。设置条目继承 `CommonUserWidget`：离散条目可选绑定 `Panel_Value`、`Rotator_SettingValue`、`Button_Decrease`、`Button_Increase`；标量条目可选绑定 `Panel_Value`、`Slider_SettingValue`、`Text_SettingValue`；命令行可选绑定 `Button_Action` 或 `Button_Navigate`。若需标准详情区，在 Panel 中添加名为 `Details_Settings`、继承 `UGSS_SettingsDetailView` 的 Widget，并按需绑定标题、说明、动态详情、警告和禁用详情字段。该类还继承 `UGUIS_ListEntryDetailView`：可绑定 `Box_DetailSections`、指定 `UGSS_SettingsDetailSectionBuilder`，并将 `UGSS_GameSetting` 或其子类映射到一个或多个继承 `UGSS_SettingsDetailSection` 的 Section 蓝图。
 
 **自动顶层 Tab**：在 Screen 蓝图启用 `bAutoBuildTopSettingsTabs`，并为 `TopSettingsTabButtonType` 指定按钮类，即可根据顶层 GSS Collection 自动构建 Tab。Screen 使用每个 Collection 的 Tag 名与显示名，且仅响应它自动创建的 Tab 的导航请求。
 

@@ -95,16 +95,17 @@ void UGSS_SettingsDetailView::RefreshSettingDetails()
 	if (RichText_DisabledDetails)
 	{
 		TArray<FText> DisabledDetailLines;
-		if (const UGSS_SettingEditableState* EditableState = CurrentSetting ? CurrentSetting->GetEditState() : nullptr)
+		if (CurrentSetting)
 		{
-			if (!EditableState->IsEnabled())
+			const FGSS_GameSettingEditableState& EditableState = CurrentSetting->GetEditState();
+			if (!EditableState.IsEnabled())
 			{
-				for (const FText& Reason : EditableState->GetDisabledReasons())
+				for (const FText& Reason : EditableState.GetDisabledReasons())
 				{
 					DisabledDetailLines.Add(FText::Format(LOCTEXT("DisabledReasonLine", "<Icon.Warning></> {0}"), Reason));
 				}
 			}
-			if (!EditableState->GetDisabledOptions().IsEmpty())
+			if (!EditableState.GetDisabledOptions().IsEmpty())
 			{
 				DisabledDetailLines.Add(LOCTEXT("DisabledOptionsLine", "<Icon.Warning></> Some options are currently unavailable."));
 			}

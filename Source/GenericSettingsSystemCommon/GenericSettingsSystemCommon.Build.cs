@@ -21,8 +21,7 @@ public class GenericSettingsSystemCommon : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"RHI",
-				"ApplicationCore"
+				"RHI"
 			});
 	}
 }

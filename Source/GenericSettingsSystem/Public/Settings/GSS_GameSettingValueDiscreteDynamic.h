@@ -61,6 +61,10 @@ protected:
 	virtual bool OnApply() override;
 
 	bool AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const;
+	/** Returns raw option indices which remain available after edit-condition evaluation. / 返回编辑条件评估后仍可用的原始选项索引。 */
+	TArray<int32> GetEnabledOptionIndices() const;
+	/** Maps a raw option index to its visible UI index. / 将原始选项索引映射为可见 UI 索引。 */
+	int32 GetEnabledOptionIndex(int32 RawOptionIndex) const;
 
 protected:
 	FGSS_SettingValueAccessor Accessor;

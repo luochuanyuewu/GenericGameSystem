@@ -151,7 +151,7 @@ bool UGSS_SettingsScreen::NavigateToSettingByName(FName SettingName)
 	}
 
 	const FGameplayTag SettingId = UGameplayTagsManager::Get().RequestGameplayTag(SettingName, false);
-	if (!SettingId.IsValid())
+	if (!SettingId.IsValid() || !SettingsSubsystem || !SettingsSubsystem->GetRegistry() || !SettingsSubsystem->GetRegistry()->FindSettingById(SettingId))
 	{
 		return false;
 	}
@@ -199,8 +199,7 @@ bool UGSS_SettingsScreen::RebuildTopSettingsTabs()
 			continue;
 		}
 
-		const UGSS_SettingEditableState* EditState = Collection->GetEditState();
-		if (EditState && !EditState->IsVisible())
+		if (!Collection->GetEditState().IsVisible())
 		{
 			continue;
 		}
@@ -265,6 +264,11 @@ void UGSS_SettingsScreen::HandleSettingChanged(FGameplayTag, UGSS_GameSetting*, 
 	UpdateDirtyState();
 }
 
+void UGSS_SettingsScreen::HandleSettingApplied(FGameplayTag, UGSS_GameSetting*)
+{
+	UpdateDirtyState();
+}
+
 void UGSS_SettingsScreen::UpdateDirtyState()
 {
 	const bool bSettingsDirty = HavePendingChanges();
@@ -307,6 +311,7 @@ void UGSS_SettingsScreen::BindSubsystemEvents()
 	{
 		SettingsSubsystem->OnSettingActionExecuted.AddDynamic(this, &ThisClass::HandleSettingAction);
 		SettingsSubsystem->OnSettingPendingChanged.AddDynamic(this, &ThisClass::HandleSettingChanged);
+		SettingsSubsystem->OnSettingApplied.AddDynamic(this, &ThisClass::HandleSettingApplied);
 	}
 }
 
@@ -316,6 +321,7 @@ void UGSS_SettingsScreen::UnbindSubsystemEvents()
 	{
 		SettingsSubsystem->OnSettingActionExecuted.RemoveDynamic(this, &ThisClass::HandleSettingAction);
 		SettingsSubsystem->OnSettingPendingChanged.RemoveDynamic(this, &ThisClass::HandleSettingChanged);
+		SettingsSubsystem->OnSettingApplied.RemoveDynamic(this, &ThisClass::HandleSettingApplied);
 	}
 }
 

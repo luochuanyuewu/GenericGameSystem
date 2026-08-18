@@ -6,11 +6,11 @@
 
 #define LOCTEXT_NAMESPACE "GSS_GameSetting"
 
-void UGSS_WhenPlayingAsPrimaryPlayer::Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState)
+void UGSS_WhenPlayingAsPrimaryPlayer::Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState)
 {
 	if (Setting && !Setting->GetOwningLocalPlayer()->IsPrimaryPlayer())
 	{
-		InOutEditState->Disable(LOCTEXT("OnlyPrimaryPlayerEditable", "Can only be changed by the primary player."));
+		InOutEditState.Disable(LOCTEXT("OnlyPrimaryPlayerEditable", "Can only be changed by the primary player."));
 	}
 }
 

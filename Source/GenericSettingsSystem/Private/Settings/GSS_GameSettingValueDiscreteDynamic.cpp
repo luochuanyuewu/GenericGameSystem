@@ -113,9 +113,10 @@ bool UGSS_GameSettingValueDiscreteDynamic::OnApply()
 
 void UGSS_GameSettingValueDiscreteDynamic::SetDiscreteOptionByIndex(int32 Index)
 {
-	if (ensure(OptionValues.IsValidIndex(Index)))
+	const TArray<int32> EnabledIndices = GetEnabledOptionIndices();
+	if (ensure(EnabledIndices.IsValidIndex(Index)))
 	{
-		SetValueFromString(OptionValues[Index]);
+		SetValueFromString(OptionValues[EnabledIndices[Index]]);
 	}
 }
 
@@ -132,16 +133,17 @@ int32 UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptionIndex() const
 		return GetDiscreteOptionDefaultIndex();
 	}
 
-	return Index;
+	return GetEnabledOptionIndex(Index);
 }
 
 int32 UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptionDefaultIndex() const
 {
 	if (DefaultValue.IsSet())
 	{
-		return OptionValues.IndexOfByPredicate([this](const FString& InOption) {
+		const int32 RawIndex = OptionValues.IndexOfByPredicate([this](const FString& InOption) {
 			return AreOptionsEqual(DefaultValue.GetValue(), InOption);
 		});
+		return GetEnabledOptionIndex(RawIndex);
 	}
 
 	return INDEX_NONE;
@@ -149,26 +151,39 @@ int32 UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptionDefaultIndex() cons
 
 TArray<FText> UGSS_GameSettingValueDiscreteDynamic::GetDiscreteOptions() const
 {
-	static const TArray<FString> EmptyOptions;
-	const UGSS_SettingEditableState* EditState = GetEditState();
-	const TArray<FString>& DisabledOptions = EditState ? EditState->GetDisabledOptions() : EmptyOptions;
-
-	if (DisabledOptions.Num() > 0)
+	const TArray<int32> EnabledIndices = GetEnabledOptionIndices();
+	if (EnabledIndices.Num() != OptionDisplayTexts.Num())
 	{
 		TArray<FText> AllowedOptions;
-
-		for (int32 OptionIndex = 0; OptionIndex < OptionValues.Num(); ++OptionIndex)
+		AllowedOptions.Reserve(EnabledIndices.Num());
+		for (const int32 OptionIndex : EnabledIndices)
 		{
-			if (!DisabledOptions.Contains(OptionValues[OptionIndex]))
-			{
-				AllowedOptions.Add(OptionDisplayTexts[OptionIndex]);
-			}
+			AllowedOptions.Add(OptionDisplayTexts[OptionIndex]);
 		}
-
 		return AllowedOptions;
 	}
 
 	return OptionDisplayTexts;
+}
+
+TArray<int32> UGSS_GameSettingValueDiscreteDynamic::GetEnabledOptionIndices() const
+{
+	const TArray<FString>& DisabledOptions = GetEditState().GetDisabledOptions();
+	TArray<int32> EnabledIndices;
+	EnabledIndices.Reserve(OptionValues.Num());
+	for (int32 OptionIndex = 0; OptionIndex < OptionValues.Num(); ++OptionIndex)
+	{
+		if (!DisabledOptions.Contains(OptionValues[OptionIndex]))
+		{
+			EnabledIndices.Add(OptionIndex);
+		}
+	}
+	return EnabledIndices;
+}
+
+int32 UGSS_GameSettingValueDiscreteDynamic::GetEnabledOptionIndex(int32 RawOptionIndex) const
+{
+	return GetEnabledOptionIndices().IndexOfByKey(RawOptionIndex);
 }
 
 //////////////////////////////////////////////////////////////////////////

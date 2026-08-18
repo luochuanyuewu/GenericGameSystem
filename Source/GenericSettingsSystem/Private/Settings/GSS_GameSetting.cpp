@@ -123,11 +123,7 @@ void UGSS_GameSetting::SetSettingParent(UGSS_GameSetting* InSettingParent)
 
 void UGSS_GameSetting::ComputeEditableState()
 {
-	if (!EditableStateCache)
-	{
-		EditableStateCache = NewObject<UGSS_SettingEditableState>(this);
-	}
-	EditableStateCache->Reset();
+	EditableStateCache = FGSS_GameSettingEditableState();
 
 	// Does this setting itself have any special rules?
 	OnGatherEditState(EditableStateCache);
@@ -142,7 +138,7 @@ void UGSS_GameSetting::ComputeEditableState()
 	}
 }
 
-void UGSS_GameSetting::OnGatherEditState(UGSS_SettingEditableState* InOutEditState) const
+void UGSS_GameSetting::OnGatherEditState(FGSS_GameSettingEditableState& InOutEditState) const
 {
 
 }

@@ -14,5 +14,5 @@ class GENERICSETTINGSSYSTEM_API UGSS_WhenPlayingAsPrimaryPlayer : public UGSS_Se
 	GENERATED_BODY()
 
 public:
-	virtual void Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState) override;
+	virtual void Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState) override;
 };

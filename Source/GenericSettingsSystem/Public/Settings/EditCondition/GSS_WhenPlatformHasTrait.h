@@ -28,5 +28,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bRequireTrait = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bHideWhenNotMatched = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") FText DisabledReason;
-	virtual void Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState) override;
+	virtual void Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState) override;
 };

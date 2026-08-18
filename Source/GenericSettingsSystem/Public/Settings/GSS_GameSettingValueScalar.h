@@ -51,10 +51,5 @@ public:
 	/** Returns localized text for displaying the pending value. / 返回用于显示待应用值的本地化文本。 */
 	virtual FText GetFormattedText() const									PURE_VIRTUAL(, return FText::GetEmpty(););
 	
-	virtual FString GetAnalyticsValue() const override
-	{
-		return LexToString(GetValue());
-	}
-
 protected:
 };

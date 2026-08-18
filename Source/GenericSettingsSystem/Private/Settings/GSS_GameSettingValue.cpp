@@ -12,8 +12,6 @@
 
 UGSS_GameSettingValue::UGSS_GameSettingValue()
 {
-	// Values will report to analytics.
-	bReportAnalytics = true;
 }
 
 void UGSS_GameSettingValue::OnInitialized()
@@ -28,4 +26,3 @@ void UGSS_GameSettingValue::OnInitialized()
 }
 
 #undef LOCTEXT_NAMESPACE
-

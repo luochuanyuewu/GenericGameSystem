@@ -121,7 +121,7 @@ bool UGSS_SettingsSubsystem::ExecuteAction(FGameplayTag SettingId)
 
 void UGSS_SettingsSubsystem::ApplyChanges()
 {
-	if (!ChangeTracker)
+	if (!ChangeTracker || !ChangeTracker->HaveSettingsBeenChanged())
 	{
 		return;
 	}
@@ -146,14 +146,6 @@ void UGSS_SettingsSubsystem::CancelChanges()
 {
 	if (!ChangeTracker) return;
 	ChangeTracker->RestoreToInitial();
-}
-
-void UGSS_SettingsSubsystem::Save()
-{
-	if (SharedSettings)
-	{
-		SharedSettings->SaveGameToSlotForLocalPlayer();
-	}
 }
 
 void UGSS_SettingsSubsystem::Reload()

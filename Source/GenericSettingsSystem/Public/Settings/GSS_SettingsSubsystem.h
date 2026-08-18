@@ -89,10 +89,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void CancelChanges();
 
-	/** Saves the current Shared Settings object for this LocalPlayer. / 保存此 LocalPlayer 当前的 Shared Settings 对象。 */
-	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
-	void Save();
-
 	/** Reloads Shared Settings and refreshes registered values from their Accessors. Pending edits are discarded. / 重新加载 Shared Settings 并从 Accessor 刷新已注册值；待应用修改会被丢弃。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void Reload();

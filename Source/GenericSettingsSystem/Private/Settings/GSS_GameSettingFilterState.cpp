@@ -32,6 +32,45 @@ private:
 // FGSS_GameSettingFilterState
 //--------------------------------------
 
+FGSS_GameSettingEditableState::FGSS_GameSettingEditableState() = default;
+
+void FGSS_GameSettingEditableState::Hide(const FString& DeveloperReason)
+{
+#if !UE_BUILD_SHIPPING
+	ensureAlwaysMsgf(!DeveloperReason.IsEmpty(), TEXT("A developer reason is required when hiding a setting."));
+	HiddenReasons.Add(DeveloperReason);
+#endif
+	bVisible = false;
+}
+
+void FGSS_GameSettingEditableState::Disable(const FText& Reason)
+{
+#if !UE_BUILD_SHIPPING
+	ensureAlwaysMsgf(!Reason.IsEmpty(), TEXT("A player-facing reason is required when disabling a setting."));
+#endif
+	bEnabled = false;
+	DisabledReasons.Add(Reason);
+}
+
+void FGSS_GameSettingEditableState::DisableOption(const FString& OptionValue)
+{
+#if !UE_BUILD_SHIPPING
+	ensureAlwaysMsgf(!DisabledOptions.Contains(OptionValue), TEXT("The setting option is already disabled."));
+#endif
+	DisabledOptions.Add(OptionValue);
+}
+
+void FGSS_GameSettingEditableState::PreventReset()
+{
+	bResettable = false;
+}
+
+void FGSS_GameSettingEditableState::Kill(const FString& DeveloperReason)
+{
+	Hide(DeveloperReason);
+	PreventReset();
+}
+
 FGSS_GameSettingFilterState::FGSS_GameSettingFilterState()
 	: SearchTextEvaluator(ETextFilterExpressionEvaluatorMode::BasicString)
 {
@@ -55,19 +94,19 @@ void FGSS_GameSettingFilterState::SetSearchText(const FString& InSearchText)
 
 bool FGSS_GameSettingFilterState::DoesSettingPassFilter(const UGSS_GameSetting& InSetting) const
 {
-	const UGSS_SettingEditableState* EditableState = InSetting.GetEditState();
+	const FGSS_GameSettingEditableState& EditableState = InSetting.GetEditState();
 
-	if (!EditableState || (!bIncludeHidden && !EditableState->IsVisible()))
+	if (!bIncludeHidden && !EditableState.IsVisible())
 	{
 		return false;
 	}
 
-	if (!bIncludeDisabled && !EditableState->IsEnabled())
+	if (!bIncludeDisabled && !EditableState.IsEnabled())
 	{
 		return false;
 	}
 
-	if (!bIncludeResetable && !EditableState->IsResettable())
+	if (!bIncludeResetable && !EditableState.IsResettable())
 	{
 		return false;
 	}

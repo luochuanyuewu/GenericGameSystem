@@ -7,19 +7,19 @@
 
 #define LOCTEXT_NAMESPACE "GSS_GameSetting"
 
-void UGSS_WhenPlatformHasTrait::Evaluate_Implementation(UGSS_SettingEditableState* InOutEditState)
+void UGSS_WhenPlatformHasTrait::Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState)
 {
-	if (!Setting || !InOutEditState || UCommonUIVisibilitySubsystem::GetChecked(Setting->GetOwningLocalPlayer())->HasVisibilityTag(VisibilityTag) == bRequireTrait)
+	if (!Setting || UCommonUIVisibilitySubsystem::GetChecked(Setting->GetOwningLocalPlayer())->HasVisibilityTag(VisibilityTag) == bRequireTrait)
 	{
 		return;
 	}
 	if (bHideWhenNotMatched)
 	{
-		InOutEditState->Kill(TEXT("Platform trait does not match."));
+		InOutEditState.Kill(TEXT("Platform trait does not match."));
 	}
 	else
 	{
-		InOutEditState->Disable(DisabledReason);
+		InOutEditState.Disable(DisabledReason);
 	}
 }
 

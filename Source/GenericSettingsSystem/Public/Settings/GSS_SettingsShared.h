@@ -8,8 +8,10 @@
  * Per-local-player, portable settings saved through UE's LocalPlayerSaveGame API.
  * 每个本地玩家可携带的设置，通过 UE 的 LocalPlayerSaveGame API 保存。
  *
- * Derive from this class in a project to add SaveGame properties and UFUNCTION getters/setters for Shared Accessors.
- * 项目可继承此类，添加 SaveGame 属性及供 Shared Accessor 调用的 UFUNCTION Getter/Setter。
+ * Derive from this class in a project to add SaveGame properties and UFUNCTION getters/setters for Shared Accessors,
+ * then override ApplySettings to apply committed values to project systems.
+ * 项目可继承此类，添加 SaveGame 属性及供 Shared Accessor 调用的 UFUNCTION Getter/Setter，
+ * 并重写 ApplySettings，将已提交值应用到项目系统。
  */
 UCLASS(BlueprintType, Blueprintable)
 class GENERICSETTINGSSYSTEM_API UGSS_SettingsShared : public ULocalPlayerSaveGame

@@ -5,11 +5,13 @@
 #include "GSS_CommonSettingsShared.generated.h"
 
 /**
- * Ready-to-use Shared Settings for the standard GSS Common providers.
- * 标准 GSS Common Provider 可直接使用的 Shared Settings。
+ * Base Shared Settings preset for the standard GSS Common providers.
+ * 标准 GSS Common Provider 使用的 Shared Settings 预制基类。
  *
- * Set this class, or a Blueprint/C++ subclass, as SharedSettingsClass in project settings.
- * 请将本类或其蓝图/C++ 子类配置为项目设置中的 SharedSettingsClass。
+ * This class only stores portable preference values. Projects should derive a Blueprint or C++ class,
+ * override ApplySettings, and apply the committed preferences to their own audio, input, and accessibility systems.
+ * 本类仅存储可携带的偏好值。项目应创建蓝图或 C++ 子类，重写 ApplySettings，
+ * 再将已提交的偏好应用到自身的音频、输入和无障碍系统。
  */
 UCLASS(BlueprintType, Blueprintable)
 class GENERICSETTINGSSYSTEMCOMMON_API UGSS_CommonSettingsShared : public UGSS_SettingsShared

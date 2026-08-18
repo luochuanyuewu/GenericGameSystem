@@ -33,5 +33,4 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
 	virtual TArray<FText> GetDiscreteOptions() const PURE_VIRTUAL(, return TArray<FText>(););
 
-	virtual FString GetAnalyticsValue() const;
 };
