@@ -28,5 +28,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bRequireTrait = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bHideWhenNotMatched = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") FText DisabledReason;
+
+	/** Hides the setting when the platform does not have Tag. / 平台缺少 Tag 时隐藏设置。 */
+	static UGSS_WhenPlatformHasTrait* KillIfMissing(UObject* Outer, FGameplayTag Tag);
+	/** Disables the setting when the platform does not have Tag. / 平台缺少 Tag 时禁用设置。 */
+	static UGSS_WhenPlatformHasTrait* DisableIfMissing(UObject* Outer, FGameplayTag Tag, const FText& Reason);
+	/** Hides the setting when the platform has Tag. / 平台具有 Tag 时隐藏设置。 */
+	static UGSS_WhenPlatformHasTrait* KillIfPresent(UObject* Outer, FGameplayTag Tag);
+	/** Disables the setting when the platform has Tag. / 平台具有 Tag 时禁用设置。 */
+	static UGSS_WhenPlatformHasTrait* DisableIfPresent(UObject* Outer, FGameplayTag Tag, const FText& Reason);
+
 	virtual void Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState) override;
 };

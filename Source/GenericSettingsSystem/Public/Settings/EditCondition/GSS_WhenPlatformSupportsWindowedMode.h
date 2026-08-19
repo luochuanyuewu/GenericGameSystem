@@ -3,18 +3,19 @@
 #pragma once
 
 #include "Settings/GSS_SettingEditCondition.h"
-#include "GSS_WhenPlayingAsPrimaryPlayer.generated.h"
+#include "GSS_WhenPlatformSupportsWindowedMode.generated.h"
 
-class ULocalPlayer;
-
-/** Edit condition that exposes a setting only to the primary local player. / 仅向主本地玩家暴露设置的编辑条件。 */
+/**
+ * Hides a setting on platforms that cannot use windowed or windowed-fullscreen display modes.
+ * 在不支持窗口化或窗口化全屏显示模式的平台上隐藏设置。
+ */
 UCLASS(BlueprintType, EditInlineNew)
-class GENERICSETTINGSSYSTEM_API UGSS_WhenPlayingAsPrimaryPlayer : public UGSS_SettingEditCondition
+class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformSupportsWindowedMode : public UGSS_SettingEditCondition
 {
 	GENERATED_BODY()
 
 public:
 	/** Creates a condition owned by Outer, normally the setting it will be added to. / 创建由 Outer 持有的条件，通常是即将添加该条件的设置。 */
-	static UGSS_WhenPlayingAsPrimaryPlayer* Create(UObject* Outer);
+	static UGSS_WhenPlatformSupportsWindowedMode* Create(UObject* Outer);
 	virtual void Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState) override;
 };

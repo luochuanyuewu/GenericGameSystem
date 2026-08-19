@@ -109,6 +109,28 @@ public:
 	TArray<FGSS_DiscreteOptionDefinition> Options;
 };
 
+/** Built-in Scalar UI formats that Data Assets and Blueprint Builders can select. / Data Asset 与蓝图 Builder 可选择的内置 Scalar UI 格式。 */
+UENUM(BlueprintType)
+enum class EGSS_SettingScalarDisplayFormat : uint8
+{
+	/** Source value with default numeric formatting. / 使用默认数值格式显示源值。 */
+	Raw UMETA(DisplayName = "Raw"),
+	/** Source value with one fractional digit. / 源值，保留一位小数。 */
+	RawOneDecimal UMETA(DisplayName = "Raw (One Decimal)"),
+	/** Source value with two fractional digits. / 源值，保留两位小数。 */
+	RawTwoDecimals UMETA(DisplayName = "Raw (Two Decimals)"),
+	/** Normalized [0,1] value shown as an integer percent. / 将归一化 [0,1] 显示为整数百分比。 */
+	ZeroToOnePercent UMETA(DisplayName = "Normalized Percent"),
+	/** Normalized [0,1] value shown as a percent with one decimal. / 将归一化 [0,1] 显示为一位小数百分比。 */
+	ZeroToOnePercentOneDecimal UMETA(DisplayName = "Normalized Percent (One Decimal)"),
+	/** Source value in 0–1 shown as an integer percent. / 将 0–1 的源值显示为整数百分比。 */
+	SourceAsPercent1 UMETA(DisplayName = "Source as Percent (0-1)"),
+	/** Source value in 0–100 shown as an integer percent. / 将 0–100 的源值显示为整数百分比。 */
+	SourceAsPercent100 UMETA(DisplayName = "Source as Percent (0-100)"),
+	/** Source value rounded to an integer. / 将源值四舍五入为整数。 */
+	SourceAsInteger UMETA(DisplayName = "Source as Integer")
+};
+
 /** Numeric setting definition with a source range and quantization step. / 具有取值范围与量化步长的数值设置定义。 */
 UCLASS(BlueprintType, EditInlineNew)
 class GENERICSETTINGSSYSTEM_API UGSS_ScalarSettingDefinition : public UGSS_SettingDefinition
@@ -131,6 +153,10 @@ public:
 	/** Positive increment used to quantize edits. / 用于量化编辑的正增量。 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings", meta = (ClampMin = "0.000001"))
 	double Step = 0.01;
+
+	/** How the pending value is formatted in settings UI. / 设置 UI 如何格式化待应用值。 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
+	EGSS_SettingScalarDisplayFormat DisplayFormat = EGSS_SettingScalarDisplayFormat::Raw;
 };
 
 /** Invokable command definition; actions do not represent a persisted preference by default. / 可调用命令定义；Action 默认不表示可持久化偏好。 */

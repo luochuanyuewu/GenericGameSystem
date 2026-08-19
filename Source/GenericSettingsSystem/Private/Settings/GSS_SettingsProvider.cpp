@@ -73,7 +73,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDiscrete(FGameplayTag Id, FText Name,
 }
 
 UGSS_GameSetting* UGSS_SettingsBuilder::AddScalar(FGameplayTag Id, FText Name, FText Description, double DefaultValue, double Min, double Max, double Step, const FGSS_SettingValueAccessor& Accessor,
-                                                  UGSS_GameSetting* Parent)
+                                                  UGSS_GameSetting* Parent, EGSS_SettingScalarDisplayFormat DisplayFormat)
 {
 	auto* D = NewObject<UGSS_ScalarSettingDefinition>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), Accessor);
@@ -81,6 +81,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddScalar(FGameplayTag Id, FText Name, F
 	D->MinimumValue = Min;
 	D->MaximumValue = Max;
 	D->Step = Step;
+	D->DisplayFormat = DisplayFormat;
 	return AddDefinition(D, Parent);
 }
 
@@ -136,7 +137,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 		Value->SetDefaultValue(Scalar->DefaultValue);
 		Value->SetSourceRangeAndStep(TRange<double>(Scalar->MinimumValue, Scalar->MaximumValue), Scalar->Step);
 		Value->SetAccessor(Scalar->Accessor);
-		Value->SetDisplayFormat(UGSS_GameSettingValueScalarDynamic::Raw);
+		Value->SetDisplayFormat(UGSS_GameSettingValueScalarDynamic::GetBuiltInDisplayFormat(Scalar->DisplayFormat));
 		Setting = Value;
 	}
 	else if (const UGSS_ActionSettingDefinition* Action = Cast<UGSS_ActionSettingDefinition>(Definition))

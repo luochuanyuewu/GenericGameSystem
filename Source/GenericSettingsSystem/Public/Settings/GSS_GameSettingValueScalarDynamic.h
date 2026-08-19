@@ -7,6 +7,7 @@
 
 #include "GSS_GameSettingValueScalarDynamic.generated.h"
 
+enum class EGSS_SettingScalarDisplayFormat : uint8;
 struct FNumberFormattingOptions;
 
 class UObject;
@@ -59,6 +60,8 @@ public:
 
 	/** Selects the function used by GetFormattedText. / 指定 GetFormattedText 所使用的函数。 */
 	void SetDisplayFormat(FSettingScalarFormatFunction InDisplayFormat);
+	/** Resolves a Data Asset / Blueprint format enum to a built-in formatter. / 将 Data Asset / 蓝图格式枚举解析为内置格式化器。 */
+	static FSettingScalarFormatFunction GetBuiltInDisplayFormat(EGSS_SettingScalarDisplayFormat Format);
 	
 	/** Sets the complete source range and positive edit step. / 设置完整源数值范围及正编辑步长。 */
 	void SetSourceRangeAndStep(const TRange<double>& InRange, double InSourceStep);

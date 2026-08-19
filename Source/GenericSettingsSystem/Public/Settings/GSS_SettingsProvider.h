@@ -50,7 +50,8 @@ public:
 	                              const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent = nullptr);
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	UGSS_GameSetting* AddScalar(FGameplayTag SettingId, FText DisplayName, FText Description, double DefaultValue, double MinimumValue, double MaximumValue, double Step,
-	                            const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent = nullptr);
+	                            const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent = nullptr,
+	                            EGSS_SettingScalarDisplayFormat DisplayFormat = EGSS_SettingScalarDisplayFormat::Raw);
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	UGSS_GameSetting* AddAction(FGameplayTag SettingId, FText DisplayName, FText Description, FText ActionText, FGameplayTag ActionId, UGSS_GameSetting* Parent = nullptr);
 	/** Returns nodes created during this registration, mainly for subsystem ownership and unregistration. / 返回本次注册创建的节点，主要供子系统持有与注销。 */

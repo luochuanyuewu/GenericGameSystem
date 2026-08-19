@@ -35,7 +35,17 @@ struct GENERICSETTINGSSYSTEM_API FGSS_SettingValueAccessor
 	bool GetValue(ULocalPlayer* LocalPlayer, FString& OutValue) const;
 	bool SetValue(ULocalPlayer* LocalPlayer, const FString& Value) const;
 
+	/**
+	 * True when two Accessor or discrete option strings represent the same persisted value.
+	 * Bool accepts true/True/1 and false/False/0; other values compare case-insensitively.
+	 * 当两段 Accessor 或离散选项字符串表示同一持久化值时返回 true。
+	 * 布尔值接受 true/True/1 与 false/False/0；其他值按不区分大小写比较。
+	 */
+	static bool AreSerializedValuesEqual(const FString& Left, const FString& Right);
+
 private:
 	static UObject* ResolveTarget(const FGSS_SettingValueAccessor& Accessor, ULocalPlayer* LocalPlayer);
 	static FProperty* GetReturnProperty(UFunction* Function);
+	static bool ExportCanonicalValue(FProperty* Property, const void* ValuePtr, FString& OutValue);
+	static bool ImportCanonicalValue(FProperty* Property, void* ValuePtr, const FString& Value);
 };

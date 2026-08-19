@@ -62,7 +62,6 @@ bool UGSS_GameSettingValueDiscrete_Resolution::OnApply()
 	}
 
 	Settings->SetScreenResolution(Resolution);
-	Settings->ApplySettings(false);
 	return true;
 }
 

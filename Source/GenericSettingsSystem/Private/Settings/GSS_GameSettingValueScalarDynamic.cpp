@@ -2,6 +2,7 @@
 
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
 
+#include "Settings/GSS_SettingsDefinition.h"
 #include "UObject/WeakObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueScalarDynamic)
@@ -120,6 +121,29 @@ void UGSS_GameSettingValueScalarDynamic::SetDefaultValue(double InValue)
 void UGSS_GameSettingValueScalarDynamic::SetDisplayFormat(FSettingScalarFormatFunction InDisplayFormat)
 {
 	DisplayFormat = InDisplayFormat;
+}
+
+FSettingScalarFormatFunction UGSS_GameSettingValueScalarDynamic::GetBuiltInDisplayFormat(EGSS_SettingScalarDisplayFormat Format)
+{
+	switch (Format)
+	{
+	case EGSS_SettingScalarDisplayFormat::RawOneDecimal:
+		return RawOneDecimal;
+	case EGSS_SettingScalarDisplayFormat::RawTwoDecimals:
+		return RawTwoDecimals;
+	case EGSS_SettingScalarDisplayFormat::ZeroToOnePercent:
+		return ZeroToOnePercent;
+	case EGSS_SettingScalarDisplayFormat::ZeroToOnePercentOneDecimal:
+		return ZeroToOnePercent_OneDecimal;
+	case EGSS_SettingScalarDisplayFormat::SourceAsPercent1:
+		return SourceAsPercent1;
+	case EGSS_SettingScalarDisplayFormat::SourceAsPercent100:
+		return SourceAsPercent100;
+	case EGSS_SettingScalarDisplayFormat::SourceAsInteger:
+		return SourceAsInteger;
+	default:
+		return Raw;
+	}
 }
 
 void UGSS_GameSettingValueScalarDynamic::SetSourceRangeAndStep(const TRange<double>& InRange, double InStep)

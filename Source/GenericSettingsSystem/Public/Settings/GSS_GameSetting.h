@@ -73,7 +73,7 @@ public:
 	void SetAdjustListViewPostRefresh(const bool Value) { bAdjustListViewPostRefresh = Value; }
 
 	/** Returns the localized UI title. / 返回本地化 UI 标题。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	FText GetDisplayName() const { return DisplayName; }
 
 	void SetDisplayName(const FText& Value) { DisplayName = Value; }
@@ -81,13 +81,13 @@ public:
 	void SetDisplayName(const FString& Value) { SetDisplayName(FText::FromString(Value)); }
 #endif
 	/** Returns how the title should be displayed. / 返回标题应如何显示。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	ESlateVisibility GetDisplayNameVisibility() { return DisplayNameVisibility; }
 
 	void SetNameDisplayVisibility(ESlateVisibility InVisibility) { DisplayNameVisibility = InVisibility; }
 
 	/** Returns the localized rich-text description. / 返回本地化富文本说明。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	FText GetDescriptionRichText() const { return DescriptionRichText; }
 
 	void SetDescriptionRichText(const FText& Value)
@@ -98,30 +98,34 @@ public:
 
 	/** Development-only convenience overload for non-localized text. / 仅开发版本可用的非本地化文本便捷重载。 */
 	/** Returns arbitrary tags used by callers or UI filtering. / 返回供调用方或 UI 筛选使用的任意标签。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void SetDescriptionRichText(const FString& Value) { SetDescriptionRichText(FText::FromString(Value)); }
 
 	/** Adds an arbitrary metadata tag. / 添加任意元数据标签。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	const FGameplayTagContainer& GetTags() const { return Tags; }
 
 	/** Sets the owning Registry; normally performed during registration. / 设置所属 Registry；通常在注册期间完成。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void AddTag(const FGameplayTag& TagToAdd) { Tags.AddTag(TagToAdd); }
 
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void SetRegistry(UGSS_GameSettingRegistry* InOwningRegistry) { OwningRegistry = InOwningRegistry; }
 
+	/** Returns the owning Registry after registration. / 返回注册后所属的 Registry。 */
+	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
+	UGSS_GameSettingRegistry* GetRegistry() const { return OwningRegistry; }
+
 	/** Gets a searchable plain-text form of the description. / 获取说明文本的可搜索纯文本形式。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	const FString& GetDescriptionPlainText() const;
 
 	/** Initializes the node for its owning LocalPlayer; initialized collections initialize added children. / 为所属 LocalPlayer 初始化节点；已初始化的 Collection 会初始化新添加的子节点。 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void Initialize(ULocalPlayer* InLocalPlayer);
 
 	/** Gets the owning LocalPlayer after initialization. / 获取初始化后的所属 LocalPlayer。 */
-	UFUNCTION(BlueprintPure, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	ULocalPlayer* GetOwningLocalPlayer() const { return LocalPlayer; }
 
 	/** Sets a callback for contextual description-panel details; its text is not searchable. / 设置说明面板的上下文详情回调；返回文本不可搜索。 */
@@ -130,13 +134,13 @@ public:
 	/**
 	 * Gets contextual details such as account-specific status. / 获取账户状态等上下文详情。
 	 */
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	FText GetDynamicDetails() const;
 
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	FText GetWarningRichText() const { return WarningRichText; }
 
-	UFUNCTION(BlueprintCallable, Category = "GGF|GameSettings")
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void SetWarningRichText(const FText& Value)
 	{
 		WarningRichText = Value;
@@ -234,15 +238,15 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingRegistry> OwningRegistry;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GGF|GameSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	FName DevName;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	FGameplayTag SettingId;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GGF|GameSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	FText DisplayName;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GGF|GameSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	ESlateVisibility DisplayNameVisibility = ESlateVisibility::SelfHitTestInvisible;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GGF|GameSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	FText DescriptionRichText;
 	FText WarningRichText;
 

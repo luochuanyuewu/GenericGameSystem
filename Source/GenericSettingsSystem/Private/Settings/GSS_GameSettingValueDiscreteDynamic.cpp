@@ -52,7 +52,10 @@ const TArray<FString>& UGSS_GameSettingValueDiscreteDynamic::GetDynamicOptions()
 
 bool UGSS_GameSettingValueDiscreteDynamic::HasDynamicOption(const FString& InOptionValue)
 {
-	return OptionValues.Contains(InOptionValue);
+	return OptionValues.ContainsByPredicate([this, &InOptionValue](const FString& Option)
+	{
+		return AreOptionsEqual(InOptionValue, Option);
+	});
 }
 
 FString UGSS_GameSettingValueDiscreteDynamic::GetValueAsString() const
@@ -67,13 +70,22 @@ void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringVa
 
 void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason)
 {
+	if (const int32 MatchingIndex = OptionValues.IndexOfByPredicate([&InStringValue, this](const FString& Option)
+		{
+			return AreOptionsEqual(InStringValue, Option);
+		});
+		MatchingIndex != INDEX_NONE)
+	{
+		InStringValue = OptionValues[MatchingIndex];
+	}
+
 	PendingValue = InStringValue;
 	NotifySettingChanged(Reason);
 }
 
 bool UGSS_GameSettingValueDiscreteDynamic::AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const
 {
-	return InOptionA == InOptionB;
+	return FGSS_SettingValueAccessor::AreSerializedValuesEqual(InOptionA, InOptionB);
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::OnInitialized()
@@ -84,12 +96,24 @@ void UGSS_GameSettingValueDiscreteDynamic::OnInitialized()
 void UGSS_GameSettingValueDiscreteDynamic::StoreInitial()
 {
 	FString AppliedValue;
-	Accessor.GetValue(LocalPlayer, AppliedValue);
-	InitialValue = AppliedValue;
-	if (InitialValue.IsEmpty() && DefaultValue.IsSet())
+	if (Accessor.GetValue(LocalPlayer, AppliedValue))
+	{
+		InitialValue = AppliedValue;
+	}
+	else if (DefaultValue.IsSet())
 	{
 		InitialValue = DefaultValue.GetValue();
 	}
+
+	if (const int32 MatchingIndex = OptionValues.IndexOfByPredicate([this](const FString& Option)
+		{
+			return AreOptionsEqual(InitialValue, Option);
+		});
+		MatchingIndex != INDEX_NONE)
+	{
+		InitialValue = OptionValues[MatchingIndex];
+	}
+
 	PendingValue = InitialValue;
 }
 
@@ -173,7 +197,11 @@ TArray<int32> UGSS_GameSettingValueDiscreteDynamic::GetEnabledOptionIndices() co
 	EnabledIndices.Reserve(OptionValues.Num());
 	for (int32 OptionIndex = 0; OptionIndex < OptionValues.Num(); ++OptionIndex)
 	{
-		if (!DisabledOptions.Contains(OptionValues[OptionIndex]))
+		const bool bDisabled = DisabledOptions.ContainsByPredicate([this, OptionIndex](const FString& DisabledOption)
+		{
+			return AreOptionsEqual(DisabledOption, OptionValues[OptionIndex]);
+		});
+		if (!bDisabled)
 		{
 			EnabledIndices.Add(OptionIndex);
 		}
