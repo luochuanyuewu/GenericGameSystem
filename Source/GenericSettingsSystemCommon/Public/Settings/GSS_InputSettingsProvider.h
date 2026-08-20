@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 
 #include "GSS_InputSettingsProvider.generated.h"
 
@@ -16,13 +16,10 @@
  * 瞄准辅助等玩法策略应由项目 Provider 提供。
  */
 UCLASS(BlueprintType, Blueprintable)
-class GENERICSETTINGSSYSTEMCOMMON_API UGSS_InputSettingsProvider : public UGSS_SettingsProvider
+class GENERICSETTINGSSYSTEMCOMMON_API UGSS_InputSettingsProvider : public UGSS_GameSettingsProvider
 {
 	GENERATED_BODY()
 
 public:
-	virtual void RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder) override;
-
-private:
-	static FGSS_SettingValueAccessor MakeSharedAccessor(FName Getter, FName Setter);
+	virtual void RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder) override;
 };

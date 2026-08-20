@@ -4,4 +4,6 @@
 
 #include "Modules/ModuleManager.h"
 
+DEFINE_LOG_CATEGORY(LogGSS);
+
 IMPLEMENT_MODULE(FDefaultModuleImpl, GenericSettingsSystem)

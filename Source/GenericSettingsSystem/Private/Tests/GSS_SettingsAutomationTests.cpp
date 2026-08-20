@@ -10,8 +10,8 @@
 #include "Settings/GSS_GameSettingValueDiscreteDynamic.h"
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
 #include "Settings/GSS_SettingValueAccessor.h"
-#include "Settings/GSS_SettingsDefinition.h"
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsDefinitions.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 #include "Settings/GSS_SettingsShared.h"
 
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Test_Scalar, "GSS.Settings.Test.Scalar");
@@ -56,6 +56,16 @@ bool FGSS_SettingsAccessorContractTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Bool false matches False and 0"), FGSS_SettingValueAccessor::AreSerializedValuesEqual(TEXT("False"), TEXT("0")));
 	TestTrue(TEXT("Enum names compare case-insensitively"), FGSS_SettingValueAccessor::AreSerializedValuesEqual(TEXT("WindowedFullscreen"), TEXT("windowedfullscreen")));
 	TestFalse(TEXT("Different enum names are not equal"), FGSS_SettingValueAccessor::AreSerializedValuesEqual(TEXT("Fullscreen"), TEXT("Windowed")));
+
+	FGSS_SettingValueAccessor LocalVSync = GSS_MAKE_LOCAL_ACCESSOR(IsVSyncEnabled, SetVSyncEnabled);
+	FString ValidationError;
+	TestTrue(TEXT("Local VSync Accessor validates against GameUserSettings"), LocalVSync.Validate(ValidationError));
+	TestTrue(TEXT("Compatible getters include IsVSyncEnabled"), LocalVSync.GetCompatibleGetterNames().Contains(TEXT("IsVSyncEnabled")));
+	TestTrue(TEXT("Compatible setters include SetVSyncEnabled"), LocalVSync.GetCompatibleSetterNames().Contains(TEXT("SetVSyncEnabled")));
+
+	FGSS_SettingValueAccessor MissingFunctions = FGSS_SettingValueAccessor::MakeLocal(TEXT("GetDoesNotExist"), TEXT("SetDoesNotExist"));
+	TestFalse(TEXT("Missing Local functions fail Validate"), MissingFunctions.Validate(ValidationError));
+	TestFalse(TEXT("Validate reports a reason when functions are missing"), ValidationError.IsEmpty());
 	return true;
 }
 
@@ -132,15 +142,14 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGSS_SettingsScalarDisplayFormatTest, "GSS.Sett
 bool FGSS_SettingsScalarDisplayFormatTest::RunTest(const FString& Parameters)
 {
 	UGSS_GameSettingRegistry* Registry = NewObject<UGSS_GameSettingRegistry>();
-	UGSS_SettingsBuilder* Builder = NewObject<UGSS_SettingsBuilder>();
+	UGSS_GameSettingsBuilder* Builder = NewObject<UGSS_GameSettingsBuilder>();
 	Builder->Initialize(nullptr, Registry);
 
-	UGSS_ScalarSettingDefinition* Definition = NewObject<UGSS_ScalarSettingDefinition>();
+	UGSS_GameSettingDefinition_Scalar* Definition = NewObject<UGSS_GameSettingDefinition_Scalar>();
 	Definition->SettingId = TAG_GSS_Settings_Test_Scalar;
 	Definition->DisplayName = FText::FromString(TEXT("Volume"));
 	Definition->Description = FText::FromString(TEXT("Test scalar"));
-	Definition->Accessor.GetterFunction = TEXT("GetMasterVolume");
-	Definition->Accessor.SetterFunction = TEXT("SetMasterVolume");
+	Definition->Accessor = GSS_MAKE_LOCAL_ACCESSOR(GetFrameRateLimit, SetFrameRateLimit);
 	Definition->DefaultValue = 0.5;
 	Definition->MinimumValue = 0.0;
 	Definition->MaximumValue = 1.0;

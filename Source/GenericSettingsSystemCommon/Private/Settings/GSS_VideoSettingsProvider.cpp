@@ -3,6 +3,7 @@
 #include "Settings/GSS_VideoSettingsProvider.h"
 
 #include "NativeGameplayTags.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Settings/EditCondition/GSS_WhenPlatformSupportsWindowedMode.h"
 #include "Settings/EditCondition/GSS_WhenPlayingAsPrimaryPlayer.h"
 #include "Settings/EditCondition/GSS_WhenSettingHasValue.h"
@@ -39,15 +40,6 @@ UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Advanced_FrameRateLimit, "G
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Advanced_DynamicResolution, "GSS.Settings.Video.Advanced.DynamicResolution");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Advanced_ResolutionScale, "GSS.Settings.Video.Advanced.ResolutionScale");
 
-FGSS_SettingValueAccessor UGSS_VideoSettingsProvider::MakeLocalAccessor(FName Getter, FName Setter)
-{
-	FGSS_SettingValueAccessor Accessor;
-	Accessor.Source = EGSS_SettingValueSource::Local;
-	Accessor.GetterFunction = Getter;
-	Accessor.SetterFunction = Setter;
-	return Accessor;
-}
-
 FGSS_DiscreteOptionDefinition UGSS_VideoSettingsProvider::MakeOption(const TCHAR* Value, const FText& DisplayName)
 {
 	FGSS_DiscreteOptionDefinition Option;
@@ -83,12 +75,12 @@ static void RequireWindowedModeSupport(UGSS_GameSetting* Setting)
 	}
 }
 
-void UGSS_VideoSettingsProvider::AddQualitySetting(UGSS_SettingsBuilder* Builder, FGameplayTag SettingId, const FText& DisplayName, const FText& Description, FName Getter, FName Setter, UGSS_GameSetting* Parent)
+void UGSS_VideoSettingsProvider::AddQualitySetting(UGSS_GameSettingsBuilder* Builder, FGameplayTag SettingId, const FText& DisplayName, const FText& Description, FName Getter, FName Setter, UGSS_GameSetting* Parent)
 {
-	RestrictToPrimaryPlayer(Builder->AddDiscrete(SettingId, DisplayName, Description, TEXT("3"), MakeQualityOptions(), MakeLocalAccessor(Getter, Setter), Parent));
+	RestrictToPrimaryPlayer(Builder->AddDiscrete(SettingId, DisplayName, Description, TEXT("3"), MakeQualityOptions(), FGSS_SettingValueAccessor::MakeLocal(Getter, Setter), Parent));
 }
 
-void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder)
+void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder)
 {
 	if (!Builder || !IncludedSettings.HasAny())
 	{
@@ -113,7 +105,7 @@ void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 					MakeOption(TEXT("WindowedFullscreen"), LOCTEXT("WindowedFullscreen", "Windowed Fullscreen")),
 					MakeOption(TEXT("Windowed"), LOCTEXT("Windowed", "Windowed")),
 				},
-				MakeLocalAccessor(TEXT("GetFullscreenMode"), TEXT("SetFullscreenMode")), Display);
+				GSS_MAKE_LOCAL_ACCESSOR(GetFullscreenMode, SetFullscreenMode), Display);
 			RestrictToPrimaryPlayer(WindowMode);
 			RequireWindowedModeSupport(WindowMode);
 		}
@@ -164,7 +156,7 @@ void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 			OverallQuality->SetDevName(FName(TEXT("VideoOverallQuality")));
 			OverallQuality->SetDisplayName(LOCTEXT("OverallQuality", "Quality Preset"));
 			OverallQuality->SetDescriptionRichText(LOCTEXT("OverallQualityDescription", "Apply one graphics quality level to all scalability groups."));
-			OverallQuality->SetAccessor(MakeLocalAccessor(TEXT("GetOverallScalabilityLevel"), TEXT("SetOverallScalabilityLevel")));
+			OverallQuality->SetAccessor(GSS_MAKE_LOCAL_ACCESSOR(GetOverallScalabilityLevel, SetOverallScalabilityLevel));
 			Builder->AddRuntimeSetting(OverallQuality, Quality);
 			RestrictToPrimaryPlayer(OverallQuality);
 		}
@@ -172,16 +164,16 @@ void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 		if (IncludedSettings.bIndividualQuality)
 		{
 			UGSS_GameSetting* QualityAdvanced = Builder->AddCollection(TAG_GSS_Settings_Video_Quality_Advanced, LOCTEXT("QualityAdvanced", "Individual Quality"), LOCTEXT("QualityAdvancedDescription", "Fine-tune individual graphics features."), Quality);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_ViewDistance, LOCTEXT("ViewDistance", "View Distance"), LOCTEXT("ViewDistanceDescription", "Control the quality of distant world rendering."), TEXT("GetViewDistanceQuality"), TEXT("SetViewDistanceQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_AntiAliasing, LOCTEXT("AntiAliasing", "Anti-Aliasing"), LOCTEXT("AntiAliasingDescription", "Control edge smoothing quality."), TEXT("GetAntiAliasingQuality"), TEXT("SetAntiAliasingQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Shadows, LOCTEXT("Shadows", "Shadows"), LOCTEXT("ShadowsDescription", "Control shadow quality."), TEXT("GetShadowQuality"), TEXT("SetShadowQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_GlobalIllumination, LOCTEXT("GlobalIllumination", "Global Illumination"), LOCTEXT("GlobalIlluminationDescription", "Control indirect lighting quality."), TEXT("GetGlobalIlluminationQuality"), TEXT("SetGlobalIlluminationQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Reflections, LOCTEXT("Reflections", "Reflections"), LOCTEXT("ReflectionsDescription", "Control reflection quality."), TEXT("GetReflectionQuality"), TEXT("SetReflectionQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_PostProcessing, LOCTEXT("PostProcessing", "Post Processing"), LOCTEXT("PostProcessingDescription", "Control post-processing quality."), TEXT("GetPostProcessingQuality"), TEXT("SetPostProcessingQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Textures, LOCTEXT("Textures", "Textures"), LOCTEXT("TexturesDescription", "Control texture quality."), TEXT("GetTextureQuality"), TEXT("SetTextureQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_VisualEffects, LOCTEXT("VisualEffects", "Visual Effects"), LOCTEXT("VisualEffectsDescription", "Control visual effects quality."), TEXT("GetVisualEffectQuality"), TEXT("SetVisualEffectQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Foliage, LOCTEXT("Foliage", "Foliage"), LOCTEXT("FoliageDescription", "Control foliage quality."), TEXT("GetFoliageQuality"), TEXT("SetFoliageQuality"), QualityAdvanced);
-			AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Shading, LOCTEXT("Shading", "Shading"), LOCTEXT("ShadingDescription", "Control material shading quality."), TEXT("GetShadingQuality"), TEXT("SetShadingQuality"), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_ViewDistance, LOCTEXT("ViewDistance", "View Distance"), LOCTEXT("ViewDistanceDescription", "Control the quality of distant world rendering."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetViewDistanceQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetViewDistanceQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_AntiAliasing, LOCTEXT("AntiAliasing", "Anti-Aliasing"), LOCTEXT("AntiAliasingDescription", "Control edge smoothing quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetAntiAliasingQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetAntiAliasingQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Shadows, LOCTEXT("Shadows", "Shadows"), LOCTEXT("ShadowsDescription", "Control shadow quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetShadowQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetShadowQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_GlobalIllumination, LOCTEXT("GlobalIllumination", "Global Illumination"), LOCTEXT("GlobalIlluminationDescription", "Control indirect lighting quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetGlobalIlluminationQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetGlobalIlluminationQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Reflections, LOCTEXT("Reflections", "Reflections"), LOCTEXT("ReflectionsDescription", "Control reflection quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetReflectionQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetReflectionQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_PostProcessing, LOCTEXT("PostProcessing", "Post Processing"), LOCTEXT("PostProcessingDescription", "Control post-processing quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetPostProcessingQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetPostProcessingQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Textures, LOCTEXT("Textures", "Textures"), LOCTEXT("TexturesDescription", "Control texture quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetTextureQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetTextureQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_VisualEffects, LOCTEXT("VisualEffects", "Visual Effects"), LOCTEXT("VisualEffectsDescription", "Control visual effects quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetVisualEffectQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetVisualEffectQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Foliage, LOCTEXT("Foliage", "Foliage"), LOCTEXT("FoliageDescription", "Control foliage quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetFoliageQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetFoliageQuality), QualityAdvanced);
+	AddQualitySetting(Builder, TAG_GSS_Settings_Video_Quality_Shading, LOCTEXT("Shading", "Shading"), LOCTEXT("ShadingDescription", "Control material shading quality."), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, GetShadingQuality), GET_FUNCTION_NAME_CHECKED(UGameUserSettings, SetShadingQuality), QualityAdvanced);
 		}
 	}
 
@@ -190,7 +182,7 @@ void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 		UGSS_GameSetting* Advanced = Builder->AddCollection(TAG_GSS_Settings_Video_Advanced, LOCTEXT("Advanced", "Advanced"), FText::GetEmpty(), VideoScreen);
 		if (IncludedSettings.bVSync)
 		{
-			UGSS_GameSetting* VSync = Builder->AddBool(TAG_GSS_Settings_Video_Advanced_VSync, LOCTEXT("VSync", "Vertical Sync"), LOCTEXT("VSyncDescription", "Synchronize frame presentation with the display refresh rate."), false, MakeLocalAccessor(TEXT("IsVSyncEnabled"), TEXT("SetVSyncEnabled")), Advanced);
+			UGSS_GameSetting* VSync = Builder->AddBool(TAG_GSS_Settings_Video_Advanced_VSync, LOCTEXT("VSync", "Vertical Sync"), LOCTEXT("VSyncDescription", "Synchronize frame presentation with the display refresh rate."), false, GSS_MAKE_LOCAL_ACCESSOR(IsVSyncEnabled, SetVSyncEnabled), Advanced);
 			RestrictToPrimaryPlayer(VSync);
 			if (VSync && WindowMode)
 			{
@@ -203,15 +195,15 @@ void UGSS_VideoSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 		}
 		if (IncludedSettings.bFrameRateLimit)
 		{
-			RestrictToPrimaryPlayer(Builder->AddScalar(TAG_GSS_Settings_Video_Advanced_FrameRateLimit, LOCTEXT("FrameRateLimit", "Frame Rate Limit"), LOCTEXT("FrameRateLimitDescription", "Limit the maximum frame rate. Set to 0 for unlimited."), 0.0, 0.0, 360.0, 1.0, MakeLocalAccessor(TEXT("GetFrameRateLimit"), TEXT("SetFrameRateLimit")), Advanced));
+			RestrictToPrimaryPlayer(Builder->AddScalar(TAG_GSS_Settings_Video_Advanced_FrameRateLimit, LOCTEXT("FrameRateLimit", "Frame Rate Limit"), LOCTEXT("FrameRateLimitDescription", "Limit the maximum frame rate. Set to 0 for unlimited."), 0.0, 0.0, 360.0, 1.0, GSS_MAKE_LOCAL_ACCESSOR(GetFrameRateLimit, SetFrameRateLimit), Advanced));
 		}
 		if (IncludedSettings.bDynamicResolution)
 		{
-			RestrictToPrimaryPlayer(Builder->AddBool(TAG_GSS_Settings_Video_Advanced_DynamicResolution, LOCTEXT("DynamicResolution", "Dynamic Resolution"), LOCTEXT("DynamicResolutionDescription", "Allow the engine to adjust rendering resolution to maintain performance."), false, MakeLocalAccessor(TEXT("IsDynamicResolutionEnabled"), TEXT("SetDynamicResolutionEnabled")), Advanced));
+			RestrictToPrimaryPlayer(Builder->AddBool(TAG_GSS_Settings_Video_Advanced_DynamicResolution, LOCTEXT("DynamicResolution", "Dynamic Resolution"), LOCTEXT("DynamicResolutionDescription", "Allow the engine to adjust rendering resolution to maintain performance."), false, GSS_MAKE_LOCAL_ACCESSOR(IsDynamicResolutionEnabled, SetDynamicResolutionEnabled), Advanced));
 		}
 		if (IncludedSettings.bResolutionScale)
 		{
-			RestrictToPrimaryPlayer(Builder->AddScalar(TAG_GSS_Settings_Video_Advanced_ResolutionScale, LOCTEXT("ResolutionScale", "3D Resolution"), LOCTEXT("ResolutionScaleDescription", "Scale the internal rendering resolution."), 1.0, 0.1, 1.0, 0.01, MakeLocalAccessor(TEXT("GetResolutionScaleNormalized"), TEXT("SetResolutionScaleNormalized")), Advanced));
+			RestrictToPrimaryPlayer(Builder->AddScalar(TAG_GSS_Settings_Video_Advanced_ResolutionScale, LOCTEXT("ResolutionScale", "3D Resolution"), LOCTEXT("ResolutionScaleDescription", "Scale the internal rendering resolution."), 1.0, 0.1, 1.0, 0.01, GSS_MAKE_LOCAL_ACCESSOR(GetResolutionScaleNormalized, SetResolutionScaleNormalized), Advanced));
 		}
 	}
 }

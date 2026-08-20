@@ -1,6 +1,6 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsListEntry.h"
+#include "SettingsUI/GSS_GameSettingListEntry.h"
 
 #include "CommonTextBlock.h"
 #include "CommonInputSubsystem.h"
@@ -9,18 +9,22 @@
 #include "Input/Events.h"
 #include "Settings/GSS_GameSetting.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsListEntry)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingListEntry)
 
-void UGSS_SettingsListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
+void UGSS_GameSettingListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	NativeOnEntryReleased();
-	Setting = Cast<UGSS_GameSetting>(ListItemObject);
+	SetSetting(Cast<UGSS_GameSetting>(ListItemObject));
+}
+
+void UGSS_GameSettingListEntry::SetSetting(UGSS_GameSetting* InSetting)
+{
+	Setting = InSetting;
 	if (Setting)
 	{
 		Setting->OnSettingChangedEvent.AddUObject(this, &ThisClass::HandleSettingChanged);
 		Setting->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleEditStateChanged);
 		RefreshSettingName();
-		OnSettingAssigned(Setting);
 		HandleEditStateChanged(Setting);
 	}
 	else
@@ -29,27 +33,27 @@ void UGSS_SettingsListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	}
 }
 
-bool UGSS_SettingsListEntry::IsSettingEnabled() const
+bool UGSS_GameSettingListEntry::IsSettingEnabled() const
 {
 	return Setting && Setting->GetEditState().IsEnabled();
 }
 
-bool UGSS_SettingsListEntry::IsSettingResettable() const
+bool UGSS_GameSettingListEntry::IsSettingResettable() const
 {
 	return Setting && Setting->GetEditState().IsResettable();
 }
 
-TArray<FText> UGSS_SettingsListEntry::GetDisabledReasons() const
+TArray<FText> UGSS_GameSettingListEntry::GetDisabledReasons() const
 {
 	return Setting ? Setting->GetEditState().GetDisabledReasons() : TArray<FText>();
 }
 
-TArray<FString> UGSS_SettingsListEntry::GetDisabledOptionValues() const
+TArray<FString> UGSS_GameSettingListEntry::GetDisabledOptionValues() const
 {
 	return Setting ? Setting->GetEditState().GetDisabledOptions() : TArray<FString>();
 }
 
-void UGSS_SettingsListEntry::NativeOnEntryReleased()
+void UGSS_GameSettingListEntry::NativeOnEntryReleased()
 {
 	StopAllAnimations();
 	if (Setting)
@@ -62,7 +66,7 @@ void UGSS_SettingsListEntry::NativeOnEntryReleased()
 	RefreshSettingName();
 }
 
-FReply UGSS_SettingsListEntry::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+FReply UGSS_GameSettingListEntry::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
 	if (const UCommonInputSubsystem* InputSubsystem = GetInputSubsystem(); InputSubsystem && InputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad)
 	{
@@ -78,7 +82,17 @@ FReply UGSS_SettingsListEntry::NativeOnFocusReceived(const FGeometry& InGeometry
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
-void UGSS_SettingsListEntry::RefreshSettingName()
+void UGSS_GameSettingListEntry::RefreshSettingName()
+{
+}
+
+void UGSS_GameSettingListEntry_Setting::SetSetting(UGSS_GameSetting* InSetting)
+{
+	Super::SetSetting(InSetting);
+	RefreshSettingName();
+}
+
+void UGSS_GameSettingListEntry_Setting::RefreshSettingName()
 {
 	if (Text_SettingName)
 	{
@@ -87,26 +101,26 @@ void UGSS_SettingsListEntry::RefreshSettingName()
 	}
 }
 
-void UGSS_SettingsListEntry::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason Reason)
 {
 	RefreshSettingName();
 	OnSettingValueChanged();
 	OnSettingValueChangedWithReason(Reason);
 }
 
-void UGSS_SettingsListEntry::HandleEditStateChanged(UGSS_GameSetting*)
+void UGSS_GameSettingListEntry::HandleEditStateChanged(UGSS_GameSetting*)
 {
 	RefreshSettingName();
 	OnSettingEditableStateChanged();
 	OnSettingEditableStateChangedWithState(Setting ? Setting->GetEditState() : FGSS_GameSettingEditableState());
 }
 
-bool UGSS_SettingsListEntry::CanInteractWithSetting() const
+bool UGSS_GameSettingListEntry::CanInteractWithSetting() const
 {
 	return IsSettingEnabled();
 }
 
-void UGSS_SettingsListEntry::SetDisplayNameOverride(const FText& OverrideName)
+void UGSS_GameSettingListEntry::SetDisplayNameOverride(const FText& OverrideName)
 {
 	DisplayNameOverride = OverrideName;
 	RefreshSettingName();

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 
 #include "GSS_AccessibilitySettingsProvider.generated.h"
 
@@ -15,14 +15,13 @@
  * 数值是与框架无关的偏好。项目通过查询或订阅对应设置 Tag，将其应用到字幕、UI、相机和后处理实现。
  */
 UCLASS(BlueprintType, Blueprintable)
-class GENERICSETTINGSSYSTEMCOMMON_API UGSS_AccessibilitySettingsProvider : public UGSS_SettingsProvider
+class GENERICSETTINGSSYSTEMCOMMON_API UGSS_AccessibilitySettingsProvider : public UGSS_GameSettingsProvider
 {
 	GENERATED_BODY()
 
 public:
-	virtual void RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder) override;
+	virtual void RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder) override;
 
 private:
-	static FGSS_SettingValueAccessor MakeSharedAccessor(FName Getter, FName Setter);
 	static FGSS_DiscreteOptionDefinition MakeOption(const TCHAR* Value, const FText& DisplayName);
 };

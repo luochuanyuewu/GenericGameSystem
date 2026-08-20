@@ -3,13 +3,13 @@
 #pragma once
 
 #include "Settings/GSS_GameSettingFilterState.h"
-#include "GSS_SettingEditCondition.generated.h"
+#include "GSS_GameSettingEditCondition.generated.h"
 
 class UGSS_GameSetting;
 
 /** Blueprint/C++ rule that contributes a setting's editable state. / 为设置可编辑状态提供规则的蓝图/C++对象。 */
 UCLASS(Abstract, BlueprintType, Blueprintable, EditInlineNew, DefaultToInstanced)
-class GENERICSETTINGSSYSTEM_API UGSS_SettingEditCondition : public UObject
+class GENERICSETTINGSSYSTEM_API UGSS_GameSettingEditCondition : public UObject
 {
 	GENERATED_BODY()
 

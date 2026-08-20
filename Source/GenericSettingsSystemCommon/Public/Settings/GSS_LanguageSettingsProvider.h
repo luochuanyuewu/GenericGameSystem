@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 
 #include "GSS_LanguageSettingsProvider.generated.h"
 
@@ -16,10 +16,10 @@
  * 选择器在运行时枚举已 cook 的游戏 Culture，不依赖 Shared Settings。
  */
 UCLASS(BlueprintType, Blueprintable)
-class GENERICSETTINGSSYSTEMCOMMON_API UGSS_LanguageSettingsProvider : public UGSS_SettingsProvider
+class GENERICSETTINGSSYSTEMCOMMON_API UGSS_LanguageSettingsProvider : public UGSS_GameSettingsProvider
 {
 	GENERATED_BODY()
 
 public:
-	virtual void RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder) override;
+	virtual void RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder) override;
 };

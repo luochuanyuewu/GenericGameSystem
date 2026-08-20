@@ -4,11 +4,11 @@
 
 #include "CommonRotator.h"
 
-#include "GSS_SettingsRotator.generated.h"
+#include "GSS_GameSettingRotator.generated.h"
 
 /** CommonUI rotator with an optional Blueprint notification for the setting default option. / 带有可选蓝图默认项通知的 CommonUI Rotator。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsRotator : public UCommonRotator
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingRotator : public UCommonRotator
 {
 	GENERATED_BODY()
 
@@ -17,6 +17,6 @@ public:
 	void SetDefaultOption(int32 DefaultOptionIndex);
 
 	/** Called when Refresh supplies a valid default option index. / Refresh 提供有效默认选项索引时调用。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI", meta = (DisplayName = "On Default Option Specified"))
-	void OnDefaultOptionSpecified(int32 DefaultOptionIndex);
+	UFUNCTION(BlueprintImplementableEvent, Category = Events, meta = (DisplayName = "On Default Option Specified"))
+	void BP_OnDefaultOptionSpecified(int32 DefaultOptionIndex);
 };

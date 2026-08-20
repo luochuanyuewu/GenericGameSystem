@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 
 #include "GSS_VideoSettingsProvider.generated.h"
 
@@ -63,20 +63,19 @@ struct GENERICSETTINGSSYSTEMCOMMON_API FGSS_VideoSettingsInclusion
  * 添加平台条件，或追加项目专用的显示偏好。
  */
 UCLASS(BlueprintType, Blueprintable)
-class GENERICSETTINGSSYSTEMCOMMON_API UGSS_VideoSettingsProvider : public UGSS_SettingsProvider
+class GENERICSETTINGSSYSTEMCOMMON_API UGSS_VideoSettingsProvider : public UGSS_GameSettingsProvider
 {
 	GENERATED_BODY()
 
 public:
-	virtual void RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder) override;
+	virtual void RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder) override;
 
 	/** Rows registered by this instance. Uncheck to omit a Common Video item. / 本实例注册的行；取消勾选即可省略对应 Common Video 项。 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GSS|Settings")
 	FGSS_VideoSettingsInclusion IncludedSettings;
 
 private:
-	static FGSS_SettingValueAccessor MakeLocalAccessor(FName Getter, FName Setter);
 	static FGSS_DiscreteOptionDefinition MakeOption(const TCHAR* Value, const FText& DisplayName);
 	static TArray<FGSS_DiscreteOptionDefinition> MakeQualityOptions();
-	static void AddQualitySetting(UGSS_SettingsBuilder* Builder, FGameplayTag SettingId, const FText& DisplayName, const FText& Description, FName Getter, FName Setter, UGSS_GameSetting* Parent);
+	static void AddQualitySetting(UGSS_GameSettingsBuilder* Builder, FGameplayTag SettingId, const FText& DisplayName, const FText& Description, FName Getter, FName Setter, UGSS_GameSetting* Parent);
 };

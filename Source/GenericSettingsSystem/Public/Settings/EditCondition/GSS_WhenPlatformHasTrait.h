@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingEditCondition.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
 #include "GameplayTagContainer.h"
 #include "GSS_WhenPlatformHasTrait.generated.h"
 
@@ -19,7 +19,7 @@ class ULocalPlayer;
  * 使用工厂方法可在某个特征存在或缺失时隐藏、禁用设置。
  */
 UCLASS(BlueprintType, EditInlineNew)
-class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformHasTrait : public UGSS_SettingEditCondition
+class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformHasTrait : public UGSS_GameSettingEditCondition
 {
 	GENERATED_BODY()
 

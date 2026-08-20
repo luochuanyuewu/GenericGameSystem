@@ -6,12 +6,11 @@
 #include "Input/UIActionBindingHandle.h"
 #include "UI/GUIS_ActivatableWidget.h"
 #include "UI/Foundation/GUIS_TabListWidgetBase.h"
-#include "SettingsUI/GSS_SettingsActionHandler.h"
 
-#include "GSS_SettingsScreen.generated.h"
+#include "GSS_GameSettingsMenu.generated.h"
 
-class UGSS_SettingsPanel;
-class UGSS_SettingsSubsystem;
+class UGSS_GameSettingsPanel;
+class UGSS_GameSettingsSubsystem;
 class UGSS_GameSetting;
 class UGSS_GameSettingCollection;
 class UCommonButtonBase;
@@ -19,21 +18,21 @@ class UWidget;
 enum class EGSS_GameSettingChangeReason : uint8;
 
 /**
- * Activatable settings screen that automatically presents its owning LocalPlayer's GSS subsystem.
- * 自动展示所属 LocalPlayer 的 GSS 子系统的可激活设置界面。
+ * Activatable settings menu that automatically presents its owning LocalPlayer's GSS subsystem.
+ * 自动展示所属 LocalPlayer 的 GSS 子系统的可激活设置菜单。
  */
 UCLASS(Abstract, Blueprintable, meta = (Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsScreen : public UGUIS_ActivatableWidget, public IGSS_SettingsActionHandler
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingsMenu : public UGUIS_ActivatableWidget
 {
 	GENERATED_BODY()
 
 public:
 	/** Overrides the automatically resolved subsystem, useful for previews and custom player routing. / 覆盖自动解析的子系统，适用于预览和自定义玩家路由。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI")
-	void SetSettingsSubsystem(UGSS_SettingsSubsystem* InSubsystem);
+	void SetSettingsSubsystem(UGSS_GameSettingsSubsystem* InSubsystem);
 
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
-	UGSS_SettingsSubsystem* GetSettingsSubsystem() const { return SettingsSubsystem; }
+	UGSS_GameSettingsSubsystem* GetSettingsSubsystem() const { return SettingsSubsystem; }
 
 	/** Applies pending edits and updates the screen's dirty action state. / 应用待提交修改，并更新界面的脏状态 Action。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI")
@@ -43,7 +42,10 @@ public:
 	void CancelChanges();
 	/** Returns whether the owning LocalPlayer has unapplied edits. / 返回所属 LocalPlayer 是否有待应用修改。 */
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
-	bool HavePendingChanges() const;
+	bool HaveSettingsBeenChanged() const;
+	/** Resets every currently visible, resettable value to its definition default. / 将当前可见且可重置的全部值恢复为 Definition 默认值。 */
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI")
+	void ResetVisibleSettingsToDefault();
 	/** Handles Back inside the settings hierarchy before allowing GUIS to close this screen. / 在允许 GUIS 关闭本界面前，优先处理设置层级内的返回。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI")
 	bool AttemptToPopNavigation();
@@ -89,8 +91,6 @@ public:
 
 protected:
 	UFUNCTION()
-	void HandleSettingAction(FGameplayTag SettingId, UGSS_GameSetting* Setting);
-	UFUNCTION()
 	void HandleSettingChanged(FGameplayTag SettingId, UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
 	/** Refreshes dirty Actions after a Registry commit initiated outside this Screen. / 当本 Screen 外部提交 Registry 修改后刷新脏状态 Action。 */
 	UFUNCTION()
@@ -134,10 +134,10 @@ protected:
 	FUIActionBindingHandle CancelChangesHandle;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
-	TObjectPtr<UGSS_SettingsPanel> Settings_Panel;
+	TObjectPtr<UGSS_GameSettingsPanel> Settings_Panel;
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "GSS|Settings UI")
-	TObjectPtr<UGSS_SettingsSubsystem> SettingsSubsystem;
+	TObjectPtr<UGSS_GameSettingsSubsystem> SettingsSubsystem;
 
 	/** Tab IDs created by automatic top-level Collection handling. / 自动顶层 Collection 处理所创建的 Tab ID。 */
 	UPROPERTY(Transient)

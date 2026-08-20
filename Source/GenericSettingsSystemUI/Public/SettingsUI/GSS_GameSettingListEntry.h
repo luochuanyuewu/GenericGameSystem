@@ -5,7 +5,7 @@
 #include "Blueprint/IUserObjectListEntry.h"
 #include "CommonUserWidget.h"
 
-#include "GSS_SettingsListEntry.generated.h"
+#include "GSS_GameSettingListEntry.generated.h"
 
 class UGSS_GameSetting;
 class UCommonTextBlock;
@@ -23,7 +23,7 @@ struct FGeometry;
  * 由项目决定哪些子控件可交互。
  */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsListEntry : public UCommonUserWidget, public IUserObjectListEntry
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry : public UCommonUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
@@ -46,14 +46,13 @@ public:
 	/** Overrides the setting title for this pooled row without changing the runtime setting. / 仅覆盖此复用行的设置标题，不修改运行时设置。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings UI")
 	void SetDisplayNameOverride(const FText& OverrideName);
+	/** Assigns the runtime setting represented by this pooled row. / 为此复用行分配运行时设置。 */
+	virtual void SetSetting(UGSS_GameSetting* InSetting);
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	virtual void NativeOnEntryReleased() override;
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 
-	/** Called after a valid runtime setting is assigned. / 有效运行时设置被分配后调用。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingAssigned(UGSS_GameSetting* AssignedSetting);
 	/** Called for pending-value changes and restores. / 待应用值变化或恢复时调用。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
 	void OnSettingValueChanged();
@@ -71,8 +70,7 @@ public:
 	UWidget* GetPrimaryGamepadFocusWidget();
 
 protected:
-	/** Refreshes the optional standard setting-title widget. / 刷新可选的标准设置标题 Widget。 */
-	void RefreshSettingName();
+	virtual void RefreshSettingName();
 	virtual void HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason);
 	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting);
 	bool CanInteractWithSetting() const;
@@ -80,12 +78,25 @@ protected:
 	/** Suppresses control refresh while a control writes a setting and receives its synchronous change notification. / 控件写入设置并同步收到变更通知时，抑制控件刷新。 */
 	bool bSuspendChangeUpdates = false;
 
-	/** Optional standard title for the assigned setting. / 已分配设置的可选标准标题。 */
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
-	TObjectPtr<UCommonTextBlock> Text_SettingName;
-
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "GSS|Settings UI")
 	TObjectPtr<UGSS_GameSetting> Setting;
 
 	FText DisplayNameOverride;
+};
+
+/** Setting row that binds the standard title widget. / 绑定标准标题控件的设置行。 */
+UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Setting : public UGSS_GameSettingListEntry
+{
+	GENERATED_BODY()
+
+public:
+	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
+
+protected:
+	virtual void RefreshSettingName() override;
+
+	/** Optional standard title for the assigned setting. / 已分配设置的可选标准标题。 */
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	TObjectPtr<UCommonTextBlock> Text_SettingName;
 };

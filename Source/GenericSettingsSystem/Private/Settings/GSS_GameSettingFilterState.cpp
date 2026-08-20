@@ -2,7 +2,7 @@
 
 #include "Settings/GSS_GameSettingFilterState.h"
 #include "Settings/GSS_GameSetting.h"
-#include "Settings/GSS_SettingEditCondition.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingFilterState)
 

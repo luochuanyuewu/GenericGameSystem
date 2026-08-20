@@ -1,12 +1,12 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsDetailSection.h"
+#include "SettingsUI/GSS_GameSettingsDetailSection.h"
 
 #include "Settings/GSS_GameSetting.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsDetailSection)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsDetailSection)
 
-void UGSS_SettingsDetailSection::NativeOnListItemObjectSet(UObject* ListItemObject)
+void UGSS_GameSettingsDetailSection::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	ReleaseSetting();
 	Setting = Cast<UGSS_GameSetting>(ListItemObject);
@@ -20,13 +20,13 @@ void UGSS_SettingsDetailSection::NativeOnListItemObjectSet(UObject* ListItemObje
 	OnSettingAssigned(Setting);
 }
 
-void UGSS_SettingsDetailSection::NativeDestruct()
+void UGSS_GameSettingsDetailSection::NativeDestruct()
 {
 	ReleaseSetting();
 	Super::NativeDestruct();
 }
 
-void UGSS_SettingsDetailSection::ReleaseSetting()
+void UGSS_GameSettingsDetailSection::ReleaseSetting()
 {
 	if (Setting)
 	{
@@ -36,12 +36,12 @@ void UGSS_SettingsDetailSection::ReleaseSetting()
 	}
 }
 
-void UGSS_SettingsDetailSection::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason)
+void UGSS_GameSettingsDetailSection::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason)
 {
 	OnSettingValueChanged();
 }
 
-void UGSS_SettingsDetailSection::HandleEditStateChanged(UGSS_GameSetting*)
+void UGSS_GameSettingsDetailSection::HandleEditStateChanged(UGSS_GameSetting*)
 {
 	OnSettingEditableStateChanged();
 }

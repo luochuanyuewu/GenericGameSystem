@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingEditCondition.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
 #include "GSS_WhenPlatformSupportsWindowedMode.generated.h"
 
 /**
@@ -10,7 +10,7 @@
  * 在不支持窗口化或窗口化全屏显示模式的平台上隐藏设置。
  */
 UCLASS(BlueprintType, EditInlineNew)
-class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformSupportsWindowedMode : public UGSS_SettingEditCondition
+class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformSupportsWindowedMode : public UGSS_GameSettingEditCondition
 {
 	GENERATED_BODY()
 

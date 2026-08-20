@@ -1,25 +1,25 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsDetailSectionBuilder.h"
+#include "SettingsUI/GSS_GameSettingsDetailSectionBuilder.h"
 
 #include "Settings/GSS_GameSetting.h"
-#include "SettingsUI/GSS_SettingsDetailSection.h"
+#include "SettingsUI/GSS_GameSettingsDetailSection.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsDetailSectionBuilder)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsDetailSectionBuilder)
 
-TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> UGSS_SettingsDetailSectionBuilder::GatherDetailSections_Implementation(const UObject* Data)
+TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> UGSS_GameSettingsDetailSectionBuilder::GatherDetailSections_Implementation(const UObject* Data)
 {
 	TArray<TSoftClassPtr<UGUIS_ListEntryDetailSection>> Result;
-	for (const TSoftClassPtr<UGSS_SettingsDetailSection>& SectionClass : GetSectionsForSetting(Cast<UGSS_GameSetting>(Data)))
+	for (const TSoftClassPtr<UGSS_GameSettingsDetailSection>& SectionClass : GetSectionsForSetting(Cast<UGSS_GameSetting>(Data)))
 	{
 		Result.Add(SectionClass);
 	}
 	return Result;
 }
 
-TArray<TSoftClassPtr<UGSS_SettingsDetailSection>> UGSS_SettingsDetailSectionBuilder::GetSectionsForSetting(const UGSS_GameSetting* Setting) const
+TArray<TSoftClassPtr<UGSS_GameSettingsDetailSection>> UGSS_GameSettingsDetailSectionBuilder::GetSectionsForSetting(const UGSS_GameSetting* Setting) const
 {
-	TArray<TSoftClassPtr<UGSS_SettingsDetailSection>> Result;
+	TArray<TSoftClassPtr<UGSS_GameSettingsDetailSection>> Result;
 	if (!Setting)
 	{
 		return Result;

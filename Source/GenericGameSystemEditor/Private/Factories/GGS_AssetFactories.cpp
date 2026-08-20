@@ -6,9 +6,9 @@
 #include "Feedback/GES_ContextEffectsPreviewSetting.h"
 #include "GenericGameSystemEditor.h"
 #include "Interaction/GGS_InteractionDefinition.h"
-#include "Settings/GSS_SettingsDefinition.h"
-#include "SettingsUI/GSS_SettingsDetailSectionBuilder.h"
-#include "SettingsUI/GSS_SettingsEntryWidgetFactory.h"
+#include "Settings/GSS_GameSettingsDefinitions.h"
+#include "SettingsUI/GSS_GameSettingsDetailSectionBuilder.h"
+#include "SettingsUI/GSS_GameSettingsEntryWidgetFactory.h"
 #include "UI/Actions/GUIS_UIActionFactory.h"
 #include "UI/Common/GUIS_DetailSectionsBuilder.h"
 #include "Utilities/GGS_SocketRelationshipMapping.h"
@@ -56,9 +56,9 @@ GGS_IMPLEMENT_FACTORY(UGGS_InteractionDefinitionFactory, UGGS_InteractionDefinit
 GGS_IMPLEMENT_FACTORY(UGGS_SocketRelationshipMappingFactory, UGGS_SocketRelationshipMapping, Gameplay, "SocketRelationshipMappingName", "Socket Relationship Mapping", "SocketRelationshipMappingToolTip", "Creates mesh socket relationship and adjustment mappings.")
 GGS_IMPLEMENT_FACTORY(UGGS_UIActionFactoryAssetFactory, UGUIS_UIActionFactory, UI, "UIActionFactoryName", "UI Action Factory", "UIActionFactoryToolTip", "Creates a factory that selects UI actions for data objects.")
 GGS_IMPLEMENT_FACTORY(UGGS_DetailSectionBuilderFactory, UGUIS_DetailSectionBuilder_Class, UI, "DetailSectionBuilderName", "Detail Section Builder", "DetailSectionBuilderToolTip", "Creates class-based mappings from data objects to detail sections.")
-GGS_IMPLEMENT_FACTORY(UGGS_SettingsDefinitionFactory, UGSS_SettingsDefinitionAsset, Settings, "SettingsDefinitionName", "Settings Definition", "SettingsDefinitionToolTip", "Creates a root Data Asset definition for GSS runtime settings.")
-GGS_IMPLEMENT_FACTORY(UGGS_SettingsEntryWidgetFactoryAssetFactory, UGSS_SettingsEntryWidgetFactory, Settings, "SettingsEntryWidgetFactoryName", "Settings List Entry Factory", "SettingsEntryWidgetFactoryToolTip", "Creates mappings from GSS setting classes to list-entry widgets.")
-GGS_IMPLEMENT_FACTORY(UGGS_SettingsDetailSectionBuilderFactory, UGSS_SettingsDetailSectionBuilder, Settings, "SettingsDetailSectionBuilderName", "Settings Detail Section Builder", "SettingsDetailSectionBuilderToolTip", "Creates mappings from GSS setting classes to detail sections.")
+GGS_IMPLEMENT_FACTORY(UGGS_SettingsDefinitionFactory, UGSS_GameSettingsDefinitionAsset, Settings, "SettingsDefinitionName", "Settings Definition", "SettingsDefinitionToolTip", "Creates a root Data Asset definition for GSS runtime settings.")
+GGS_IMPLEMENT_FACTORY(UGGS_SettingsEntryWidgetFactoryAssetFactory, UGSS_GameSettingsEntryWidgetFactory, Settings, "SettingsEntryWidgetFactoryName", "Settings List Entry Factory", "SettingsEntryWidgetFactoryToolTip", "Creates mappings from GSS setting classes to list-entry widgets.")
+GGS_IMPLEMENT_FACTORY(UGGS_SettingsDetailSectionBuilderFactory, UGSS_GameSettingsDetailSectionBuilder, Settings, "SettingsDetailSectionBuilderName", "Settings Detail Section Builder", "SettingsDetailSectionBuilderToolTip", "Creates mappings from GSS setting classes to detail sections.")
 
 #undef GGS_IMPLEMENT_FACTORY
 #undef LOCTEXT_NAMESPACE

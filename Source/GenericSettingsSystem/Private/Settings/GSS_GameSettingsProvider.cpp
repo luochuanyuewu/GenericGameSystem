@@ -1,6 +1,6 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 
 #include "Settings/GSS_GameSetting.h"
 #include "Settings/GSS_GameSettingAction.h"
@@ -8,16 +8,17 @@
 #include "Settings/GSS_GameSettingRegistry.h"
 #include "Settings/GSS_GameSettingValueDiscreteDynamic.h"
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
-#include "Settings/GSS_SettingsDefinition.h"
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsProvider)
+#include "Settings/GSS_GameSettingsDefinitions.h"
+#include "GenericSettingsSystem.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsProvider)
 
-void UGSS_SettingsBuilder::Initialize(UGSS_SettingsSubsystem* InSubsystem, UGSS_GameSettingRegistry* InRegistry)
+void UGSS_GameSettingsBuilder::Initialize(UGSS_GameSettingsSubsystem* InSubsystem, UGSS_GameSettingRegistry* InRegistry)
 {
 	Subsystem = InSubsystem;
 	Registry = InRegistry;
 }
 
-TArray<UGSS_GameSetting*> UGSS_SettingsBuilder::GetCreatedRootSettings() const
+TArray<UGSS_GameSetting*> UGSS_GameSettingsBuilder::GetCreatedRootSettings() const
 {
 	TArray<UGSS_GameSetting*> Roots;
 	for (UGSS_GameSetting* Setting : CreatedSettings)
@@ -30,7 +31,7 @@ TArray<UGSS_GameSetting*> UGSS_SettingsBuilder::GetCreatedRootSettings() const
 	return Roots;
 }
 
-void UGSS_SettingsBuilder::InitializeDefinition(UGSS_SettingDefinition* Definition, FGameplayTag Id, FText Name, FText Description, const FGSS_SettingValueAccessor& Accessor)
+void UGSS_GameSettingsBuilder::InitializeDefinition(UGSS_GameSettingDefinition* Definition, FGameplayTag Id, FText Name, FText Description, const FGSS_SettingValueAccessor& Accessor)
 {
 	Definition->SettingId = Id;
 	Definition->DisplayName = MoveTemp(Name);
@@ -38,44 +39,44 @@ void UGSS_SettingsBuilder::InitializeDefinition(UGSS_SettingDefinition* Definiti
 	Definition->Accessor = Accessor;
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddPage(FGameplayTag Id, FText Name, FText Description, FText NavigationText, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddPage(FGameplayTag Id, FText Name, FText Description, FText NavigationText, UGSS_GameSetting* Parent)
 {
-	auto* D = NewObject<UGSS_CollectionSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Collection>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), FGSS_SettingValueAccessor());
 	D->bIsPage = true;
 	D->NavigationText = MoveTemp(NavigationText);
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddCollection(FGameplayTag Id, FText Name, FText Description, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddCollection(FGameplayTag Id, FText Name, FText Description, UGSS_GameSetting* Parent)
 {
-	auto* D = NewObject<UGSS_CollectionSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Collection>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), FGSS_SettingValueAccessor());
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddBool(FGameplayTag Id, FText Name, FText Description, bool DefaultValue, const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddBool(FGameplayTag Id, FText Name, FText Description, bool DefaultValue, const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent)
 {
-	auto* D = NewObject<UGSS_BoolSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Bool>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), Accessor);
 	D->DefaultValue = DefaultValue;
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddDiscrete(FGameplayTag Id, FText Name, FText Description, FString DefaultValue, const TArray<FGSS_DiscreteOptionDefinition>& Options,
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddDiscrete(FGameplayTag Id, FText Name, FText Description, FString DefaultValue, const TArray<FGSS_DiscreteOptionDefinition>& Options,
 	                                                    const FGSS_SettingValueAccessor& Accessor, UGSS_GameSetting* Parent)
 {
-	auto* D = NewObject<UGSS_DiscreteSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Discrete>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), Accessor);
 	D->DefaultValue = MoveTemp(DefaultValue);
 	D->Options = Options;
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddScalar(FGameplayTag Id, FText Name, FText Description, double DefaultValue, double Min, double Max, double Step, const FGSS_SettingValueAccessor& Accessor,
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddScalar(FGameplayTag Id, FText Name, FText Description, double DefaultValue, double Min, double Max, double Step, const FGSS_SettingValueAccessor& Accessor,
                                                   UGSS_GameSetting* Parent, EGSS_SettingScalarDisplayFormat DisplayFormat)
 {
-	auto* D = NewObject<UGSS_ScalarSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Scalar>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), Accessor);
 	D->DefaultValue = DefaultValue;
 	D->MinimumValue = Min;
@@ -85,28 +86,33 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddScalar(FGameplayTag Id, FText Name, F
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddAction(FGameplayTag Id, FText Name, FText Description, FText ActionText, FGameplayTag ActionId, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddAction(FGameplayTag Id, FText Name, FText Description, FText ActionText, FGameplayTag ActionId, UGSS_GameSetting* Parent)
 {
-	auto* D = NewObject<UGSS_ActionSettingDefinition>(this);
+	auto* D = NewObject<UGSS_GameSettingDefinition_Action>(this);
 	InitializeDefinition(D, Id, MoveTemp(Name), MoveTemp(Description), FGSS_SettingValueAccessor());
 	D->ActionText = MoveTemp(ActionText);
 	D->ActionId = ActionId;
 	return AddDefinition(D, Parent);
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefinition* Definition, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddDefinition(const UGSS_GameSettingDefinition* Definition, UGSS_GameSetting* Parent)
 {
 	if (!Definition || !Registry || !Definition->SettingId.IsValid() || Registry->FindSettingById(Definition->SettingId))
 	{
 		return nullptr;
 	}
-	if ((Definition->IsA<UGSS_BoolSettingDefinition>() || Definition->IsA<UGSS_DiscreteSettingDefinition>() || Definition->IsA<UGSS_ScalarSettingDefinition>()) && !Definition->Accessor.IsValid())
+	if (Definition->IsA<UGSS_GameSettingDefinition_Bool>() || Definition->IsA<UGSS_GameSettingDefinition_Discrete>() || Definition->IsA<UGSS_GameSettingDefinition_Scalar>())
 	{
-		return nullptr;
+		FString AccessorError;
+		if (!Definition->Accessor.Validate(AccessorError))
+		{
+			UE_LOG(LogGSS, Error, TEXT("Rejected setting %s: %s"), *Definition->SettingId.ToString(), *AccessorError);
+			return nullptr;
+		}
 	}
 
 	UGSS_GameSetting* Setting = nullptr;
-	if (const UGSS_CollectionSettingDefinition* Collection = Cast<UGSS_CollectionSettingDefinition>(Definition))
+	if (const UGSS_GameSettingDefinition_Collection* Collection = Cast<UGSS_GameSettingDefinition_Collection>(Definition))
 	{
 		Setting = Collection->bIsPage
 			          ? NewObject<UGSS_GameSettingCollectionPage>(Registry)
@@ -116,14 +122,14 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 			Page->SetNavigationText(Collection->NavigationText);
 		}
 	}
-	else if (const UGSS_BoolSettingDefinition* Bool = Cast<UGSS_BoolSettingDefinition>(Definition))
+	else if (const UGSS_GameSettingDefinition_Bool* Bool = Cast<UGSS_GameSettingDefinition_Bool>(Definition))
 	{
 		UGSS_GameSettingValueDiscreteDynamic_Bool* Value = NewObject<UGSS_GameSettingValueDiscreteDynamic_Bool>(Registry);
 		Value->SetDefaultValue(Bool->DefaultValue);
 		Value->SetAccessor(Bool->Accessor);
 		Setting = Value;
 	}
-	else if (const UGSS_DiscreteSettingDefinition* Discrete = Cast<UGSS_DiscreteSettingDefinition>(Definition))
+	else if (const UGSS_GameSettingDefinition_Discrete* Discrete = Cast<UGSS_GameSettingDefinition_Discrete>(Definition))
 	{
 		UGSS_GameSettingValueDiscreteDynamic* Value = NewObject<UGSS_GameSettingValueDiscreteDynamic>(Registry);
 		Value->SetDefaultValueFromString(Discrete->DefaultValue);
@@ -131,7 +137,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 		Value->SetAccessor(Discrete->Accessor);
 		Setting = Value;
 	}
-	else if (const UGSS_ScalarSettingDefinition* Scalar = Cast<UGSS_ScalarSettingDefinition>(Definition))
+	else if (const UGSS_GameSettingDefinition_Scalar* Scalar = Cast<UGSS_GameSettingDefinition_Scalar>(Definition))
 	{
 		UGSS_GameSettingValueScalarDynamic* Value = NewObject<UGSS_GameSettingValueScalarDynamic>(Registry);
 		Value->SetDefaultValue(Scalar->DefaultValue);
@@ -140,7 +146,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 		Value->SetDisplayFormat(UGSS_GameSettingValueScalarDynamic::GetBuiltInDisplayFormat(Scalar->DisplayFormat));
 		Setting = Value;
 	}
-	else if (const UGSS_ActionSettingDefinition* Action = Cast<UGSS_ActionSettingDefinition>(Definition))
+	else if (const UGSS_GameSettingDefinition_Action* Action = Cast<UGSS_GameSettingDefinition_Action>(Definition))
 	{
 		UGSS_GameSettingAction* Value = NewObject<UGSS_GameSettingAction>(Registry);
 		Value->SetActionText(Action->ActionText);
@@ -153,19 +159,19 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 	Setting->SetDevName(Definition->SettingId.GetTagName());
 	Setting->SetDisplayName(Definition->DisplayName);
 	Setting->SetDescriptionRichText(Definition->Description);
-	for (UGSS_SettingEditCondition* ConditionTemplate : Definition->EditConditions)
+	for (UGSS_GameSettingEditCondition* ConditionTemplate : Definition->EditConditions)
 	{
 		if (ConditionTemplate)
 		{
-			Setting->AddEditCondition(DuplicateObject<UGSS_SettingEditCondition>(ConditionTemplate, Setting));
+			Setting->AddEditCondition(DuplicateObject<UGSS_GameSettingEditCondition>(ConditionTemplate, Setting));
 		}
 	}
 	Registry->RegisterSetting(Setting, Cast<UGSS_GameSettingCollection>(Parent));
 	CreatedSettings.Add(Setting);
 
-	if (const UGSS_CollectionSettingDefinition* Collection = Cast<UGSS_CollectionSettingDefinition>(Definition))
+	if (const UGSS_GameSettingDefinition_Collection* Collection = Cast<UGSS_GameSettingDefinition_Collection>(Definition))
 	{
-		for (const UGSS_SettingDefinition* Child : Collection->Children)
+		for (const UGSS_GameSettingDefinition* Child : Collection->Children)
 		{
 			if (Child) AddDefinition(Child, Setting);
 		}
@@ -173,7 +179,7 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddDefinition(const UGSS_SettingDefiniti
 	return Setting;
 }
 
-UGSS_GameSetting* UGSS_SettingsBuilder::AddRuntimeSetting(UGSS_GameSetting* Setting, UGSS_GameSetting* Parent)
+UGSS_GameSetting* UGSS_GameSettingsBuilder::AddRuntimeSetting(UGSS_GameSetting* Setting, UGSS_GameSetting* Parent)
 {
 	if (!Setting || !Registry || !Setting->GetSettingId().IsValid() || Registry->FindSettingById(Setting->GetSettingId()))
 	{
@@ -185,6 +191,6 @@ UGSS_GameSetting* UGSS_SettingsBuilder::AddRuntimeSetting(UGSS_GameSetting* Sett
 	return Setting;
 }
 
-void UGSS_SettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder)
+void UGSS_GameSettingsProvider::RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder)
 {
 }

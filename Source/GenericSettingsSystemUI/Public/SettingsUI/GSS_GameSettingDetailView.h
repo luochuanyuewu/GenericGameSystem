@@ -4,7 +4,7 @@
 
 #include "UI/Common/GUIS_ListEntryDetailView.h"
 
-#include "GSS_SettingsDetailView.generated.h"
+#include "GSS_GameSettingDetailView.generated.h"
 
 class UCommonRichTextBlock;
 class UCommonTextBlock;
@@ -16,17 +16,17 @@ enum class EGSS_GameSettingChangeReason : uint8;
  * 带有可选标题、说明、警告和可用性字段的标准 GSS 详情视图。
  *
  * This keeps the GUIS detail-section builder, async loading and widget pool. Bind only the fields a project
- * needs in a Blueprint subclass; SectionsBuilder may additionally add UGSS_SettingsDetailSection widgets.
+ * needs in a Blueprint subclass; SectionsBuilder may additionally add UGSS_GameSettingsDetailSection widgets.
  * 本类保留 GUIS 的详情 Section Builder、异步加载和 Widget Pool。蓝图子类只需绑定项目需要的字段；
- * SectionsBuilder 还可额外添加 UGSS_SettingsDetailSection Widget。
+ * SectionsBuilder 还可额外添加 UGSS_GameSettingsDetailSection Widget。
  */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsDetailView : public UGUIS_ListEntryDetailView
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingDetailView : public UGUIS_ListEntryDetailView
 {
 	GENERATED_BODY()
 
 public:
-	UGSS_SettingsDetailView(const FObjectInitializer& ObjectInitializer);
+	UGSS_GameSettingDetailView(const FObjectInitializer& ObjectInitializer);
 
 	/** Updates the standard fields and GUIS Sections for a setting. / 更新一个设置的标准字段与 GUIS Section。 */
 	void FillSettingDetails(UGSS_GameSetting* InSetting);

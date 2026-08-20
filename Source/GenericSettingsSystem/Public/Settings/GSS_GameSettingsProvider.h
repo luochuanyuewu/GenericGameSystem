@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GSS_SettingsDefinition.h"
-#include "GSS_SettingsProvider.generated.h"
+#include "GSS_GameSettingsDefinitions.h"
+#include "GSS_GameSettingsProvider.generated.h"
 
 class UGSS_GameSetting;
 class UGSS_GameSettingRegistry;
-class UGSS_SettingsSubsystem;
-class UGSS_SettingDefinition;
+class UGSS_GameSettingsSubsystem;
+class UGSS_GameSettingDefinition;
 
 /**
  * Builds runtime settings from the same Definition objects used by Data Assets.
@@ -19,15 +19,15 @@ class UGSS_SettingDefinition;
  * Builder 仅在 Provider 注册期间有效，不应缓存后续使用。
  */
 UCLASS(BlueprintType)
-class GENERICSETTINGSSYSTEM_API UGSS_SettingsBuilder : public UObject
+class GENERICSETTINGSSYSTEM_API UGSS_GameSettingsBuilder : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	/** Internal setup performed by the subsystem before registration. / 子系统在注册前执行的内部初始化。 */
-	void Initialize(UGSS_SettingsSubsystem* InSubsystem, UGSS_GameSettingRegistry* InRegistry);
+	void Initialize(UGSS_GameSettingsSubsystem* InSubsystem, UGSS_GameSettingRegistry* InRegistry);
 	/** Low-level Definition entry shared by Data Assets and C++ providers. Blueprint providers should use the typed Add* nodes. / Data Asset 与 C++ Provider 共用的底层 Definition 入口；蓝图 Provider 应使用类型化 Add* 节点。 */
-	UGSS_GameSetting* AddDefinition(const UGSS_SettingDefinition* Definition, UGSS_GameSetting* Parent = nullptr);
+	UGSS_GameSetting* AddDefinition(const UGSS_GameSettingDefinition* Definition, UGSS_GameSetting* Parent = nullptr);
 	/**
 	 * Registers a purpose-built runtime node with this Provider's ownership and lifecycle tracking.
 	 * 使用本 Provider 的所有权与生命周期跟踪注册专用运行时节点。
@@ -60,10 +60,10 @@ public:
 	TArray<UGSS_GameSetting*> GetCreatedRootSettings() const;
 
 private:
-	static void InitializeDefinition(UGSS_SettingDefinition* Definition, FGameplayTag SettingId, FText DisplayName, FText Description, const FGSS_SettingValueAccessor& Accessor);
+	static void InitializeDefinition(UGSS_GameSettingDefinition* Definition, FGameplayTag SettingId, FText DisplayName, FText Description, const FGSS_SettingValueAccessor& Accessor);
 
 	UPROPERTY(Transient)
-	TObjectPtr<UGSS_SettingsSubsystem> Subsystem;
+	TObjectPtr<UGSS_GameSettingsSubsystem> Subsystem;
 	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingRegistry> Registry;
 	UPROPERTY(Transient)
@@ -78,12 +78,12 @@ private:
  * 只能通过传入的 Builder 注册，以共享 ID 校验、生命周期跟踪、Apply/Cancel 与持久化流程。
  */
 UCLASS(Abstract, BlueprintType, Blueprintable, EditInlineNew, DefaultToInstanced)
-class GENERICSETTINGSSYSTEM_API UGSS_SettingsProvider : public UObject
+class GENERICSETTINGSSYSTEM_API UGSS_GameSettingsProvider : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	/** Creates this provider's settings. Called synchronously by RegisterSettingsProvider. / 创建该 Provider 的设置；由 RegisterSettingsProvider 同步调用。 */
 	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings")
-	void RegisterSettings(UGSS_SettingsBuilder* Builder);
+	void RegisterSettings(UGSS_GameSettingsBuilder* Builder);
 };

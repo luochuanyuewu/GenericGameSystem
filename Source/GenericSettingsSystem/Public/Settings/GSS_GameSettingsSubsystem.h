@@ -2,16 +2,17 @@
 
 #pragma once
 
+#include "GameplayTagContainer.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "GSS_GameSettingFilterState.h"
-#include "GSS_SettingsSubsystem.generated.h"
+#include "GSS_GameSettingsSubsystem.generated.h"
 
 class UGSS_GameSetting;
 class UGSS_GameSettingRegistry;
-class UGSS_SettingsDefinitionAsset;
-class UGSS_SettingsProvider;
+class UGSS_GameSettingsDefinitionAsset;
+class UGSS_GameSettingsProvider;
 class UGSS_SettingsShared;
-class UGSS_SettingsBuilder;
+class UGSS_GameSettingsBuilder;
 class FGSS_GameSettingRegistryChangeTracker;
 
 /**
@@ -27,7 +28,7 @@ struct GENERICSETTINGSSYSTEM_API FGSS_SettingsRegistrationHandle
 	bool IsValid() const { return Id.IsValid(); }
 
 private:
-	friend class UGSS_SettingsSubsystem;
+	friend class UGSS_GameSettingsSubsystem;
 	FGuid Id;
 };
 
@@ -45,7 +46,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGSS_OnSettingNodeEvent, FGameplayT
  * 使用 Set* 方法修改可预览的待应用值，随后显式调用 ApplyChanges 或 CancelChanges。
  */
 UCLASS(BlueprintType)
-class GENERICSETTINGSSYSTEM_API UGSS_SettingsSubsystem : public ULocalPlayerSubsystem
+class GENERICSETTINGSSYSTEM_API UGSS_GameSettingsSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 
@@ -55,7 +56,7 @@ public:
 
 	/** Returns the subsystem for the context's LocalPlayer; world contexts resolve to their first local player. / 返回上下文所属 LocalPlayer 的子系统；World 上下文使用其第一个本地玩家。 */
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings", meta = (WorldContext = "WorldContextObject"))
-	static UGSS_SettingsSubsystem* Get(const UObject* WorldContextObject);
+	static UGSS_GameSettingsSubsystem* Get(const UObject* WorldContextObject);
 
 	/** Returns this player's runtime settings registry. / 返回该玩家的运行时设置注册表。 */
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
@@ -95,7 +96,7 @@ public:
 
 	/** Invokes Provider registration and returns a token for later removal of its complete setting subtree. / 调用 Provider 注册，并返回用于移除其完整设置子树的令牌。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
-	FGSS_SettingsRegistrationHandle RegisterSettingsProvider(UGSS_SettingsProvider* Provider);
+	FGSS_SettingsRegistrationHandle RegisterSettingsProvider(UGSS_GameSettingsProvider* Provider);
 
 	/** Removes every setting created by the registration token and discards their pending edits. / 移除该令牌创建的全部设置，并丢弃它们的待应用修改。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
@@ -108,7 +109,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GSS|Settings") FGSS_OnSettingNodeEvent OnSettingEditStateChanged;
 
 private:
-	void BuildDefinitions(UGSS_SettingsDefinitionAsset* DefinitionAsset);
+	void BuildDefinitions(UGSS_GameSettingsDefinitionAsset* DefinitionAsset);
 	void LoadSharedSettings();
 	void HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
 	void HandleSettingApplied(UGSS_GameSetting* Setting);
@@ -125,7 +126,7 @@ private:
 	TMap<FGuid, TArray<TObjectPtr<UGSS_GameSetting>>> ProviderSettings;
 	/** Keeps automatically created providers alive for this LocalPlayer. / 保持为此 LocalPlayer 自动创建的 Provider 存活。 */
 	UPROPERTY(Transient)
-	TArray<TObjectPtr<UGSS_SettingsProvider>> StartupProviders;
+	TArray<TObjectPtr<UGSS_GameSettingsProvider>> StartupProviders;
 
 	TUniquePtr<FGSS_GameSettingRegistryChangeTracker> ChangeTracker;
 };

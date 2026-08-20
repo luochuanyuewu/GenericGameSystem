@@ -4,7 +4,7 @@
 
 #include "UI/Common/GUIS_ListEntryDetailSection.h"
 
-#include "GSS_SettingsDetailSection.generated.h"
+#include "GSS_GameSettingsDetailSection.generated.h"
 
 class UGSS_GameSetting;
 enum class EGSS_GameSettingChangeReason : uint8;
@@ -20,7 +20,7 @@ enum class EGSS_GameSettingChangeReason : uint8;
  * 本 Section 会自动跟随详情视图的当前设置，并将数值和编辑状态更新转发给蓝图。
  */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsDetailSection : public UGUIS_ListEntryDetailSection
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingsDetailSection : public UGUIS_ListEntryDetailSection
 {
 	GENERATED_BODY()
 

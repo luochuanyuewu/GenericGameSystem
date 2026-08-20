@@ -53,7 +53,7 @@ void UGSS_GameSetting::Initialize(ULocalPlayer* InLocalPlayer)
 	ensureAlwaysMsgf(!DisplayName.IsEmpty(), TEXT("You must provide a DisplayName for settings."));
 #endif
 
-	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
+	for (UGSS_GameSettingEditCondition* EditCondition : EditConditions)
 	{
 		EditCondition->InitializeCondition(this);
 	}
@@ -91,7 +91,7 @@ bool UGSS_GameSetting::Apply()
 	}
 
 	// Run through any edit conditions and let them know things changed.
-	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
+	for (UGSS_GameSettingEditCondition* EditCondition : EditConditions)
 	{
 		EditCondition->OnSettingApplied();
 	}
@@ -129,7 +129,7 @@ void UGSS_GameSetting::ComputeEditableState()
 	OnGatherEditState(EditableStateCache);
 
 	// Run through any edit conditions
-	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
+	for (UGSS_GameSettingEditCondition* EditCondition : EditConditions)
 	{
 		if (EditCondition)
 		{
@@ -185,7 +185,7 @@ void UGSS_GameSetting::NotifySettingChanged(EGSS_GameSettingChangeReason Reason)
 	OnSettingChanged(Reason);
 	
 	// Run through any edit conditions and let them know things changed.
-	for (UGSS_SettingEditCondition* EditCondition : EditConditions)
+	for (UGSS_GameSettingEditCondition* EditCondition : EditConditions)
 	{
 		if (EditCondition)
 		{
@@ -205,7 +205,7 @@ void UGSS_GameSetting::OnSettingChanged(EGSS_GameSettingChangeReason Reason)
 	// No-Op
 }
 
-void UGSS_GameSetting::AddEditCondition(UGSS_SettingEditCondition* InEditCondition)
+void UGSS_GameSetting::AddEditCondition(UGSS_GameSettingEditCondition* InEditCondition)
 {
 	if (InEditCondition)
 	{

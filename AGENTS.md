@@ -46,6 +46,7 @@
   - `GES_`：特效系统类型。
   - `GCMS_`：相机系统类型。
   - `GUIS_`：UI 系统类型。
+  - `GSS_`：设置系统类型。
 - 触碰 Public API 时，Blueprint 暴露、复制行为、类别、元数据和注释风格要与周围代码一致。
 - 许多 Public 头文件使用中英双语注释。修改已有文档化 API 时匹配本地风格；不要添加重复或空泛注释。
 - 代码修改保持小而聚焦。不要顺手格式化无关文件，也不要做与任务无关的重构。
@@ -76,8 +77,9 @@
 - UI 子系统：`Source/GenericUISystem/Public/UI/GUIS_GameUISubsystem.h`
 - UI Policy：`Source/GenericUISystem/Public/UI/GUIS_GameUIPolicy.h`
 - 设置注册表：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingRegistry.h`
+- 设置子系统：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingsSubsystem.h`
 - 通用设置 Provider：`Source/GenericSettingsSystemCommon/Public/Settings/`（Video、Audio、Input、Accessibility）
-- 设置 UI：`Source/GenericSettingsSystemUI/Public/SettingsUI/GSS_SettingsScreen.h`
+- 设置 UI：`Source/GenericSettingsSystemUI/Public/SettingsUI/GSS_GameSettingsMenu.h`
 
 ## 构建和验证
 

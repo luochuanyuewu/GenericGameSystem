@@ -5,7 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "Components/SlateWrapperTypes.h"
 #include "GSS_GameSettingFilterState.h"
-#include "GSS_SettingEditCondition.h"
+#include "GSS_GameSettingEditCondition.h"
 #include "GameplayTagContainer.h"
 
 #include "GSS_GameSetting.generated.h"
@@ -161,7 +161,7 @@ public:
 
 	/** Adds an edit condition that controls this node's visibility, availability or options. / 添加控制节点可见性、可用性或选项的编辑条件。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
-	void AddEditCondition(UGSS_SettingEditCondition* InEditCondition);
+	void AddEditCondition(UGSS_GameSettingEditCondition* InEditCondition);
 
 	/** Adds a dependency; its changes trigger this node's edit-state reevaluation. / 添加依赖；依赖变化会触发本节点重新计算编辑状态。 */
 	void AddEditDependency(UGSS_GameSetting* DependencySetting);
@@ -257,7 +257,7 @@ protected:
 
 	/** Runtime edit conditions for this setting. / 此设置的运行时编辑条件。 */
 	UPROPERTY(Transient)
-	TArray<TObjectPtr<UGSS_SettingEditCondition>> EditConditions;
+	TArray<TObjectPtr<UGSS_GameSettingEditCondition>> EditConditions;
 
 	class FStringCultureCache
 	{

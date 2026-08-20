@@ -5,9 +5,9 @@
 #include "Feedback/GES_ContextEffectsLibrary.h"
 #include "Feedback/GES_ContextEffectsPreviewSetting.h"
 #include "Interaction/GGS_InteractionDefinition.h"
-#include "Settings/GSS_SettingsDefinition.h"
-#include "SettingsUI/GSS_SettingsDetailSectionBuilder.h"
-#include "SettingsUI/GSS_SettingsEntryWidgetFactory.h"
+#include "Settings/GSS_GameSettingsDefinitions.h"
+#include "SettingsUI/GSS_GameSettingsDetailSectionBuilder.h"
+#include "SettingsUI/GSS_GameSettingsEntryWidgetFactory.h"
 #include "UI/Actions/GUIS_UIActionFactory.h"
 #include "UI/Common/GUIS_DetailSectionsBuilder.h"
 #include "Utilities/GGS_SocketRelationshipMapping.h"
@@ -51,8 +51,8 @@ GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_InteractionDefinition, UGGS_
 GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SocketRelationshipMapping, UGGS_SocketRelationshipMapping, "SocketRelationshipMapping", "Socket Relationship Mapping", GameplayCategories, FLinearColor(0.70f, 0.45f, 1.00f))
 GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_UIActionFactory, UGUIS_UIActionFactory, "UIActionFactory", "UI Action Factory", UICategories, FLinearColor(0.25f, 0.90f, 0.80f))
 GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_DetailSectionBuilder, UGUIS_DetailSectionBuilder_Class, "DetailSectionBuilder", "Detail Section Builder", UICategories, FLinearColor(0.25f, 0.90f, 0.80f))
-GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsDefinition, UGSS_SettingsDefinitionAsset, "SettingsDefinition", "Settings Definition", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
-GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsEntryWidgetFactory, UGSS_SettingsEntryWidgetFactory, "SettingsEntryWidgetFactory", "Settings List Entry Factory", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
-GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsDetailSectionBuilder, UGSS_SettingsDetailSectionBuilder, "SettingsDetailSectionBuilder", "Settings Detail Section Builder", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
+GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsDefinition, UGSS_GameSettingsDefinitionAsset, "SettingsDefinition", "Settings Definition", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
+GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsEntryWidgetFactory, UGSS_GameSettingsEntryWidgetFactory, "SettingsEntryWidgetFactory", "Settings List Entry Factory", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
+GGS_IMPLEMENT_ASSET_DEFINITION(UGGS_AssetDefinition_SettingsDetailSectionBuilder, UGSS_GameSettingsDetailSectionBuilder, "SettingsDetailSectionBuilder", "Settings Detail Section Builder", SettingsCategories, FLinearColor(1.00f, 0.70f, 0.25f))
 
 #undef GGS_IMPLEMENT_ASSET_DEFINITION

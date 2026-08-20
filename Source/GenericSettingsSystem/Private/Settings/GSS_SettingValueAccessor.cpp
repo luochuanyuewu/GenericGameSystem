@@ -1,9 +1,27 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 #include "Settings/GSS_SettingValueAccessor.h"
-#include "Settings/GSS_SettingsSubsystem.h"
+
 #include "Engine/Engine.h"
+#include "GenericSettingsSystem.h"
+#include "Settings/GSS_SettingsDeveloperSettings.h"
+#include "Settings/GSS_SettingsShared.h"
+#include "Settings/GSS_GameSettingsSubsystem.h"
 #include "UObject/EnumProperty.h"
 #include "UObject/StructOnScope.h"
+
+namespace GSS_Accessor
+{
+	static bool HasGetterPrefix(const FName FunctionName)
+	{
+		const FString Name = FunctionName.ToString();
+		return Name.StartsWith(TEXT("Get")) || Name.StartsWith(TEXT("Is")) || Name.StartsWith(TEXT("Has"));
+	}
+
+	static bool HasSetterPrefix(const FName FunctionName)
+	{
+		return FunctionName.ToString().StartsWith(TEXT("Set"));
+	}
+}
 
 UObject* FGSS_SettingValueAccessor::ResolveTarget(const FGSS_SettingValueAccessor& Accessor, ULocalPlayer* LocalPlayer)
 {
@@ -11,13 +29,181 @@ UObject* FGSS_SettingValueAccessor::ResolveTarget(const FGSS_SettingValueAccesso
 	{
 		return GEngine ? GEngine->GetGameUserSettings() : nullptr;
 	}
-	return UGSS_SettingsSubsystem::Get(LocalPlayer) ? UGSS_SettingsSubsystem::Get(LocalPlayer)->GetSharedSettings() : nullptr;
+	return UGSS_GameSettingsSubsystem::Get(LocalPlayer) ? UGSS_GameSettingsSubsystem::Get(LocalPlayer)->GetSharedSettings() : nullptr;
 }
 
-FProperty* FGSS_SettingValueAccessor::GetReturnProperty(UFunction* Function)
+UClass* FGSS_SettingValueAccessor::ResolveTargetClass() const
 {
-	for (TFieldIterator<FProperty> It(Function); It; ++It) if (It->HasAnyPropertyFlags(CPF_ReturnParm)) return *It;
+	if (Source == EGSS_SettingValueSource::Local)
+	{
+		if (GEngine && GEngine->GameUserSettingsClass)
+		{
+			return GEngine->GameUserSettingsClass;
+		}
+		if (const UEngine* EngineCDO = GetDefault<UEngine>(); EngineCDO && EngineCDO->GameUserSettingsClass)
+		{
+			return EngineCDO->GameUserSettingsClass;
+		}
+		return UGameUserSettings::StaticClass();
+	}
+
+	const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>();
+	if (Settings && Settings->SharedSettingsClass)
+	{
+		return Settings->SharedSettingsClass.Get();
+	}
+	return UGSS_SettingsShared::StaticClass();
+}
+
+FProperty* FGSS_SettingValueAccessor::GetReturnProperty(const UFunction* Function)
+{
+	if (!Function)
+	{
+		return nullptr;
+	}
+	for (TFieldIterator<FProperty> It(Function); It; ++It)
+	{
+		if (It->HasAnyPropertyFlags(CPF_ReturnParm))
+		{
+			return *It;
+		}
+	}
 	return nullptr;
+}
+
+bool FGSS_SettingValueAccessor::IsCompatibleGetter(const UFunction* Function)
+{
+	return Function && Function->NumParms == 1 && GetReturnProperty(Function) != nullptr;
+}
+
+bool FGSS_SettingValueAccessor::IsCompatibleSetter(const UFunction* Function)
+{
+	if (!Function || Function->NumParms != 1 || GetReturnProperty(Function))
+	{
+		return false;
+	}
+
+	int32 ParameterCount = 0;
+	for (TFieldIterator<FProperty> It(Function); It; ++It)
+	{
+		if (!It->HasAnyPropertyFlags(CPF_ReturnParm))
+		{
+			++ParameterCount;
+		}
+	}
+	return ParameterCount == 1;
+}
+
+TArray<FString> FGSS_SettingValueAccessor::ListCompatibleFunctions(const UClass* TargetClass, bool bGetters)
+{
+	TArray<FString> Names;
+	if (!TargetClass)
+	{
+		return Names;
+	}
+
+	TSet<FName> Seen;
+	for (TFieldIterator<UFunction> It(TargetClass, EFieldIterationFlags::IncludeSuper); It; ++It)
+	{
+		const UFunction* Function = *It;
+		if (!Function || Function->HasAnyFunctionFlags(FUNC_Delegate | FUNC_Static | FUNC_UbergraphFunction))
+		{
+			continue;
+		}
+		if (Function->GetOwnerClass() == UObject::StaticClass())
+		{
+			continue;
+		}
+		if (bGetters)
+		{
+			if (!IsCompatibleGetter(Function) || !GSS_Accessor::HasGetterPrefix(Function->GetFName()))
+			{
+				continue;
+			}
+		}
+		else if (!IsCompatibleSetter(Function) || !GSS_Accessor::HasSetterPrefix(Function->GetFName()))
+		{
+			continue;
+		}
+		if (Seen.Contains(Function->GetFName()))
+		{
+			continue;
+		}
+		Seen.Add(Function->GetFName());
+		Names.Add(Function->GetName());
+	}
+	Names.Sort();
+	return Names;
+}
+
+TArray<FString> FGSS_SettingValueAccessor::GetCompatibleGetterNames() const
+{
+	return ListCompatibleFunctions(ResolveTargetClass(), true);
+}
+
+TArray<FString> FGSS_SettingValueAccessor::GetCompatibleSetterNames() const
+{
+	return ListCompatibleFunctions(ResolveTargetClass(), false);
+}
+
+bool FGSS_SettingValueAccessor::Validate(FString& OutError) const
+{
+	if (!IsValid())
+	{
+		OutError = TEXT("Accessor needs both a Getter and a Setter function name.");
+		return false;
+	}
+
+	UClass* TargetClass = ResolveTargetClass();
+	if (!TargetClass)
+	{
+		OutError = TEXT("Accessor target class could not be resolved.");
+		return false;
+	}
+
+	const UFunction* Getter = TargetClass->FindFunctionByName(GetterFunction);
+	if (!IsCompatibleGetter(Getter))
+	{
+		OutError = FString::Printf(TEXT("Accessor Getter '%s' is not a zero-argument UFUNCTION with a return value on %s."), *GetterFunction.ToString(), *TargetClass->GetName());
+		return false;
+	}
+
+	const UFunction* Setter = TargetClass->FindFunctionByName(SetterFunction);
+	if (!IsCompatibleSetter(Setter))
+	{
+		OutError = FString::Printf(TEXT("Accessor Setter '%s' is not a one-argument void UFUNCTION on %s."), *SetterFunction.ToString(), *TargetClass->GetName());
+		return false;
+	}
+
+	return true;
+}
+
+FGSS_SettingValueAccessor FGSS_SettingValueAccessor::MakeLocal(FName Getter, FName Setter)
+{
+	FGSS_SettingValueAccessor Accessor;
+	Accessor.Source = EGSS_SettingValueSource::Local;
+	Accessor.GetterFunction = Getter;
+	Accessor.SetterFunction = Setter;
+	return Accessor;
+}
+
+FGSS_SettingValueAccessor FGSS_SettingValueAccessor::MakeShared(FName Getter, FName Setter)
+{
+	FGSS_SettingValueAccessor Accessor;
+	Accessor.Source = EGSS_SettingValueSource::Shared;
+	Accessor.GetterFunction = Getter;
+	Accessor.SetterFunction = Setter;
+	return Accessor;
+}
+
+void FGSS_SettingValueAccessor::LogFailure(const TCHAR* Operation, const UObject* Target, const FName FunctionName, const TCHAR* Reason) const
+{
+	UE_LOG(LogGSS, Warning, TEXT("Accessor %s failed on %s::%s (%s target): %s"),
+		Operation,
+		Target ? *Target->GetClass()->GetName() : TEXT("<none>"),
+		*FunctionName.ToString(),
+		Source == EGSS_SettingValueSource::Local ? TEXT("Local") : TEXT("Shared"),
+		Reason);
 }
 
 bool FGSS_SettingValueAccessor::AreSerializedValuesEqual(const FString& Left, const FString& Right)
@@ -124,17 +310,20 @@ bool FGSS_SettingValueAccessor::GetValue(ULocalPlayer* LocalPlayer, FString& Out
 {
 	if (!IsValid())
 	{
+		LogFailure(TEXT("GetValue"), nullptr, GetterFunction, TEXT("Getter or Setter is not configured."));
 		return false;
 	}
 	UObject* Target = ResolveTarget(*this, LocalPlayer);
 	if (!Target)
 	{
+		LogFailure(TEXT("GetValue"), nullptr, GetterFunction, TEXT("target object is missing."));
 		return false;
 	}
 	UFunction* Function = Target->FindFunction(GetterFunction);
 	FProperty* Return = Function ? GetReturnProperty(Function) : nullptr;
 	if (!Return || Function->NumParms != 1)
 	{
+		LogFailure(TEXT("GetValue"), Target, GetterFunction, TEXT("function is missing or is not a zero-argument Getter."));
 		return false;
 	}
 	FStructOnScope Params(Function);
@@ -146,16 +335,19 @@ bool FGSS_SettingValueAccessor::SetValue(ULocalPlayer* LocalPlayer, const FStrin
 {
 	if (!IsValid())
 	{
+		LogFailure(TEXT("SetValue"), nullptr, SetterFunction, TEXT("Getter or Setter is not configured."));
 		return false;
 	}
 	UObject* Target = ResolveTarget(*this, LocalPlayer);
 	if (!Target)
 	{
+		LogFailure(TEXT("SetValue"), nullptr, SetterFunction, TEXT("target object is missing."));
 		return false;
 	}
 	UFunction* Function = Target->FindFunction(SetterFunction);
 	if (!Function)
 	{
+		LogFailure(TEXT("SetValue"), Target, SetterFunction, TEXT("function is missing."));
 		return false;
 	}
 	FProperty* Parameter = nullptr;
@@ -165,6 +357,7 @@ bool FGSS_SettingValueAccessor::SetValue(ULocalPlayer* LocalPlayer, const FStrin
 		{
 			if (Parameter)
 			{
+				LogFailure(TEXT("SetValue"), Target, SetterFunction, TEXT("function is not a one-argument Setter."));
 				return false;
 			}
 			Parameter = *It;
@@ -172,12 +365,14 @@ bool FGSS_SettingValueAccessor::SetValue(ULocalPlayer* LocalPlayer, const FStrin
 	}
 	if (!Parameter || Function->NumParms != 1)
 	{
+		LogFailure(TEXT("SetValue"), Target, SetterFunction, TEXT("function is not a one-argument Setter."));
 		return false;
 	}
 	FStructOnScope Params(Function);
 	void* ValuePtr = Parameter->ContainerPtrToValuePtr<void>(Params.GetStructMemory());
 	if (!ImportCanonicalValue(Parameter, ValuePtr, Value))
 	{
+		LogFailure(TEXT("SetValue"), Target, SetterFunction, TEXT("value could not be imported into the Setter parameter."));
 		return false;
 	}
 	Target->ProcessEvent(Function, Params.GetStructMemory());

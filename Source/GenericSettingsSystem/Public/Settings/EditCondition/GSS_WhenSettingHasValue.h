@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Settings/GSS_SettingEditCondition.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
 #include "GameplayTagContainer.h"
 #include "GSS_WhenSettingHasValue.generated.h"
 
@@ -15,7 +15,7 @@
  * 匹配规则与 Accessor 相同：布尔记号和枚举名不区分大小写。初始化时会把另一个设置注册为编辑依赖。
  */
 UCLASS(BlueprintType, EditInlineNew)
-class GENERICSETTINGSSYSTEM_API UGSS_WhenSettingHasValue : public UGSS_SettingEditCondition
+class GENERICSETTINGSSYSTEM_API UGSS_WhenSettingHasValue : public UGSS_GameSettingEditCondition
 {
 	GENERATED_BODY()
 

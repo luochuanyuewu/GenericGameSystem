@@ -1,27 +1,27 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsDetailView.h"
+#include "SettingsUI/GSS_GameSettingDetailView.h"
 
 #include "CommonRichTextBlock.h"
 #include "CommonTextBlock.h"
 #include "Settings/GSS_GameSetting.h"
-#include "Settings/GSS_SettingEditCondition.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsDetailView)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingDetailView)
 
 #define LOCTEXT_NAMESPACE "GSS_SettingsDetailView"
 
-UGSS_SettingsDetailView::UGSS_SettingsDetailView(const FObjectInitializer& ObjectInitializer)
+UGSS_GameSettingDetailView::UGSS_GameSettingDetailView(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-void UGSS_SettingsDetailView::SetListItemObject(UObject* InListItemObject)
+void UGSS_GameSettingDetailView::SetListItemObject(UObject* InListItemObject)
 {
 	FillSettingDetails(Cast<UGSS_GameSetting>(InListItemObject));
 }
 
-void UGSS_SettingsDetailView::FillSettingDetails(UGSS_GameSetting* InSetting)
+void UGSS_GameSettingDetailView::FillSettingDetails(UGSS_GameSetting* InSetting)
 {
 	if (InSetting && InSetting == CurrentSetting)
 	{
@@ -40,13 +40,13 @@ void UGSS_SettingsDetailView::FillSettingDetails(UGSS_GameSetting* InSetting)
 	RefreshSettingDetails();
 }
 
-void UGSS_SettingsDetailView::NativeDestruct()
+void UGSS_GameSettingDetailView::NativeDestruct()
 {
 	ReleaseCurrentSetting();
 	Super::NativeDestruct();
 }
 
-void UGSS_SettingsDetailView::ReleaseCurrentSetting()
+void UGSS_GameSettingDetailView::ReleaseCurrentSetting()
 {
 	if (CurrentSetting)
 	{
@@ -56,17 +56,17 @@ void UGSS_SettingsDetailView::ReleaseCurrentSetting()
 	}
 }
 
-void UGSS_SettingsDetailView::HandleCurrentSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason)
+void UGSS_GameSettingDetailView::HandleCurrentSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason)
 {
 	RefreshSettingDetails();
 }
 
-void UGSS_SettingsDetailView::HandleCurrentSettingEditableStateChanged(UGSS_GameSetting*)
+void UGSS_GameSettingDetailView::HandleCurrentSettingEditableStateChanged(UGSS_GameSetting*)
 {
 	RefreshSettingDetails();
 }
 
-void UGSS_SettingsDetailView::RefreshSettingDetails()
+void UGSS_GameSettingDetailView::RefreshSettingDetails()
 {
 	if (Text_SettingName)
 	{

@@ -1,55 +1,53 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsPanel.h"
+#include "SettingsUI/GSS_GameSettingsPanel.h"
 
 #include "Settings/GSS_GameSettingCollection.h"
 #include "Settings/GSS_GameSettingRegistry.h"
-#include "Settings/GSS_SettingEditCondition.h"
-#include "Settings/GSS_GameSettingValue.h"
-#include "Settings/GSS_SettingsSubsystem.h"
-#include "SettingsUI/GSS_SettingsDetailView.h"
+#include "Settings/GSS_GameSettingEditCondition.h"
+#include "SettingsUI/GSS_GameSettingDetailView.h"
 #include "CommonInputSubsystem.h"
 #include "CommonInputTypeEnum.h"
 #include "UI/Common/GUIS_ListView.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsPanel)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsPanel)
 
-UGSS_SettingsPanel::UGSS_SettingsPanel()
+UGSS_GameSettingsPanel::UGSS_GameSettingsPanel()
 {
 	SetIsFocusable(true);
 }
 
-void UGSS_SettingsPanel::NativeOnInitialized()
+void UGSS_GameSettingsPanel::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	if (List_Settings)
+	if (ListView_Settings)
 	{
-		List_Settings->OnItemIsHoveredChanged().AddUObject(this, &ThisClass::HandleSettingItemHoveredChanged);
-		List_Settings->OnItemSelectionChanged().AddUObject(this, &ThisClass::HandleSettingItemSelectionChanged);
+		ListView_Settings->OnItemIsHoveredChanged().AddUObject(this, &ThisClass::HandleSettingItemHoveredChanged);
+		ListView_Settings->OnItemSelectionChanged().AddUObject(this, &ThisClass::HandleSettingItemSelectionChanged);
 	}
 }
 
-void UGSS_SettingsPanel::NativeConstruct()
+void UGSS_GameSettingsPanel::NativeConstruct()
 {
 	Super::NativeConstruct();
 	UnbindRegistryEvents();
 	BindRegistryEvents();
 }
 
-FReply UGSS_SettingsPanel::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+FReply UGSS_GameSettingsPanel::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
-	if (const UCommonInputSubsystem* InputSubsystem = GetInputSubsystem(); InputSubsystem && InputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad && List_Settings)
+	if (const UCommonInputSubsystem* InputSubsystem = GetInputSubsystem(); InputSubsystem && InputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad && ListView_Settings)
 	{
-		List_Settings->NavigateToIndex(0);
-		List_Settings->SetSelectedIndex(0);
+		ListView_Settings->NavigateToIndex(0);
+		ListView_Settings->SetSelectedIndex(0);
 		return FReply::Handled();
 	}
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
-void UGSS_SettingsPanel::SetSettingsSubsystem(UGSS_SettingsSubsystem* InSubsystem)
+void UGSS_GameSettingsPanel::SetRegistry(UGSS_GameSettingRegistry* InRegistry)
 {
-	if (SettingsSubsystem == InSubsystem)
+	if (Registry == InRegistry)
 	{
 		return;
 	}
@@ -60,8 +58,7 @@ void UGSS_SettingsPanel::SetSettingsSubsystem(UGSS_SettingsSubsystem* InSubsyste
 		FTSTicker::GetCoreTicker().RemoveTicker(RefreshHandle);
 		RefreshHandle.Reset();
 	}
-	SettingsSubsystem = InSubsystem;
-	Registry = SettingsSubsystem ? SettingsSubsystem->GetRegistry() : nullptr;
+	Registry = InRegistry;
 	FilterState = FGSS_GameSettingFilterState();
 	FilterNavigationStack.Reset();
 	LastHoveredOrSelectedSetting = nullptr;
@@ -70,44 +67,7 @@ void UGSS_SettingsPanel::SetSettingsSubsystem(UGSS_SettingsSubsystem* InSubsyste
 	RefreshSettingsList();
 }
 
-void UGSS_SettingsPanel::ApplyChanges()
-{
-	if (SettingsSubsystem)
-	{
-		SettingsSubsystem->ApplyChanges();
-	}
-}
-
-void UGSS_SettingsPanel::CancelChanges()
-{
-	if (SettingsSubsystem)
-	{
-		SettingsSubsystem->CancelChanges();
-	}
-}
-
-void UGSS_SettingsPanel::ResetVisibleSettingsToDefault()
-{
-	if (!Registry)
-	{
-		return;
-	}
-
-TArray<UGSS_GameSetting*> Settings;
-	Registry->GetSettingsForFilter(FilterState, Settings);
-	for (UGSS_GameSetting* Setting : Settings)
-	{
-		if (UGSS_GameSettingValue* Value = Cast<UGSS_GameSettingValue>(Setting))
-		{
-			if (Value->GetEditState().IsResettable())
-			{
-				Value->ResetToDefault();
-			}
-		}
-	}
-}
-
-TArray<UGSS_GameSetting*> UGSS_SettingsPanel::GetSettingsWeCanResetToDefault() const
+TArray<UGSS_GameSetting*> UGSS_GameSettingsPanel::GetSettingsWeCanResetToDefault() const
 {
 	TArray<UGSS_GameSetting*> Settings;
 	if (!Registry || !Registry->IsFinishedInitializing())
@@ -124,7 +84,7 @@ TArray<UGSS_GameSetting*> UGSS_SettingsPanel::GetSettingsWeCanResetToDefault() c
 	return Settings;
 }
 
-void UGSS_SettingsPanel::SetFilterState(const FGSS_GameSettingFilterState& InFilterState, bool bClearNavigationStack)
+void UGSS_GameSettingsPanel::SetFilterState(const FGSS_GameSettingFilterState& InFilterState, bool bClearNavigationStack)
 {
 	FilterState = InFilterState;
 	if (bClearNavigationStack)
@@ -134,7 +94,7 @@ void UGSS_SettingsPanel::SetFilterState(const FGSS_GameSettingFilterState& InFil
 	RefreshSettingsList();
 }
 
-bool UGSS_SettingsPanel::NavigateToPage(UGSS_GameSettingCollectionPage* Page)
+bool UGSS_GameSettingsPanel::NavigateToPage(UGSS_GameSettingCollectionPage* Page)
 {
 	if (!Page || Page == GetCurrentPage())
 	{
@@ -148,30 +108,28 @@ bool UGSS_SettingsPanel::NavigateToPage(UGSS_GameSettingCollectionPage* Page)
 	return true;
 }
 
-bool UGSS_SettingsPanel::CanPopNavigation() const
+bool UGSS_GameSettingsPanel::CanPopNavigationStack() const
 {
 	return !FilterNavigationStack.IsEmpty();
 }
 
-bool UGSS_SettingsPanel::PopNavigation()
+void UGSS_GameSettingsPanel::PopNavigationStack()
 {
-	if (!CanPopNavigation())
+	if (CanPopNavigationStack())
 	{
-		return false;
+		SetFilterState(FilterNavigationStack.Pop(), false);
 	}
-	SetFilterState(FilterNavigationStack.Pop(), false);
-	return true;
 }
 
-UGSS_GameSettingCollectionPage* UGSS_SettingsPanel::GetCurrentPage() const
+UGSS_GameSettingCollectionPage* UGSS_GameSettingsPanel::GetCurrentPage() const
 {
 	const TArray<UGSS_GameSetting*>& RootList = FilterState.GetSettingRootList();
 	return RootList.Num() == 1 ? Cast<UGSS_GameSettingCollectionPage>(RootList[0]) : nullptr;
 }
 
-void UGSS_SettingsPanel::RefreshSettingsList()
+void UGSS_GameSettingsPanel::RefreshSettingsList()
 {
-	if (!List_Settings || RefreshHandle.IsValid())
+	if (!ListView_Settings || RefreshHandle.IsValid())
 	{
 		return;
 	}
@@ -197,7 +155,7 @@ void UGSS_SettingsPanel::RefreshSettingsList()
 		{
 			ListItems.Add(Setting);
 		}
-		List_Settings->SetListItems(ListItems);
+		ListView_Settings->SetListItems(ListItems);
 
 		int32 SelectionIndex = 0;
 		if (DesiredSelectionSettingId.IsValid())
@@ -214,8 +172,8 @@ void UGSS_SettingsPanel::RefreshSettingsList()
 		}
 		if (bAdjustListViewPostRefresh && !VisibleSettings.IsEmpty())
 		{
-			List_Settings->NavigateToIndex(SelectionIndex);
-			List_Settings->SetSelectedIndex(SelectionIndex);
+			ListView_Settings->NavigateToIndex(SelectionIndex);
+			ListView_Settings->SetSelectedIndex(SelectionIndex);
 			LastHoveredOrSelectedSetting = VisibleSettings[SelectionIndex];
 			FillSettingDetails(LastHoveredOrSelectedSetting);
 		}
@@ -234,7 +192,7 @@ void UGSS_SettingsPanel::RefreshSettingsList()
 	}));
 }
 
-void UGSS_SettingsPanel::NativeDestruct()
+void UGSS_GameSettingsPanel::NativeDestruct()
 {
 	if (RefreshHandle.IsValid())
 	{
@@ -247,7 +205,7 @@ void UGSS_SettingsPanel::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UGSS_SettingsPanel::HandleNavigationRequested(UGSS_GameSetting* Setting)
+void UGSS_GameSettingsPanel::HandleNavigationRequested(UGSS_GameSetting* Setting)
 {
 	if (VisibleSettings.Contains(Setting))
 	{
@@ -255,12 +213,12 @@ void UGSS_SettingsPanel::HandleNavigationRequested(UGSS_GameSetting* Setting)
 	}
 }
 
-void UGSS_SettingsPanel::HandleNamedAction(UGSS_GameSetting* Setting, FGameplayTag ActionId)
+void UGSS_GameSettingsPanel::HandleNamedAction(UGSS_GameSetting* Setting, FGameplayTag ActionId)
 {
-	OnExecuteNamedAction.Broadcast(Setting, ActionId);
+	BP_OnExecuteNamedAction.Broadcast(Setting, ActionId);
 }
 
-void UGSS_SettingsPanel::HandleEditableStateChanged(UGSS_GameSetting* Setting)
+void UGSS_GameSettingsPanel::HandleEditableStateChanged(UGSS_GameSetting* Setting)
 {
 	const bool bWasVisible = VisibleSettings.Contains(Setting);
 	const bool bIsVisible = Setting && Setting->GetEditState().IsVisible();
@@ -271,7 +229,7 @@ void UGSS_SettingsPanel::HandleEditableStateChanged(UGSS_GameSetting* Setting)
 	}
 }
 
-void UGSS_SettingsPanel::HandleSettingItemHoveredChanged(UObject* Item, bool bHovered)
+void UGSS_GameSettingsPanel::HandleSettingItemHoveredChanged(UObject* Item, bool bHovered)
 {
 	UGSS_GameSetting* Setting = bHovered ? Cast<UGSS_GameSetting>(Item) : LastHoveredOrSelectedSetting.Get();
 	if (bHovered && Setting)
@@ -281,7 +239,7 @@ void UGSS_SettingsPanel::HandleSettingItemHoveredChanged(UObject* Item, bool bHo
 	FillSettingDetails(Setting);
 }
 
-void UGSS_SettingsPanel::HandleSettingItemSelectionChanged(UObject* Item)
+void UGSS_GameSettingsPanel::HandleSettingItemSelectionChanged(UObject* Item)
 {
 	UGSS_GameSetting* Setting = Cast<UGSS_GameSetting>(Item);
 	if (Setting)
@@ -291,7 +249,7 @@ void UGSS_SettingsPanel::HandleSettingItemSelectionChanged(UObject* Item)
 	FillSettingDetails(Setting);
 }
 
-void UGSS_SettingsPanel::FillSettingDetails(UGSS_GameSetting* Setting)
+void UGSS_GameSettingsPanel::FillSettingDetails(UGSS_GameSetting* Setting)
 {
 	if (Details_Settings)
 	{
@@ -300,18 +258,18 @@ void UGSS_SettingsPanel::FillSettingDetails(UGSS_GameSetting* Setting)
 	OnFocusedSettingChanged.Broadcast(Setting);
 }
 
-void UGSS_SettingsPanel::SelectSetting(FGameplayTag SettingId)
+void UGSS_GameSettingsPanel::SelectSetting(FGameplayTag SettingId)
 {
 	DesiredSelectionSettingId = SettingId;
 	RefreshSettingsList();
 }
 
-UGSS_GameSetting* UGSS_SettingsPanel::GetSelectedSetting() const
+UGSS_GameSetting* UGSS_GameSettingsPanel::GetSelectedSetting() const
 {
-	return List_Settings ? Cast<UGSS_GameSetting>(List_Settings->GetSelectedItem()) : nullptr;
+	return ListView_Settings ? Cast<UGSS_GameSetting>(ListView_Settings->GetSelectedItem()) : nullptr;
 }
 
-void UGSS_SettingsPanel::BindRegistryEvents()
+void UGSS_GameSettingsPanel::BindRegistryEvents()
 {
 	if (Registry)
 	{
@@ -321,7 +279,7 @@ void UGSS_SettingsPanel::BindRegistryEvents()
 	}
 }
 
-void UGSS_SettingsPanel::UnbindRegistryEvents()
+void UGSS_GameSettingsPanel::UnbindRegistryEvents()
 {
 	if (Registry)
 	{

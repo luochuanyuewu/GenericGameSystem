@@ -13,7 +13,7 @@
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Language, "GSS.Settings.Language");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Language_Culture, "GSS.Settings.Language.Culture");
 
-void UGSS_LanguageSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder)
+void UGSS_LanguageSettingsProvider::RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder)
 {
 	if (!Builder)
 	{

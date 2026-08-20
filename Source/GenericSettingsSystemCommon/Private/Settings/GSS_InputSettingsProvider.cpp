@@ -3,19 +3,11 @@
 #include "Settings/GSS_InputSettingsProvider.h"
 
 #include "NativeGameplayTags.h"
+#include "Settings/GSS_CommonSettingsShared.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_InputSettingsProvider)
 
 #define LOCTEXT_NAMESPACE "GSS_InputSettingsProvider"
-
-FGSS_SettingValueAccessor UGSS_InputSettingsProvider::MakeSharedAccessor(FName Getter, FName Setter)
-{
-	FGSS_SettingValueAccessor Accessor;
-	Accessor.Source = EGSS_SettingValueSource::Shared;
-	Accessor.GetterFunction = Getter;
-	Accessor.SetterFunction = Setter;
-	return Accessor;
-}
 
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Input, "GSS.Settings.Input");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Input_MouseAndKeyboard, "GSS.Settings.Input.MouseAndKeyboard");
@@ -35,7 +27,7 @@ UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Input_Gamepad_DeadZone, "GSS.Sett
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Input_Gamepad_MoveStickDeadZone, "GSS.Settings.Input.Gamepad.DeadZone.MoveStick");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Input_Gamepad_LookStickDeadZone, "GSS.Settings.Input.Gamepad.DeadZone.LookStick");
 
-void UGSS_InputSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBuilder* Builder)
+void UGSS_InputSettingsProvider::RegisterSettings_Implementation(UGSS_GameSettingsBuilder* Builder)
 {
 	if (!Builder)
 	{
@@ -44,22 +36,22 @@ void UGSS_InputSettingsProvider::RegisterSettings_Implementation(UGSS_SettingsBu
 
 	UGSS_GameSetting* Screen = Builder->AddCollection(TAG_GSS_Settings_Input, LOCTEXT("Input", "Input"), LOCTEXT("InputDescription", "Configure mouse, keyboard and gamepad preferences."));
 	UGSS_GameSetting* MouseAndKeyboard = Builder->AddCollection(TAG_GSS_Settings_Input_MouseAndKeyboard, LOCTEXT("MouseAndKeyboard", "Mouse & Keyboard"), FText::GetEmpty(), Screen);
-	Builder->AddScalar(TAG_GSS_Settings_Input_MouseAndKeyboard_HorizontalSensitivity, LOCTEXT("MouseHorizontalSensitivity", "Horizontal Sensitivity"), LOCTEXT("MouseHorizontalSensitivityDescription", "Control horizontal mouse look sensitivity."), 1.0, 0.1, 10.0, 0.1, MakeSharedAccessor(TEXT("GetMouseHorizontalSensitivity"), TEXT("SetMouseHorizontalSensitivity")), MouseAndKeyboard);
-	Builder->AddScalar(TAG_GSS_Settings_Input_MouseAndKeyboard_VerticalSensitivity, LOCTEXT("MouseVerticalSensitivity", "Vertical Sensitivity"), LOCTEXT("MouseVerticalSensitivityDescription", "Control vertical mouse look sensitivity."), 1.0, 0.1, 10.0, 0.1, MakeSharedAccessor(TEXT("GetMouseVerticalSensitivity"), TEXT("SetMouseVerticalSensitivity")), MouseAndKeyboard);
-	Builder->AddBool(TAG_GSS_Settings_Input_MouseAndKeyboard_InvertVerticalAxis, LOCTEXT("MouseInvertVertical", "Invert Vertical Axis"), LOCTEXT("MouseInvertVerticalDescription", "Invert vertical mouse look."), false, MakeSharedAccessor(TEXT("GetInvertMouseVerticalAxis"), TEXT("SetInvertMouseVerticalAxis")), MouseAndKeyboard);
-	Builder->AddBool(TAG_GSS_Settings_Input_MouseAndKeyboard_InvertHorizontalAxis, LOCTEXT("MouseInvertHorizontal", "Invert Horizontal Axis"), LOCTEXT("MouseInvertHorizontalDescription", "Invert horizontal mouse look."), false, MakeSharedAccessor(TEXT("GetInvertMouseHorizontalAxis"), TEXT("SetInvertMouseHorizontalAxis")), MouseAndKeyboard);
+	Builder->AddScalar(TAG_GSS_Settings_Input_MouseAndKeyboard_HorizontalSensitivity, LOCTEXT("MouseHorizontalSensitivity", "Horizontal Sensitivity"), LOCTEXT("MouseHorizontalSensitivityDescription", "Control horizontal mouse look sensitivity."), 1.0, 0.1, 10.0, 0.1, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetMouseHorizontalSensitivity, SetMouseHorizontalSensitivity), MouseAndKeyboard);
+	Builder->AddScalar(TAG_GSS_Settings_Input_MouseAndKeyboard_VerticalSensitivity, LOCTEXT("MouseVerticalSensitivity", "Vertical Sensitivity"), LOCTEXT("MouseVerticalSensitivityDescription", "Control vertical mouse look sensitivity."), 1.0, 0.1, 10.0, 0.1, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetMouseVerticalSensitivity, SetMouseVerticalSensitivity), MouseAndKeyboard);
+	Builder->AddBool(TAG_GSS_Settings_Input_MouseAndKeyboard_InvertVerticalAxis, LOCTEXT("MouseInvertVertical", "Invert Vertical Axis"), LOCTEXT("MouseInvertVerticalDescription", "Invert vertical mouse look."), false, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetInvertMouseVerticalAxis, SetInvertMouseVerticalAxis), MouseAndKeyboard);
+	Builder->AddBool(TAG_GSS_Settings_Input_MouseAndKeyboard_InvertHorizontalAxis, LOCTEXT("MouseInvertHorizontal", "Invert Horizontal Axis"), LOCTEXT("MouseInvertHorizontalDescription", "Invert horizontal mouse look."), false, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetInvertMouseHorizontalAxis, SetInvertMouseHorizontalAxis), MouseAndKeyboard);
 
 	UGSS_GameSetting* Gamepad = Builder->AddCollection(TAG_GSS_Settings_Input_Gamepad, LOCTEXT("Gamepad", "Gamepad"), FText::GetEmpty(), Screen);
 	UGSS_GameSetting* Hardware = Builder->AddCollection(TAG_GSS_Settings_Input_Gamepad_Hardware, LOCTEXT("GamepadHardware", "Hardware"), FText::GetEmpty(), Gamepad);
-	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_Vibration, LOCTEXT("GamepadVibration", "Vibration"), LOCTEXT("GamepadVibrationDescription", "Enable controller vibration feedback."), true, MakeSharedAccessor(TEXT("GetGamepadVibration"), TEXT("SetGamepadVibration")), Hardware);
-	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_InvertVerticalAxis, LOCTEXT("GamepadInvertVertical", "Invert Vertical Axis"), LOCTEXT("GamepadInvertVerticalDescription", "Invert vertical gamepad look."), false, MakeSharedAccessor(TEXT("GetInvertGamepadVerticalAxis"), TEXT("SetInvertGamepadVerticalAxis")), Hardware);
-	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_InvertHorizontalAxis, LOCTEXT("GamepadInvertHorizontal", "Invert Horizontal Axis"), LOCTEXT("GamepadInvertHorizontalDescription", "Invert horizontal gamepad look."), false, MakeSharedAccessor(TEXT("GetInvertGamepadHorizontalAxis"), TEXT("SetInvertGamepadHorizontalAxis")), Hardware);
+	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_Vibration, LOCTEXT("GamepadVibration", "Vibration"), LOCTEXT("GamepadVibrationDescription", "Enable controller vibration feedback."), true, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetGamepadVibration, SetGamepadVibration), Hardware);
+	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_InvertVerticalAxis, LOCTEXT("GamepadInvertVertical", "Invert Vertical Axis"), LOCTEXT("GamepadInvertVerticalDescription", "Invert vertical gamepad look."), false, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetInvertGamepadVerticalAxis, SetInvertGamepadVerticalAxis), Hardware);
+	Builder->AddBool(TAG_GSS_Settings_Input_Gamepad_InvertHorizontalAxis, LOCTEXT("GamepadInvertHorizontal", "Invert Horizontal Axis"), LOCTEXT("GamepadInvertHorizontalDescription", "Invert horizontal gamepad look."), false, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetInvertGamepadHorizontalAxis, SetInvertGamepadHorizontalAxis), Hardware);
 	UGSS_GameSetting* Sensitivity = Builder->AddCollection(TAG_GSS_Settings_Input_Gamepad_Sensitivity, LOCTEXT("GamepadSensitivity", "Sensitivity"), FText::GetEmpty(), Gamepad);
-	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_LookSensitivity, LOCTEXT("GamepadLookSensitivity", "Look Sensitivity"), LOCTEXT("GamepadLookSensitivityDescription", "Control normal gamepad look sensitivity."), 1.0, 0.1, 10.0, 0.1, MakeSharedAccessor(TEXT("GetGamepadLookSensitivity"), TEXT("SetGamepadLookSensitivity")), Sensitivity);
-	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_AimSensitivity, LOCTEXT("GamepadAimSensitivity", "Aim Sensitivity"), LOCTEXT("GamepadAimSensitivityDescription", "Control aimed gamepad look sensitivity."), 1.0, 0.1, 10.0, 0.1, MakeSharedAccessor(TEXT("GetGamepadAimSensitivity"), TEXT("SetGamepadAimSensitivity")), Sensitivity);
+	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_LookSensitivity, LOCTEXT("GamepadLookSensitivity", "Look Sensitivity"), LOCTEXT("GamepadLookSensitivityDescription", "Control normal gamepad look sensitivity."), 1.0, 0.1, 10.0, 0.1, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetGamepadLookSensitivity, SetGamepadLookSensitivity), Sensitivity);
+	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_AimSensitivity, LOCTEXT("GamepadAimSensitivity", "Aim Sensitivity"), LOCTEXT("GamepadAimSensitivityDescription", "Control aimed gamepad look sensitivity."), 1.0, 0.1, 10.0, 0.1, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetGamepadAimSensitivity, SetGamepadAimSensitivity), Sensitivity);
 	UGSS_GameSetting* DeadZone = Builder->AddCollection(TAG_GSS_Settings_Input_Gamepad_DeadZone, LOCTEXT("GamepadDeadZone", "Controller Dead Zone"), FText::GetEmpty(), Gamepad);
-	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_MoveStickDeadZone, LOCTEXT("MoveStickDeadZone", "Left Stick Dead Zone"), LOCTEXT("MoveStickDeadZoneDescription", "Set the ignored range for the movement stick."), 0.1, 0.05, 0.95, 0.01, MakeSharedAccessor(TEXT("GetMoveStickDeadZone"), TEXT("SetMoveStickDeadZone")), DeadZone);
-	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_LookStickDeadZone, LOCTEXT("LookStickDeadZone", "Right Stick Dead Zone"), LOCTEXT("LookStickDeadZoneDescription", "Set the ignored range for the look stick."), 0.1, 0.05, 0.95, 0.01, MakeSharedAccessor(TEXT("GetLookStickDeadZone"), TEXT("SetLookStickDeadZone")), DeadZone);
+	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_MoveStickDeadZone, LOCTEXT("MoveStickDeadZone", "Left Stick Dead Zone"), LOCTEXT("MoveStickDeadZoneDescription", "Set the ignored range for the movement stick."), 0.1, 0.05, 0.95, 0.01, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetMoveStickDeadZone, SetMoveStickDeadZone), DeadZone);
+	Builder->AddScalar(TAG_GSS_Settings_Input_Gamepad_LookStickDeadZone, LOCTEXT("LookStickDeadZone", "Right Stick Dead Zone"), LOCTEXT("LookStickDeadZoneDescription", "Set the ignored range for the look stick."), 0.1, 0.05, 0.95, 0.01, GSS_MAKE_SHARED_ACCESSOR(UGSS_CommonSettingsShared, GetLookStickDeadZone, SetLookStickDeadZone), DeadZone);
 }
 
 #undef LOCTEXT_NAMESPACE

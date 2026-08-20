@@ -2,7 +2,7 @@
 
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
 
-#include "Settings/GSS_SettingsDefinition.h"
+#include "Settings/GSS_GameSettingsDefinitions.h"
 #include "UObject/WeakObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueScalarDynamic)

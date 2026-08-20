@@ -1,6 +1,6 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "SettingsUI/GSS_SettingsValueEntries.h"
+#include "SettingsUI/GSS_GameSettingsValueEntries.h"
 
 #include "AnalogSlider.h"
 #include "CommonButtonBase.h"
@@ -9,18 +9,25 @@
 #include "Settings/GSS_GameSettingCollection.h"
 #include "Settings/GSS_GameSettingValueDiscrete.h"
 #include "Settings/GSS_GameSettingValueScalar.h"
-#include "SettingsUI/GSS_SettingsRotator.h"
+#include "SettingsUI/GSS_GameSettingRotator.h"
 #include "Components/PanelWidget.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsValueEntries)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsValueEntries)
 
-TArray<FText> UGSS_SettingsListEntry_Discrete::GetOptions() const
+TArray<FText> UGSS_GameSettingListEntry_Discrete::GetOptions() const
 {
 	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptions();
 	return {};
 }
 
-void UGSS_SettingsListEntry_Discrete::NativeOnInitialized()
+void UGSS_GameSettingListEntry_Discrete::SetSetting(UGSS_GameSetting* InSetting)
+{
+	DiscreteSetting = Cast<UGSS_GameSettingValueDiscrete>(InSetting);
+	Super::SetSetting(InSetting);
+	RefreshDiscreteControl();
+}
+
+void UGSS_GameSettingListEntry_Discrete::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	if (Rotator_SettingValue)
@@ -37,28 +44,28 @@ void UGSS_SettingsListEntry_Discrete::NativeOnInitialized()
 	}
 }
 
-void UGSS_SettingsListEntry_Discrete::NativeOnEntryReleased()
+void UGSS_GameSettingListEntry_Discrete::NativeOnEntryReleased()
 {
 	DiscreteSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
-int32 UGSS_SettingsListEntry_Discrete::GetSelectedOptionIndex() const
+int32 UGSS_GameSettingListEntry_Discrete::GetSelectedOptionIndex() const
 {
 	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptionIndex();
 	return INDEX_NONE;
 }
-int32 UGSS_SettingsListEntry_Discrete::GetDefaultOptionIndex() const
+int32 UGSS_GameSettingListEntry_Discrete::GetDefaultOptionIndex() const
 {
 	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptionDefaultIndex();
 	return INDEX_NONE;
 }
-bool UGSS_SettingsListEntry_Discrete::SelectOption(int32 OptionIndex)
+bool UGSS_GameSettingListEntry_Discrete::SelectOption(int32 OptionIndex)
 {
 	if (UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting); Discrete && CanInteractWithSetting() && Discrete->GetDiscreteOptions().IsValidIndex(OptionIndex)) { Discrete->SetDiscreteOptionByIndex(OptionIndex); return true; }
 	return false;
 }
 
-void UGSS_SettingsListEntry_Discrete::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry_Discrete::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
 {
 	if (!bSuspendChangeUpdates)
 	{
@@ -67,7 +74,7 @@ void UGSS_SettingsListEntry_Discrete::HandleSettingChanged(UGSS_GameSetting* Cha
 	}
 }
 
-void UGSS_SettingsListEntry_Discrete::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Discrete::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
 {
 	DiscreteSetting = Cast<UGSS_GameSettingValueDiscrete>(Setting);
 	Super::HandleEditStateChanged(ChangedSetting);
@@ -79,7 +86,7 @@ void UGSS_SettingsListEntry_Discrete::HandleEditStateChanged(UGSS_GameSetting* C
 	if (Button_Increase) Button_Increase->SetIsEnabled(bEnabled);
 }
 
-void UGSS_SettingsListEntry_Discrete::RefreshDiscreteControl()
+void UGSS_GameSettingListEntry_Discrete::RefreshDiscreteControl()
 {
 	if (!DiscreteSetting || !Rotator_SettingValue)
 	{
@@ -92,7 +99,7 @@ void UGSS_SettingsListEntry_Discrete::RefreshDiscreteControl()
 	Rotator_SettingValue->SetDefaultOption(DiscreteSetting->GetDiscreteOptionDefaultIndex());
 }
 
-void UGSS_SettingsListEntry_Discrete::HandleOptionDecrease()
+void UGSS_GameSettingListEntry_Discrete::HandleOptionDecrease()
 {
 	if (Rotator_SettingValue && CanInteractWithSetting())
 	{
@@ -101,7 +108,7 @@ void UGSS_SettingsListEntry_Discrete::HandleOptionDecrease()
 	}
 }
 
-void UGSS_SettingsListEntry_Discrete::HandleOptionIncrease()
+void UGSS_GameSettingListEntry_Discrete::HandleOptionIncrease()
 {
 	if (Rotator_SettingValue && CanInteractWithSetting())
 	{
@@ -110,20 +117,27 @@ void UGSS_SettingsListEntry_Discrete::HandleOptionIncrease()
 	}
 }
 
-void UGSS_SettingsListEntry_Discrete::HandleRotatorChangedValue(int32 Value, bool bUserInitiated)
+void UGSS_GameSettingListEntry_Discrete::HandleRotatorChangedValue(int32 Value, bool bUserInitiated)
 {
 	if (bUserInitiated)
 	{
 		SelectOption(Value);
 	}
 }
-double UGSS_SettingsListEntry_Scalar::GetNormalizedValue() const
+double UGSS_GameSettingListEntry_Scalar::GetNormalizedValue() const
 {
 	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetValueNormalized();
 	return 0.0;
 }
 
-void UGSS_SettingsListEntry_Scalar::NativeOnInitialized()
+void UGSS_GameSettingListEntry_Scalar::SetSetting(UGSS_GameSetting* InSetting)
+{
+	ScalarSetting = Cast<UGSS_GameSettingValueScalar>(InSetting);
+	Super::SetSetting(InSetting);
+	RefreshScalarControl();
+}
+
+void UGSS_GameSettingListEntry_Scalar::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	if (Slider_SettingValue)
@@ -134,17 +148,17 @@ void UGSS_SettingsListEntry_Scalar::NativeOnInitialized()
 	}
 }
 
-void UGSS_SettingsListEntry_Scalar::NativeOnEntryReleased()
+void UGSS_GameSettingListEntry_Scalar::NativeOnEntryReleased()
 {
 	ScalarSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
-FText UGSS_SettingsListEntry_Scalar::GetFormattedValue() const
+FText UGSS_GameSettingListEntry_Scalar::GetFormattedValue() const
 {
 	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetFormattedText();
 	return FText::GetEmpty();
 }
-bool UGSS_SettingsListEntry_Scalar::GetDefaultNormalizedValue(double& OutValue) const
+bool UGSS_GameSettingListEntry_Scalar::GetDefaultNormalizedValue(double& OutValue) const
 {
 	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting); Scalar && Scalar->GetDefaultValueNormalized().IsSet())
 	{
@@ -154,18 +168,18 @@ bool UGSS_SettingsListEntry_Scalar::GetDefaultNormalizedValue(double& OutValue) 
 	OutValue = 0.0;
 	return false;
 }
-double UGSS_SettingsListEntry_Scalar::GetNormalizedStepSize() const
+double UGSS_GameSettingListEntry_Scalar::GetNormalizedStepSize() const
 {
 	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetNormalizedStepSize();
 	return 0.0;
 }
-bool UGSS_SettingsListEntry_Scalar::SetNormalizedValue(double Value)
+bool UGSS_GameSettingListEntry_Scalar::SetNormalizedValue(double Value)
 {
 	if (UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting); Scalar && CanInteractWithSetting()) { Scalar->SetValueNormalized(Value); return true; }
 	return false;
 }
 
-void UGSS_SettingsListEntry_Scalar::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry_Scalar::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
 {
 	if (!bSuspendChangeUpdates)
 	{
@@ -174,7 +188,7 @@ void UGSS_SettingsListEntry_Scalar::HandleSettingChanged(UGSS_GameSetting* Chang
 	}
 }
 
-void UGSS_SettingsListEntry_Scalar::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Scalar::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
 {
 	ScalarSetting = Cast<UGSS_GameSettingValueScalar>(Setting);
 	Super::HandleEditStateChanged(ChangedSetting);
@@ -184,7 +198,7 @@ void UGSS_SettingsListEntry_Scalar::HandleEditStateChanged(UGSS_GameSetting* Cha
 	if (Slider_SettingValue) Slider_SettingValue->SetIsEnabled(bEnabled);
 }
 
-void UGSS_SettingsListEntry_Scalar::RefreshScalarControl()
+void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl()
 {
 	if (!ScalarSetting)
 	{
@@ -202,11 +216,14 @@ void UGSS_SettingsListEntry_Scalar::RefreshScalarControl()
 		Text_SettingValue->SetText(ScalarSetting->GetFormattedText());
 	}
 	const TOptional<double> DefaultValue = ScalarSetting->GetDefaultValueNormalized();
-	OnScalarDefaultValueChanged(DefaultValue.IsSet() ? static_cast<float>(DefaultValue.GetValue()) : 0.0f, DefaultValue.IsSet());
-	OnScalarValueChanged(NormalizedValue);
+	if (DefaultValue.IsSet())
+	{
+		OnDefaultValueChanged(static_cast<float>(DefaultValue.GetValue()));
+	}
+	OnValueChanged(NormalizedValue);
 }
 
-void UGSS_SettingsListEntry_Scalar::HandleSliderValueChanged(float Value)
+void UGSS_GameSettingListEntry_Scalar::HandleSliderValueChanged(float Value)
 {
 	if (!CanInteractWithSetting())
 	{
@@ -220,16 +237,26 @@ void UGSS_SettingsListEntry_Scalar::HandleSliderValueChanged(float Value)
 	}
 }
 
-void UGSS_SettingsListEntry_Scalar::HandleSliderCaptureEnded()
+void UGSS_GameSettingListEntry_Scalar::HandleSliderCaptureEnded()
 {
 }
-FText UGSS_SettingsListEntry_Action::GetActionText() const
+FText UGSS_GameSettingListEntry_Action::GetActionText() const
 {
 	if (const UGSS_GameSettingAction* Action = Cast<UGSS_GameSettingAction>(Setting)) return Action->GetActionText();
 	return FText::GetEmpty();
 }
 
-void UGSS_SettingsListEntry_Action::NativeOnInitialized()
+void UGSS_GameSettingListEntry_Action::SetSetting(UGSS_GameSetting* InSetting)
+{
+	ActionSetting = Cast<UGSS_GameSettingAction>(InSetting);
+	Super::SetSetting(InSetting);
+	if (ActionSetting)
+	{
+		OnSettingAssigned(ActionSetting->GetActionText());
+	}
+}
+
+void UGSS_GameSettingListEntry_Action::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	if (Button_Action)
@@ -238,39 +265,49 @@ void UGSS_SettingsListEntry_Action::NativeOnInitialized()
 	}
 }
 
-void UGSS_SettingsListEntry_Action::NativeOnEntryReleased()
+void UGSS_GameSettingListEntry_Action::NativeOnEntryReleased()
 {
 	ActionSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
-bool UGSS_SettingsListEntry_Action::ExecuteAction()
+bool UGSS_GameSettingListEntry_Action::ExecuteAction()
 {
 	if (UGSS_GameSettingAction* Action = Cast<UGSS_GameSettingAction>(Setting); Action && CanInteractWithSetting()) { Action->ExecuteAction(); return true; }
 	return false;
 }
 
-void UGSS_SettingsListEntry_Action::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Action::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
 {
 	ActionSetting = Cast<UGSS_GameSettingAction>(Setting);
 	Super::HandleEditStateChanged(ChangedSetting);
 	if (ActionSetting)
 	{
-		OnActionSettingAssigned(ActionSetting->GetActionText());
+		OnSettingAssigned(ActionSetting->GetActionText());
 	}
 	if (Button_Action) Button_Action->SetIsEnabled(IsSettingEnabled());
 }
 
-void UGSS_SettingsListEntry_Action::HandleActionButtonClicked()
+void UGSS_GameSettingListEntry_Action::HandleActionButtonClicked()
 {
 	ExecuteAction();
 }
-FText UGSS_SettingsListEntry_Navigation::GetNavigationText() const
+FText UGSS_GameSettingListEntry_Navigation::GetNavigationText() const
 {
 	if (const UGSS_GameSettingCollectionPage* Page = Cast<UGSS_GameSettingCollectionPage>(Setting)) return Page->GetNavigationText();
 	return FText::GetEmpty();
 }
 
-void UGSS_SettingsListEntry_Navigation::NativeOnInitialized()
+void UGSS_GameSettingListEntry_Navigation::SetSetting(UGSS_GameSetting* InSetting)
+{
+	CollectionSetting = Cast<UGSS_GameSettingCollectionPage>(InSetting);
+	Super::SetSetting(InSetting);
+	if (CollectionSetting)
+	{
+		OnSettingAssigned(CollectionSetting->GetNavigationText());
+	}
+}
+
+void UGSS_GameSettingListEntry_Navigation::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	if (Button_Navigate)
@@ -279,29 +316,29 @@ void UGSS_SettingsListEntry_Navigation::NativeOnInitialized()
 	}
 }
 
-void UGSS_SettingsListEntry_Navigation::NativeOnEntryReleased()
+void UGSS_GameSettingListEntry_Navigation::NativeOnEntryReleased()
 {
 	CollectionSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
-bool UGSS_SettingsListEntry_Navigation::Navigate()
+bool UGSS_GameSettingListEntry_Navigation::Navigate()
 {
 	if (UGSS_GameSettingCollectionPage* Page = Cast<UGSS_GameSettingCollectionPage>(Setting); Page && CanInteractWithSetting()) { Page->ExecuteNavigation(); return true; }
 	return false;
 }
 
-void UGSS_SettingsListEntry_Navigation::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Navigation::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
 {
 	CollectionSetting = Cast<UGSS_GameSettingCollectionPage>(Setting);
 	Super::HandleEditStateChanged(ChangedSetting);
 	if (CollectionSetting)
 	{
-		OnNavigationSettingAssigned(CollectionSetting->GetNavigationText());
+		OnSettingAssigned(CollectionSetting->GetNavigationText());
 	}
 	if (Button_Navigate) Button_Navigate->SetIsEnabled(IsSettingEnabled());
 }
 
-void UGSS_SettingsListEntry_Navigation::HandleNavigationButtonClicked()
+void UGSS_GameSettingListEntry_Navigation::HandleNavigationButtonClicked()
 {
 	Navigate();
 }

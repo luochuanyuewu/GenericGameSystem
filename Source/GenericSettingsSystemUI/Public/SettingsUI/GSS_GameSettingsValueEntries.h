@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "SettingsUI/GSS_SettingsListEntry.h"
+#include "SettingsUI/GSS_GameSettingListEntry.h"
 
-#include "GSS_SettingsValueEntries.generated.h"
+#include "GSS_GameSettingsValueEntries.generated.h"
 
 class UAnalogSlider;
 class UCommonButtonBase;
@@ -13,16 +13,17 @@ class UGSS_GameSettingAction;
 class UGSS_GameSettingCollectionPage;
 class UGSS_GameSettingValueDiscrete;
 class UGSS_GameSettingValueScalar;
-class UGSS_SettingsRotator;
+class UGSS_GameSettingRotator;
 class UPanelWidget;
 
 /** Blueprint base for a discrete (including bool) GSS setting row. / 离散值（包括布尔值）GSS 设置行的蓝图基类。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsListEntry_Discrete : public UGSS_SettingsListEntry
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Discrete : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
 
 public:
+	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnEntryReleased() override;
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
@@ -52,7 +53,7 @@ protected:
 	TObjectPtr<UPanelWidget> Panel_Value;
 	/** Optional CommonUI selector for discrete options. / 离散选项的可选 CommonUI 选择器。 */
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
-	TObjectPtr<UGSS_SettingsRotator> Rotator_SettingValue;
+	TObjectPtr<UGSS_GameSettingRotator> Rotator_SettingValue;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UCommonButtonBase> Button_Decrease;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
@@ -61,11 +62,12 @@ protected:
 
 /** Blueprint base for a scalar GSS setting row. / 标量 GSS 设置行的蓝图基类。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsListEntry_Scalar : public UGSS_SettingsListEntry
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Scalar : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
 
 public:
+	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnEntryReleased() override;
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
@@ -90,10 +92,9 @@ protected:
 
 	/** Called after the native slider has refreshed its normalized value. / 原生滑块刷新归一化值后调用。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnScalarValueChanged(float Value);
-	/** Called after the native slider has refreshed its default value. / 原生滑块刷新默认值后调用。 */
+	void OnValueChanged(float Value);
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnScalarDefaultValueChanged(float DefaultValue, bool bHasDefaultValue);
+	void OnDefaultValueChanged(float DefaultValue);
 
 	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingValueScalar> ScalarSetting;
@@ -107,11 +108,12 @@ protected:
 
 /** Blueprint base for a command GSS setting row. / 命令型 GSS 设置行的蓝图基类。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsListEntry_Action : public UGSS_SettingsListEntry
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Action : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
 
 public:
+	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnEntryReleased() override;
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
@@ -124,18 +126,19 @@ protected:
 	void HandleActionButtonClicked();
 	/** Called when the row receives an Action setting, so Blueprint can populate Button_Action text. / 行接收 Action 设置时调用，供蓝图填充 Button_Action 文本。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnActionSettingAssigned(const FText& ActionText);
+	void OnSettingAssigned(const FText& ActionText);
 	UPROPERTY(Transient) TObjectPtr<UGSS_GameSettingAction> ActionSetting;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") TObjectPtr<UCommonButtonBase> Button_Action;
 };
 
 /** Blueprint base for a navigable GSS settings page row. / 可导航 GSS 设置页面行的蓝图基类。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsListEntry_Navigation : public UGSS_SettingsListEntry
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Navigation : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
 
 public:
+	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnEntryReleased() override;
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings UI")
@@ -148,7 +151,7 @@ protected:
 	void HandleNavigationButtonClicked();
 	/** Called when the row receives a page setting, so Blueprint can populate Button_Navigate text. / 行接收页面设置时调用，供蓝图填充 Button_Navigate 文本。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnNavigationSettingAssigned(const FText& NavigationText);
+	void OnSettingAssigned(const FText& ActionText);
 	UPROPERTY(Transient) TObjectPtr<UGSS_GameSettingCollectionPage> CollectionSetting;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") TObjectPtr<UCommonButtonBase> Button_Navigate;
 };

@@ -4,14 +4,14 @@
 
 #include "UI/Common/GUIS_WidgetFactory.h"
 
-#include "GSS_SettingsEntryWidgetFactory.generated.h"
+#include "GSS_GameSettingsEntryWidgetFactory.generated.h"
 
-class UGSS_SettingsListEntry;
+class UGSS_GameSettingListEntry;
 class UGSS_GameSetting;
 
 /** Maps GSS runtime setting classes to Blueprint entry widgets. / 将 GSS 运行时设置类映射到蓝图条目 Widget。 */
 UCLASS(NotBlueprintable, BlueprintType)
-class GENERICSETTINGSSYSTEMUI_API UGSS_SettingsEntryWidgetFactory : public UGUIS_WidgetFactory
+class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingsEntryWidgetFactory : public UGUIS_WidgetFactory
 {
 	GENERATED_BODY()
 
@@ -21,5 +21,5 @@ public:
 protected:
 	/** Most-specific matching setting class wins. / 最具体的匹配设置类优先。 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings UI",meta = (AllowAbstract))
-	TMap<TSubclassOf<UGSS_GameSetting>, TSoftClassPtr<UGSS_SettingsListEntry>> EntryClasses;
+	TMap<TSubclassOf<UGSS_GameSetting>, TSoftClassPtr<UGSS_GameSettingListEntry>> EntryClasses;
 };

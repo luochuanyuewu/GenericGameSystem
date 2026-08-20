@@ -6,7 +6,7 @@
 #include "Settings/GSS_GameSettingRegistry.h"
 #include "Settings/GSS_GameSettingValueDiscrete_Language.h"
 #include "Settings/GSS_LanguageSettingsProvider.h"
-#include "Settings/GSS_SettingsProvider.h"
+#include "Settings/GSS_GameSettingsProvider.h"
 #include "Settings/GSS_VideoSettingsProvider.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGSS_CommonVideoInclusionTest, "GSS.Settings.Common.VideoInclusion", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -14,7 +14,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGSS_CommonVideoInclusionTest, "GSS.Settings.Co
 bool FGSS_CommonVideoInclusionTest::RunTest(const FString& Parameters)
 {
 	UGSS_GameSettingRegistry* Registry = NewObject<UGSS_GameSettingRegistry>();
-	UGSS_SettingsBuilder* Builder = NewObject<UGSS_SettingsBuilder>();
+	UGSS_GameSettingsBuilder* Builder = NewObject<UGSS_GameSettingsBuilder>();
 	Builder->Initialize(nullptr, Registry);
 
 	UGSS_VideoSettingsProvider* Provider = NewObject<UGSS_VideoSettingsProvider>();
@@ -44,7 +44,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGSS_CommonLanguageProviderTest, "GSS.Settings.
 bool FGSS_CommonLanguageProviderTest::RunTest(const FString& Parameters)
 {
 	UGSS_GameSettingRegistry* Registry = NewObject<UGSS_GameSettingRegistry>();
-	UGSS_SettingsBuilder* Builder = NewObject<UGSS_SettingsBuilder>();
+	UGSS_GameSettingsBuilder* Builder = NewObject<UGSS_GameSettingsBuilder>();
 	Builder->Initialize(nullptr, Registry);
 
 	UGSS_LanguageSettingsProvider* Provider = NewObject<UGSS_LanguageSettingsProvider>();
