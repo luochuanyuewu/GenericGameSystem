@@ -172,6 +172,10 @@ void UGSS_GameSettingsSubsystem::LoadSharedSettings()
 	const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>();
 	SharedSettings = Cast<UGSS_SettingsShared>(ULocalPlayerSaveGame::LoadOrCreateSaveGameForLocalPlayer(
 		Settings->ResolveSharedSettingsClass(), GetLocalPlayer(), Settings->SharedSettingsSlotName));
+	if (SharedSettings)
+	{
+		SharedSettings->ApplySettings();
+	}
 }
 
 void UGSS_GameSettingsSubsystem::BuildDefinitions(UGSS_GameSettingsDefinitionAsset* DefinitionAsset)

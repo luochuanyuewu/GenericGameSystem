@@ -3,6 +3,7 @@
 #include "Settings/GSS_GameSettingRegistryChangeTracker.h"
 
 #include "Settings/GSS_GameSettingRegistry.h"
+#include "Settings/GSS_GameSetting.h"
 #include "Settings/GSS_GameSettingValue.h"
 
 #define LOCTEXT_NAMESPACE "GSS_GameSetting"
@@ -90,10 +91,38 @@ void FGSS_GameSettingRegistryChangeTracker::RestoreToInitial()
 
 void FGSS_GameSettingRegistryChangeTracker::DiscardSetting(UGSS_GameSetting* Setting)
 {
-	if (Setting)
+	if (!Setting)
 	{
+		return;
+	}
+
+	{
+		TGuardValue<bool> LocalGuard(bRestoringSettings, true);
+		DiscardSettingTree(Setting);
+	}
+
+	bSettingsChanged = DirtySettings.Num() > 0;
+}
+
+void FGSS_GameSettingRegistryChangeTracker::DiscardSettingTree(UGSS_GameSetting* Setting)
+{
+	if (!Setting)
+	{
+		return;
+	}
+
+	for (UGSS_GameSetting* Child : Setting->GetChildSettings())
+	{
+		DiscardSettingTree(Child);
+	}
+
+	if (DirtySettings.Contains(FObjectKey(Setting)))
+	{
+		if (UGSS_GameSettingValue* SettingValue = Cast<UGSS_GameSettingValue>(Setting))
+		{
+			SettingValue->RestoreToInitial();
+		}
 		DirtySettings.Remove(FObjectKey(Setting));
-		bSettingsChanged = DirtySettings.Num() > 0;
 	}
 }
 

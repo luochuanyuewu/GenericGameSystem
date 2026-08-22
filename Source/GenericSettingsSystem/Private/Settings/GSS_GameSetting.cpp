@@ -208,6 +208,7 @@ void UGSS_GameSetting::AddEditCondition(UGSS_GameSettingEditCondition* InEditCon
 		if (LocalPlayer)
 		{
 			InEditCondition->InitializeCondition(this);
+			RefreshEditableState();
 		}
 	}
 }

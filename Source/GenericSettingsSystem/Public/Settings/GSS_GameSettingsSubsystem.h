@@ -90,7 +90,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void CancelChanges();
 
-	/** Reloads Shared Settings and refreshes registered values from their Accessors. Pending edits are discarded. / 重新加载 Shared Settings 并从 Accessor 刷新已注册值；待应用修改会被丢弃。 */
+	/** Reloads Shared Settings, applies stored preferences, and refreshes registered values from their Accessors. Pending edits are discarded. / 重新加载 Shared Settings、应用已存偏好，并从 Accessor 刷新已注册值；待应用修改会被丢弃。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void Reload();
 
@@ -98,7 +98,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	FGSS_SettingsRegistrationHandle RegisterSettingsProvider(UGSS_GameSettingsProvider* Provider);
 
-	/** Removes every setting created by the registration token and discards their pending edits. / 移除该令牌创建的全部设置，并丢弃它们的待应用修改。 */
+	/** Removes every setting created by the registration token and restores then discards their pending edits. / 移除该令牌创建的全部设置，先恢复再丢弃它们的待应用修改。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void UnregisterSettingsProvider(FGSS_SettingsRegistrationHandle Handle);
 

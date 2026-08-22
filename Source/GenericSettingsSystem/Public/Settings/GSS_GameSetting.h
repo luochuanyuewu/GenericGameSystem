@@ -160,7 +160,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	const FGSS_GameSettingEditableState& GetEditState() const { return EditableStateCache; }
 
-	/** Adds an edit condition that controls this node's visibility, availability or options. / 添加控制节点可见性、可用性或选项的编辑条件。 */
+	/**
+	 * Adds an edit condition that controls this node's visibility, availability or options.
+	 * Safe before or after Initialize: a live node initializes the condition and recomputes EditableState immediately.
+	 * 添加控制节点可见性、可用性或选项的编辑条件。
+	 * 在 Initialize 前后都可以调用；节点已初始化时会立刻初始化该条件并重算 EditableState。
+	 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void AddEditCondition(UGSS_GameSettingEditCondition* InEditCondition);
 

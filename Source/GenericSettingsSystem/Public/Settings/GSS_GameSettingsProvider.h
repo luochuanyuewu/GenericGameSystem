@@ -16,7 +16,9 @@ class UGSS_GameSettingDefinition;
  * 使用与 Data Asset 相同的 Definition 对象构建运行时设置。
  *
  * Builders are supplied only while a provider is registering; do not cache them for later use.
+ * Add* returns a live node; extra AddEditCondition / AddEditDependency calls after that are supported.
  * Builder 仅在 Provider 注册期间有效，不应缓存后续使用。
+ * Add* 返回已登记的节点；之后继续 AddEditCondition / AddEditDependency 是支持的。
  */
 UCLASS(BlueprintType)
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingsBuilder : public UObject
@@ -30,11 +32,10 @@ public:
 	UGSS_GameSetting* AddDefinition(const UGSS_GameSettingDefinition* Definition, UGSS_GameSetting* Parent = nullptr);
 	/**
 	 * Registers a purpose-built runtime node with this Provider's ownership and lifecycle tracking.
-	 * 使用本 Provider 的所有权与生命周期跟踪注册专用运行时节点。
-	 *
 	 * Use this only when a setting needs behavior beyond the standard Builder node types, such as runtime display
 	 * enumeration or an external-device integration. The caller must configure a valid, globally unique SettingId,
 	 * developer name and display name before registration.
+	 * 使用本 Provider 的所有权与生命周期跟踪注册专用运行时节点。
 	 * 仅当设置需要超出标准 Builder 节点类型的行为时使用，例如运行时显示器枚举或外部设备集成。
 	 * 调用方必须在注册前配置有效且全局唯一的 SettingId、开发者名称与显示名称。
 	 */

@@ -35,7 +35,12 @@ public:
 	/** Restores all dirty values to their last stored initial value and clears dirty state. / 将全部脏值恢复为最后记录的初始值并清除脏状态。 */
 	void RestoreToInitial();
 
-	/** Removes a setting that is no longer part of the registry from the pending apply set. / 从待应用集合中移除已不属于 Registry 的设置。 */
+	/**
+	 * Restores this setting and its descendants if they are dirty, then forgets them from the pending set.
+	 * Matches Cancel for live writes so unregistering a provider does not leave orphaned dirty children.
+	 * 若该设置及其后代仍脏，则恢复为初始值，再从待应用集合中移除。
+	 * 与 Cancel 一样回滚即时写入，避免注销 Provider 后留下孤儿脏子节点。
+	 */
 	void DiscardSetting(UGSS_GameSetting* Setting);
 
 	/** Clears every pending change without writing or restoring values. / 不写入也不恢复值，直接清除全部待应用状态。 */
@@ -46,6 +51,7 @@ public:
 
 private:
 	void HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
+	void DiscardSettingTree(UGSS_GameSetting* Setting);
 
 	bool bSettingsChanged = false;
 	bool bRestoringSettings = false;

@@ -65,6 +65,7 @@
 - 修改 UI 逻辑时，同时检查子系统、Policy、Layout、Widget、输入路由和 CommonUI 激活/出栈行为。
 - 修改相机逻辑时，同时检查 Camera Mode、Mode Stack、Blend、第三人称碰撞/穿透规避和控制输入。
 - 修改交互、布娃娃、Smart Objects 或 Targeting 时，明确网络权限、Owner-only 行为、服务器/客户端职责和编辑器暴露方式。
+- 修改设置树时，`AddEditCondition` 在 Initialize 之后也应立刻刷新 EditableState。Shared Settings 加载后会立刻 `ApplySettings`。注销 Provider 时要整树恢复脏值。
 
 ## 常用入口
 
