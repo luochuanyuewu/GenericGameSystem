@@ -15,7 +15,7 @@ struct FContentControlsRules;
 // UGSS_GameSettingValueDiscreteDynamic
 //////////////////////////////////////////////////////////////////////////
 
-/** String-backed discrete value populated at runtime and committed through an Accessor. / 在运行时填充、并通过 Accessor 提交的字符串离散值。 */
+/** String-backed discrete value populated at runtime and written through an Accessor immediately. / 在运行时填充、变更时立即通过 Accessor 写入的字符串离散值。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueDiscreteDynamic : public UGSS_GameSettingValueDiscrete
 {
@@ -34,7 +34,7 @@ public:
 	virtual int32 GetDiscreteOptionDefaultIndex() const override;
 	virtual TArray<FText> GetDiscreteOptions() const override;
 
-	/** Assigns the bridge used to load and commit the serialized value. / 指定用于加载与提交序列化值的桥接。 */
+	/** Assigns the bridge used to read and write the serialized value immediately. / 指定用于立即读写序列化值的桥接。 */
 	void SetAccessor(const FGSS_SettingValueAccessor& InAccessor);
 	/** Sets the fallback value used when Accessor has no applied value. / 设置 Accessor 无已应用值时使用的回退值。 */
 	void SetDefaultValueFromString(FString InOptionValue);
@@ -48,19 +48,20 @@ public:
 	/** Returns whether the serialized option exists. / 返回该序列化选项是否存在。 */
 	bool HasDynamicOption(const FString& InOptionValue);
 
-	/** Returns the pending serialized value for immediate preview. / 返回可即时预览的待应用序列化值。 */
-	FString GetValueAsString() const;
-	/** Changes the pending serialized value; Apply commits it through its Accessor. / 修改待应用序列化值；Apply 会通过 Accessor 提交。 */
+	/** Returns the current serialized value from the Accessor. / 从 Accessor 返回当前序列化值。 */
+	virtual FString GetValueAsString() const;
+	/** Writes the serialized value through the Accessor immediately. / 立即通过 Accessor 写入序列化值。 */
 	void SetValueFromString(FString InStringValue);
 
 protected:
-	void SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason);
+	virtual void SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason);
 
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-	virtual void OnApply() override;
 
 	bool AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const;
+	/** Maps a serialized token onto the authored option spelling. / 将序列化记号映射为已编写的选项拼写。 */
+	FString ResolveOptionValue(const FString& InStringValue) const;
 	/** Returns raw option indices which remain available after edit-condition evaluation. / 返回编辑条件评估后仍可用的原始选项索引。 */
 	TArray<int32> GetEnabledOptionIndices() const;
 	/** Maps a raw option index to its visible UI index. / 将原始选项索引映射为可见 UI 索引。 */
@@ -71,7 +72,6 @@ protected:
 
 	TOptional<FString> DefaultValue;
 	FString InitialValue;
-	FString PendingValue;
 
 	TArray<FString> OptionValues;
 	TArray<FText> OptionDisplayTexts;

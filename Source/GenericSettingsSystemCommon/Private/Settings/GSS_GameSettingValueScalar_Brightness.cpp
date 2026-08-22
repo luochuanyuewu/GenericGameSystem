@@ -39,16 +39,24 @@ void UGSS_GameSettingValueScalar_Brightness::OnInitialized()
 
 void UGSS_GameSettingValueScalar_Brightness::StoreInitial()
 {
-	const float CurrentGamma = GEngine ? GEngine->DisplayGamma : GSS_Brightness::DefaultGamma;
-	InitialValue = CurrentGamma;
-	PendingValue = InitialValue;
+	InitialValue = GetValue();
+}
+
+double UGSS_GameSettingValueScalar_Brightness::GetValue() const
+{
+	return GEngine ? GEngine->DisplayGamma : DefaultValue.Get(GSS_Brightness::DefaultGamma);
+}
+
+void UGSS_GameSettingValueScalar_Brightness::SetValue(double InValue, EGSS_GameSettingChangeReason Reason)
+{
+	InValue = SanitizeSourceValue(InValue);
+	ApplyGamma(static_cast<float>(InValue));
+	NotifySettingChanged(Reason);
 }
 
 void UGSS_GameSettingValueScalar_Brightness::OnApply()
 {
-	const float Gamma = static_cast<float>(PendingValue);
-	ApplyGamma(Gamma);
-	SaveGamma(Gamma);
+	SaveGamma(static_cast<float>(GetValue()));
 }
 
 bool UGSS_GameSettingValueScalar_Brightness::TryLoadSavedGamma(float& OutGamma)

@@ -2,6 +2,7 @@
 
 #include "Settings/GSS_GameSettingValueDiscrete_Language.h"
 
+#include "Settings/GSS_GameSettingFilterState.h"
 #include "Settings/GSS_GameSettingValue.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
@@ -16,54 +17,80 @@ namespace GSS_Language
 {
 	static const TCHAR* ConfigSection = TEXT("Internationalization");
 	static const TCHAR* ConfigKey = TEXT("Culture");
-	static const TCHAR* SystemDefaultValue = TEXT("");
+	static constexpr int32 SystemDefaultIndex = 0;
 }
 
 void UGSS_GameSettingValueDiscrete_Language::OnInitialized()
 {
 	RefreshCultureOptions();
-	SetDefaultValueFromString(GSS_Language::SystemDefaultValue);
-	UGSS_GameSettingValue::OnInitialized();
+	Super::OnInitialized();
 }
 
 void UGSS_GameSettingValueDiscrete_Language::RefreshCultureOptions()
 {
-	const TArray<FString> ExistingOptions = GetDynamicOptions();
-	for (const FString& Option : ExistingOptions)
-	{
-		RemoveDynamicOption(Option);
-	}
-
-	AddDynamicOption(GSS_Language::SystemDefaultValue, BuildCultureDisplayName(GSS_Language::SystemDefaultValue));
+	AvailableCultureNames.Reset();
+	AvailableCultureNames.Add(FString());
 
 	const TArray<FString> AllCultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Game);
 	for (const FString& CultureName : AllCultureNames)
 	{
-		if (FInternationalization::Get().IsCultureAllowed(CultureName) && !HasDynamicOption(CultureName))
+		if (FInternationalization::Get().IsCultureAllowed(CultureName) && !AvailableCultureNames.Contains(CultureName))
 		{
-			AddDynamicOption(CultureName, BuildCultureDisplayName(CultureName));
+			AvailableCultureNames.Add(CultureName);
 		}
 	}
 }
 
 void UGSS_GameSettingValueDiscrete_Language::StoreInitial()
 {
-	InitialValue = IsUsingDefaultCulture() ? FString(GSS_Language::SystemDefaultValue) : GetCurrentCultureName();
+	InitialValue = IsUsingDefaultCulture() ? FString() : GetCurrentCultureName();
 	if (const int32 MatchingIndex = FindBestOptionIndex(InitialValue); MatchingIndex != INDEX_NONE)
 	{
-		InitialValue = OptionValues[MatchingIndex];
+		InitialValue = AvailableCultureNames[MatchingIndex];
 	}
-	PendingValue = InitialValue;
+	PendingCulture = InitialValue;
+}
+
+void UGSS_GameSettingValueDiscrete_Language::ResetToDefault()
+{
+	SetDiscreteOptionByIndex(GSS_Language::SystemDefaultIndex);
+}
+
+void UGSS_GameSettingValueDiscrete_Language::RestoreToInitial()
+{
+	PendingCulture = InitialValue;
+	NotifySettingChanged(EGSS_GameSettingChangeReason::RestoreToInitial);
+}
+
+void UGSS_GameSettingValueDiscrete_Language::SetDiscreteOptionByIndex(int32 Index)
+{
+	if (AvailableCultureNames.IsValidIndex(Index))
+	{
+		PendingCulture = AvailableCultureNames[Index];
+		NotifySettingChanged(EGSS_GameSettingChangeReason::Change);
+	}
 }
 
 int32 UGSS_GameSettingValueDiscrete_Language::GetDiscreteOptionIndex() const
 {
-	const int32 MatchingIndex = FindBestOptionIndex(GetValueAsString());
-	if (MatchingIndex != INDEX_NONE)
+	const int32 MatchingIndex = FindBestOptionIndex(PendingCulture);
+	return MatchingIndex != INDEX_NONE ? MatchingIndex : GetDiscreteOptionDefaultIndex();
+}
+
+int32 UGSS_GameSettingValueDiscrete_Language::GetDiscreteOptionDefaultIndex() const
+{
+	return GSS_Language::SystemDefaultIndex;
+}
+
+TArray<FText> UGSS_GameSettingValueDiscrete_Language::GetDiscreteOptions() const
+{
+	TArray<FText> Options;
+	Options.Reserve(AvailableCultureNames.Num());
+	for (const FString& CultureName : AvailableCultureNames)
 	{
-		return GetEnabledOptionIndex(MatchingIndex);
+		Options.Add(BuildCultureDisplayName(CultureName));
 	}
-	return GetDiscreteOptionDefaultIndex();
+	return Options;
 }
 
 void UGSS_GameSettingValueDiscrete_Language::OnApply()
@@ -73,7 +100,7 @@ void UGSS_GameSettingValueDiscrete_Language::OnApply()
 		return;
 	}
 
-	if (PendingValue.IsEmpty())
+	if (PendingCulture.IsEmpty())
 	{
 		const FCulturePtr SystemDefaultCulture = FInternationalization::Get().GetDefaultCulture();
 		if (!SystemDefaultCulture.IsValid() || !FInternationalization::Get().SetCurrentCulture(SystemDefaultCulture->GetName()))
@@ -86,12 +113,12 @@ void UGSS_GameSettingValueDiscrete_Language::OnApply()
 		return;
 	}
 
-	if (!FInternationalization::Get().SetCurrentCulture(PendingValue))
+	if (!FInternationalization::Get().SetCurrentCulture(PendingCulture))
 	{
 		return;
 	}
 
-	GConfig->SetString(GSS_Language::ConfigSection, GSS_Language::ConfigKey, *PendingValue, GGameUserSettingsIni);
+	GConfig->SetString(GSS_Language::ConfigSection, GSS_Language::ConfigKey, *PendingCulture, GGameUserSettingsIni);
 	GConfig->Flush(false, GGameUserSettingsIni);
 }
 
@@ -134,10 +161,7 @@ FText UGSS_GameSettingValueDiscrete_Language::BuildCultureDisplayName(const FStr
 
 int32 UGSS_GameSettingValueDiscrete_Language::FindBestOptionIndex(const FString& CultureName) const
 {
-	const int32 ExactMatchIndex = OptionValues.IndexOfByPredicate([this, &CultureName](const FString& Option)
-	{
-		return AreOptionsEqual(CultureName, Option);
-	});
+	const int32 ExactMatchIndex = AvailableCultureNames.IndexOfByKey(CultureName);
 	if (ExactMatchIndex != INDEX_NONE)
 	{
 		return ExactMatchIndex;
@@ -149,9 +173,9 @@ int32 UGSS_GameSettingValueDiscrete_Language::FindBestOptionIndex(const FString&
 	}
 
 	const TArray<FString> PrioritizedCultures = FInternationalization::Get().GetPrioritizedCultureNames(CultureName);
-	for (int32 OptionIndex = 0; OptionIndex < OptionValues.Num(); ++OptionIndex)
+	for (int32 OptionIndex = 0; OptionIndex < AvailableCultureNames.Num(); ++OptionIndex)
 	{
-		if (!OptionValues[OptionIndex].IsEmpty() && PrioritizedCultures.Contains(OptionValues[OptionIndex]))
+		if (!AvailableCultureNames[OptionIndex].IsEmpty() && PrioritizedCultures.Contains(AvailableCultureNames[OptionIndex]))
 		{
 			return OptionIndex;
 		}

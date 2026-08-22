@@ -96,19 +96,20 @@ public:
 		InvalidateSearchableText();
 	}
 
+#if !UE_BUILD_SHIPPING
 	/** Development-only convenience overload for non-localized text. / 仅开发版本可用的非本地化文本便捷重载。 */
-	/** Returns arbitrary tags used by callers or UI filtering. / 返回供调用方或 UI 筛选使用的任意标签。 */
-	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void SetDescriptionRichText(const FString& Value) { SetDescriptionRichText(FText::FromString(Value)); }
+#endif
 
-	/** Adds an arbitrary metadata tag. / 添加任意元数据标签。 */
+	/** Returns arbitrary tags used by callers or UI filtering. / 返回供调用方或 UI 筛选使用的任意标签。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	const FGameplayTagContainer& GetTags() const { return Tags; }
 
-	/** Sets the owning Registry; normally performed during registration. / 设置所属 Registry；通常在注册期间完成。 */
+	/** Adds an arbitrary metadata tag. / 添加任意元数据标签。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void AddTag(const FGameplayTag& TagToAdd) { Tags.AddTag(TagToAdd); }
 
+	/** Sets the owning Registry; normally performed during registration. / 设置所属 Registry；通常在注册期间完成。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void SetRegistry(UGSS_GameSettingRegistry* InOwningRegistry) { OwningRegistry = InOwningRegistry; }
 
@@ -147,8 +148,10 @@ public:
 		InvalidateSearchableText();
 	}
 
+#if !UE_BUILD_SHIPPING
 	/** Development-only convenience overload for non-localized warning text. / 仅开发版本可用的非本地化警告文本便捷重载。 */
 	void SetWarningRichText(const FString& Value) { SetWarningRichText(FText::FromString(Value)); }
+#endif
 
 	/**
 	 * Gets the cached native editable state computed from edit conditions.
@@ -185,7 +188,11 @@ public:
 	 */
 	void RefreshEditableState(bool bNotifyEditConditionsChanged = true);
 
-	/** Applies this node's pending change. / 应用此节点的待应用修改。 */
+	/** Applies this node's pending change. / 应用此节点的待应用修改。
+	 * We expect settings to change the live value immediately, but occasionally there are special settings
+	 * that go are immediately stored to a temporary location but we don't actually apply them until later
+	 * like selecting a new resolution.
+	 */
 	void Apply();
 
 	/** Gets the current world of the owning LocalPlayer. / 获取所属 LocalPlayer 当前所在的世界。 */

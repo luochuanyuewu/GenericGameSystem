@@ -5,6 +5,7 @@
 #include "DynamicRHI.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Settings/GSS_GameSettingFilterState.h"
 #include "Settings/GSS_GameSettingValue.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueDiscrete_Resolution)
@@ -17,7 +18,7 @@ FString UGSS_GameSettingValueDiscrete_Resolution::ToResolutionValue(const FIntPo
 void UGSS_GameSettingValueDiscrete_Resolution::OnInitialized()
 {
 	RefreshResolutionOptions();
-	UGSS_GameSettingValue::OnInitialized();
+	Super::OnInitialized();
 }
 
 void UGSS_GameSettingValueDiscrete_Resolution::OnDependencyChanged()
@@ -31,7 +32,6 @@ void UGSS_GameSettingValueDiscrete_Resolution::StoreInitial()
 	if (const UGameUserSettings* Settings = GEngine ? GEngine->GetGameUserSettings() : nullptr)
 	{
 		InitialValue = ToResolutionValue(Settings->GetScreenResolution());
-		PendingValue = InitialValue;
 	}
 }
 
@@ -42,35 +42,61 @@ void UGSS_GameSettingValueDiscrete_Resolution::ResetToDefault()
 
 void UGSS_GameSettingValueDiscrete_Resolution::RestoreToInitial()
 {
-	SetValueFromString(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
+	SetResolutionFromValue(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
 }
 
-void UGSS_GameSettingValueDiscrete_Resolution::OnApply()
+void UGSS_GameSettingValueDiscrete_Resolution::SetDiscreteOptionByIndex(int32 Index)
+{
+	if (OptionValues.IsValidIndex(Index))
+	{
+		SetResolutionFromValue(OptionValues[Index], EGSS_GameSettingChangeReason::Change);
+	}
+}
+
+int32 UGSS_GameSettingValueDiscrete_Resolution::GetDiscreteOptionIndex() const
+{
+	if (const UGameUserSettings* Settings = GEngine ? GEngine->GetGameUserSettings() : nullptr)
+	{
+		const int32 MatchingIndex = FindOptionIndex(ToResolutionValue(Settings->GetScreenResolution()));
+		if (MatchingIndex != INDEX_NONE)
+		{
+			return MatchingIndex;
+		}
+	}
+	return OptionValues.IsEmpty() ? INDEX_NONE : OptionValues.Num() - 1;
+}
+
+TArray<FText> UGSS_GameSettingValueDiscrete_Resolution::GetDiscreteOptions() const
+{
+	return OptionDisplayTexts;
+}
+
+void UGSS_GameSettingValueDiscrete_Resolution::SetResolutionFromValue(const FString& Value, EGSS_GameSettingChangeReason Reason)
 {
 	UGameUserSettings* Settings = GEngine ? GEngine->GetGameUserSettings() : nullptr;
 	FString WidthString;
 	FString HeightString;
-	if (!Settings || !PendingValue.Split(TEXT("x"), &WidthString, &HeightString, ESearchCase::IgnoreCase))
+	if (Settings && Value.Split(TEXT("x"), &WidthString, &HeightString, ESearchCase::IgnoreCase))
 	{
-		return;
+		const FIntPoint Resolution(FCString::Atoi(*WidthString), FCString::Atoi(*HeightString));
+		if (Resolution.X > 0 && Resolution.Y > 0)
+		{
+			Settings->SetScreenResolution(Resolution);
+		}
 	}
 
-	const FIntPoint Resolution(FCString::Atoi(*WidthString), FCString::Atoi(*HeightString));
-	if (Resolution.X <= 0 || Resolution.Y <= 0)
-	{
-		return;
-	}
+	NotifySettingChanged(Reason);
+}
 
-	Settings->SetScreenResolution(Resolution);
+int32 UGSS_GameSettingValueDiscrete_Resolution::FindOptionIndex(const FString& Value) const
+{
+	return OptionValues.IndexOfByKey(Value);
 }
 
 void UGSS_GameSettingValueDiscrete_Resolution::RefreshResolutionOptions()
 {
-	const TArray<FString> ExistingOptions = GetDynamicOptions();
-	for (const FString& Option : ExistingOptions)
-	{
-		RemoveDynamicOption(Option);
-	}
+	OptionValues.Reset();
+	OptionDisplayTexts.Reset();
 
 	FScreenResolutionArray AvailableResolutions;
 	RHIGetAvailableResolutions(AvailableResolutions, true);
@@ -88,7 +114,8 @@ void UGSS_GameSettingValueDiscrete_Resolution::RefreshResolutionOptions()
 			if (!AddedValues.Contains(Value))
 			{
 				AddedValues.Add(Value);
-				AddDynamicOption(Value, FText::FromString(Value));
+				OptionValues.Add(Value);
+				OptionDisplayTexts.Add(FText::FromString(Value));
 			}
 		}
 	}
@@ -98,8 +125,8 @@ void UGSS_GameSettingValueDiscrete_Resolution::RefreshResolutionOptions()
 		if (const UGameUserSettings* Settings = GEngine ? GEngine->GetGameUserSettings() : nullptr)
 		{
 			const FString Value = ToResolutionValue(Settings->GetScreenResolution());
-			AddDynamicOption(Value, FText::FromString(Value));
+			OptionValues.Add(Value);
+			OptionDisplayTexts.Add(FText::FromString(Value));
 		}
 	}
-
 }

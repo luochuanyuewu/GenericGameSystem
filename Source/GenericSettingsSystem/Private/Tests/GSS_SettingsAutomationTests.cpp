@@ -37,6 +37,7 @@ bool FGSS_SettingsSharedTest::RunTest(const FString& Parameters)
 	UGSS_SettingsShared* SharedSettings = NewObject<UGSS_SettingsShared>();
 	TestNotNull(TEXT("Shared settings use the LocalPlayerSaveGame base"), SharedSettings);
 	TestTrue(TEXT("Shared settings are a LocalPlayerSaveGame"), SharedSettings->IsA<ULocalPlayerSaveGame>());
+	SharedSettings->ApplySettings();
 	return true;
 }
 
@@ -78,8 +79,8 @@ bool FGSS_SettingsDiscreteValueContractTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("Bool options accept lowercase true"), BoolSetting->HasDynamicOption(TEXT("true")));
 	TestTrue(TEXT("Bool options accept 1 as true"), BoolSetting->HasDynamicOption(TEXT("1")));
 
-	BoolSetting->SetValueFromString(TEXT("True"));
-	TestEqual(TEXT("Pending bool values store the canonical option spelling"), BoolSetting->GetValueAsString(), FString(TEXT("true")));
+	BoolSetting->SetDefaultValue(true);
+	TestEqual(TEXT("Default true uses the canonical option spelling"), BoolSetting->GetValueAsString(), FString(TEXT("true")));
 	TestEqual(TEXT("True maps to the ON option index"), BoolSetting->GetDiscreteOptionIndex(), 1);
 
 	UGSS_GameSettingValueDiscreteDynamic* WindowMode = NewObject<UGSS_GameSettingValueDiscreteDynamic>();
@@ -87,8 +88,8 @@ bool FGSS_SettingsDiscreteValueContractTest::RunTest(const FString& Parameters)
 	WindowMode->AddDynamicOption(TEXT("WindowedFullscreen"), FText::FromString(TEXT("Windowed Fullscreen")));
 	WindowMode->AddDynamicOption(TEXT("Windowed"), FText::FromString(TEXT("Windowed")));
 	WindowMode->SetDefaultValueFromString(TEXT("WindowedFullscreen"));
-	WindowMode->SetValueFromString(TEXT("windowedfullscreen"));
-	TestEqual(TEXT("Window mode stores the authored enumerator name"), WindowMode->GetValueAsString(), FString(TEXT("WindowedFullscreen")));
+	TestTrue(TEXT("Window mode options accept case-insensitive enumerator names"), WindowMode->HasDynamicOption(TEXT("windowedfullscreen")));
+	TestEqual(TEXT("Default window mode uses the authored enumerator name"), WindowMode->GetValueAsString(), FString(TEXT("WindowedFullscreen")));
 	TestEqual(TEXT("Windowed fullscreen maps to option index 1"), WindowMode->GetDiscreteOptionIndex(), 1);
 	return true;
 }

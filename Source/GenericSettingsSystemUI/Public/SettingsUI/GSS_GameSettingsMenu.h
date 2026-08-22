@@ -20,6 +20,9 @@ enum class EGSS_GameSettingChangeReason : uint8;
 /**
  * Activatable settings menu that automatically presents its owning LocalPlayer's GSS subsystem.
  * 自动展示所属 LocalPlayer 的 GSS 子系统的可激活设置菜单。
+ *
+ * Deactivating this Menu without Apply restores any dirty values, matching a discarded Screen session.
+ * 若退出本 Menu 时仍有未 Apply 的脏值，会恢复为上次记录的初始值，相当于丢弃本次 Screen 会话。
  */
 UCLASS(Abstract, Blueprintable, meta = (Category = "Generic Settings UI"))
 class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingsMenu : public UGUIS_ActivatableWidget

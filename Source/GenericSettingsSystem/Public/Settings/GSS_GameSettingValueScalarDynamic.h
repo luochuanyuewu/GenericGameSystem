@@ -19,7 +19,7 @@ class UObject;
 /** Formats a source-space and normalized value for UI display. / 将源数值和归一化值格式化为 UI 文本。 */
 typedef TFunction<FText(double SourceValue, double NormalizedValue)> FSettingScalarFormatFunction;
 
-/** Numeric value with runtime range, pending edits and Accessor-backed Apply. / 具有运行时范围、待应用编辑及 Accessor 支持 Apply 的数值。 */
+/** Numeric value with runtime range that writes through its Accessor immediately. / 具有运行时范围、变更时立即通过 Accessor 写入的数值。 */
 UCLASS()
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingValueScalarDynamic : public UGSS_GameSettingValueScalar
 {
@@ -53,7 +53,7 @@ public:
 	virtual double GetSourceStep() const override;
 	virtual FText GetFormattedText() const override;
 
-	/** Assigns the bridge used to load and commit this value. / 指定用于加载和提交该值的桥接。 */
+	/** Assigns the bridge used to read and write this value immediately. / 指定用于立即读写该值的桥接。 */
 	void SetAccessor(const FGSS_SettingValueAccessor& InAccessor);
 	/** Sets the fallback source-space value. / 设置回退源数值。 */
 	void SetDefaultValue(double InValue);
@@ -75,7 +75,9 @@ public:
 protected:
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-	virtual void OnApply() override;
+
+	/** Quantizes and clamps a source-space value. / 量化并限制源数值。 */
+	double SanitizeSourceValue(double InValue) const;
 
 protected:
 
@@ -83,7 +85,6 @@ protected:
 
 	TOptional<double> DefaultValue;
 	double InitialValue = 0;
-	double PendingValue = 0;
 
 	TRange<double> SourceRange = TRange<double>(0, 1);
 	double SourceStep = 0.01;

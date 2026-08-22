@@ -6,3 +6,8 @@
 void UGSS_SettingsShared::ApplySettings_Implementation()
 {
 }
+
+void UGSS_SettingsShared::SaveSettings_Implementation()
+{
+	AsyncSaveGameToSlotForLocalPlayer();
+}

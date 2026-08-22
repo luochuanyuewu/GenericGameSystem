@@ -12,8 +12,9 @@
  *
  * The standard UGameUserSettings overall quality query returns a negative value when individual scalability
  * groups differ. This node presents that state as Custom instead of silently selecting an unrelated preset.
+ * Video Provider wires bidirectional edit dependencies so changing a group refreshes this row immediately.
  * 标准 UGameUserSettings 的综合画质查询在各项 Scalability 不一致时会返回负值；此节点会显示“自定义”，
- * 而不是静默选择无关的预设。
+ * 而不是静默选择无关的预设。Video Provider 会挂上双向 EditDependency，因此改分项会立刻刷新本行。
  */
 UCLASS()
 class GENERICSETTINGSSYSTEMCOMMON_API UGSS_GameSettingValueDiscrete_OverallQuality : public UGSS_GameSettingValueDiscreteDynamic
@@ -26,7 +27,7 @@ public:
 
 protected:
 	virtual void OnInitialized() override;
-	virtual void OnApply() override;
+	virtual void SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason) override;
 
 private:
 	static constexpr const TCHAR* CustomValue = TEXT("-1");

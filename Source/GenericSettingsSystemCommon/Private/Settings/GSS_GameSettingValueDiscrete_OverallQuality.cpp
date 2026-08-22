@@ -2,6 +2,8 @@
 
 #include "Settings/GSS_GameSettingValueDiscrete_OverallQuality.h"
 
+#include "Settings/GSS_GameSettingFilterState.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingValueDiscrete_OverallQuality)
 
 #define LOCTEXT_NAMESPACE "GSS_GameSettingValueDiscrete_OverallQuality"
@@ -33,12 +35,13 @@ TArray<FText> UGSS_GameSettingValueDiscrete_OverallQuality::GetDiscreteOptions()
 	return Result;
 }
 
-void UGSS_GameSettingValueDiscrete_OverallQuality::OnApply()
+void UGSS_GameSettingValueDiscrete_OverallQuality::SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason)
 {
-	if (GetValueAsString() != CustomValue)
+	if (ResolveOptionValue(InStringValue) == CustomValue)
 	{
-		Super::OnApply();
+		return;
 	}
+	Super::SetValueFromString(InStringValue, Reason);
 }
 
 #undef LOCTEXT_NAMESPACE

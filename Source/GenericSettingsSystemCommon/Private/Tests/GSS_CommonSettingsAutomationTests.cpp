@@ -59,7 +59,7 @@ bool FGSS_CommonLanguageProviderTest::RunTest(const FString& Parameters)
 	}
 
 	Language->RefreshCultureOptions();
-	TestTrue(TEXT("Language options include System Default"), Language->HasDynamicOption(TEXT("")));
+	TestEqual(TEXT("Language default option is System Default"), Language->GetDiscreteOptionDefaultIndex(), 0);
 	TestTrue(TEXT("Language exposes at least the System Default option"), Language->GetDiscreteOptions().Num() >= 1);
 	return true;
 }

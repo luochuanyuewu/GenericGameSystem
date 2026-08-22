@@ -39,11 +39,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGSS_OnSettingNodeEvent, FGameplayT
  * Per-local-player entry point for the GSS settings runtime.
  * 每个本地玩家各自拥有的 GSS 设置运行时入口。
  *
- * The subsystem builds the configured Definition Asset, owns the Registry and pending-change tracker,
- * and persists the player's applied preferences. Use Set* methods for previewable edits, then explicitly
- * call ApplyChanges or CancelChanges.
- * 子系统构建配置的 Definition Asset、持有 Registry 与待应用变更跟踪器，并持久化该玩家已应用的偏好。
- * 使用 Set* 方法修改可预览的待应用值，随后显式调用 ApplyChanges 或 CancelChanges。
+ * The subsystem builds the configured Definition Asset, owns the Registry and dirty-change tracker,
+ * and persists the player's preferences. Dynamic settings write through their Accessors immediately;
+ * ApplyChanges persists Local engine settings and Shared Settings.
+ * 子系统构建配置的 Definition Asset、持有 Registry 与脏值跟踪器，并持久化该玩家的偏好。
+ * Dynamic 设置会立即通过 Accessor 写入；ApplyChanges 再持久化本地引擎设置与 Shared Settings。
  */
 UCLASS(BlueprintType)
 class GENERICSETTINGSSYSTEM_API UGSS_GameSettingsSubsystem : public ULocalPlayerSubsystem
@@ -62,11 +62,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	UGSS_GameSettingRegistry* GetRegistry() const { return Registry; }
 
-	/** Reads the effective (including pending, unapplied) boolean value identified by SettingId. / 按 SettingId 读取当前有效值（包含尚未应用的修改）。 */
+	/** Reads the current boolean value identified by SettingId. / 按 SettingId 读取当前布尔值。 */
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	bool GetBoolSettingValue(FGameplayTag SettingId, bool DefaultValue = false) const;
 
-	/** Changes a boolean setting in the pending edit state; call ApplyChanges to persist it. / 修改布尔设置的待应用值；调用 ApplyChanges 后才会持久化。 */
+	/** Writes a boolean Dynamic setting immediately; call ApplyChanges to persist it. / 立即写入布尔 Dynamic 设置；调用 ApplyChanges 后才会持久化。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	bool SetBoolSettingValue(FGameplayTag SettingId, bool Value);
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings") FString GetStringSettingValue(FGameplayTag SettingId, const FString& DefaultValue = TEXT("")) const;
@@ -79,7 +79,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	UGSS_SettingsShared* GetSharedSettings() const { return SharedSettings; }
 
-	/** Writes pending values, then commits local engine settings and Shared Settings. / 写入待应用值，随后提交本地引擎设置与 Shared Settings。 */
+	/** Applies remaining staged nodes, then persists local engine settings and Shared Settings. / 应用仍需提交的节点，随后持久化本地引擎设置与 Shared Settings。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void ApplyChanges();
 	/** Returns whether this LocalPlayer has unapplied setting edits. / 返回此 LocalPlayer 是否存在尚未应用的设置修改。 */

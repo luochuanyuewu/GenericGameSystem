@@ -89,10 +89,7 @@ void UGSS_GameSettingValueScalarDynamic::OnInitialized()
 
 void UGSS_GameSettingValueScalarDynamic::StoreInitial()
 {
-	FString StoredValue;
-	Accessor.GetValue(LocalPlayer, StoredValue);
-	InitialValue = StoredValue.IsEmpty() ? DefaultValue.Get(0.0) : FCString::Atod(*StoredValue);
-	PendingValue = InitialValue;
+	InitialValue = GetValue();
 }
 
 void UGSS_GameSettingValueScalarDynamic::ResetToDefault()
@@ -164,7 +161,12 @@ void UGSS_GameSettingValueScalarDynamic::SetMaximumLimit(const TOptional<double>
 
 double UGSS_GameSettingValueScalarDynamic::GetValue() const
 {
-	return PendingValue;
+	FString StoredValue;
+	if (Accessor.GetValue(LocalPlayer, StoredValue) && !StoredValue.IsEmpty())
+	{
+		return FCString::Atod(*StoredValue);
+	}
+	return DefaultValue.Get(InitialValue);
 }
 
 TRange<double> UGSS_GameSettingValueScalarDynamic::GetSourceRange() const
@@ -184,6 +186,13 @@ TOptional<double> UGSS_GameSettingValueScalarDynamic::GetDefaultValue() const
 
 void UGSS_GameSettingValueScalarDynamic::SetValue(double InValue, EGSS_GameSettingChangeReason Reason)
 {
+	InValue = SanitizeSourceValue(InValue);
+	Accessor.SetValue(LocalPlayer, LexToString(InValue));
+	NotifySettingChanged(Reason);
+}
+
+double UGSS_GameSettingValueScalarDynamic::SanitizeSourceValue(double InValue) const
+{
 	InValue = FMath::RoundHalfFromZero(InValue / SourceStep);
 	InValue = InValue * SourceStep;
 
@@ -197,13 +206,7 @@ void UGSS_GameSettingValueScalarDynamic::SetValue(double InValue, EGSS_GameSetti
 		InValue = FMath::Min(Maximum.GetValue(), InValue);
 	}
 
-	PendingValue = InValue;
-	NotifySettingChanged(Reason);
-}
-
-void UGSS_GameSettingValueScalarDynamic::OnApply()
-{
-	Accessor.SetValue(LocalPlayer, LexToString(PendingValue));
+	return InValue;
 }
 
 FText UGSS_GameSettingValueScalarDynamic::GetFormattedText() const

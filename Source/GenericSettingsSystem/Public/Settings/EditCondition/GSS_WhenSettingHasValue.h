@@ -7,8 +7,8 @@
 #include "GSS_WhenSettingHasValue.generated.h"
 
 /**
- * Disables or hides a setting based on another discrete setting's pending serialized value.
- * 根据另一个离散设置的待应用序列化值，禁用或隐藏本设置。
+ * Disables or hides a setting based on another discrete setting's current serialized value.
+ * 根据另一个离散设置的当前序列化值，禁用或隐藏本设置。
  *
  * Matching uses the same string contract as Accessors: bool tokens and case-insensitive enum names compare equal.
  * When this condition is initialized it also registers an edit dependency on the other setting.
@@ -20,7 +20,7 @@ class GENERICSETTINGSSYSTEM_API UGSS_WhenSettingHasValue : public UGSS_GameSetti
 	GENERATED_BODY()
 
 public:
-	/** Other setting whose pending value is inspected. / 要检查其待应用值的另一个设置。 */
+	/** Other setting whose current value is inspected. / 要检查其当前值的另一个设置。 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings", meta = (Categories = "GSS.Settings"))
 	FGameplayTag OtherSettingId;
 
@@ -40,9 +40,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
 	FText DisabledReason;
 
-	/** Disables this setting when the other setting's pending value is any of Values. / 另一个设置的待应用值为 Values 之一时禁用本设置。 */
+	/** Disables this setting when the other setting's current value is any of Values. / 另一个设置的当前值为 Values 之一时禁用本设置。 */
 	static UGSS_WhenSettingHasValue* DisableIfHasAnyValue(UObject* Outer, FGameplayTag OtherSettingId, TArray<FString> Values, const FText& Reason);
-	/** Disables this setting when the other setting's pending value is not any of Values. / 另一个设置的待应用值不是 Values 之一时禁用本设置。 */
+	/** Disables this setting when the other setting's current value is not any of Values. / 另一个设置的当前值不是 Values 之一时禁用本设置。 */
 	static UGSS_WhenSettingHasValue* DisableIfLacksValue(UObject* Outer, FGameplayTag OtherSettingId, TArray<FString> Values, const FText& Reason);
 
 	virtual void OnConditionInitialized_Implementation() override;

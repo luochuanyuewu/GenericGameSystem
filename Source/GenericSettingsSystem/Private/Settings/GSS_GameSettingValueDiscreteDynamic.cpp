@@ -60,7 +60,16 @@ bool UGSS_GameSettingValueDiscreteDynamic::HasDynamicOption(const FString& InOpt
 
 FString UGSS_GameSettingValueDiscreteDynamic::GetValueAsString() const
 {
-	return PendingValue;
+	FString AppliedValue;
+	if (Accessor.GetValue(LocalPlayer, AppliedValue))
+	{
+		return ResolveOptionValue(AppliedValue);
+	}
+	if (DefaultValue.IsSet())
+	{
+		return ResolveOptionValue(DefaultValue.GetValue());
+	}
+	return InitialValue;
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringValue)
@@ -70,17 +79,18 @@ void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringVa
 
 void UGSS_GameSettingValueDiscreteDynamic::SetValueFromString(FString InStringValue, EGSS_GameSettingChangeReason Reason)
 {
-	if (const int32 MatchingIndex = OptionValues.IndexOfByPredicate([&InStringValue, this](const FString& Option)
-		{
-			return AreOptionsEqual(InStringValue, Option);
-		});
-		MatchingIndex != INDEX_NONE)
-	{
-		InStringValue = OptionValues[MatchingIndex];
-	}
-
-	PendingValue = InStringValue;
+	InStringValue = ResolveOptionValue(InStringValue);
+	Accessor.SetValue(LocalPlayer, InStringValue);
 	NotifySettingChanged(Reason);
+}
+
+FString UGSS_GameSettingValueDiscreteDynamic::ResolveOptionValue(const FString& InStringValue) const
+{
+	const int32 MatchingIndex = OptionValues.IndexOfByPredicate([this, &InStringValue](const FString& Option)
+	{
+		return AreOptionsEqual(InStringValue, Option);
+	});
+	return MatchingIndex != INDEX_NONE ? OptionValues[MatchingIndex] : InStringValue;
 }
 
 bool UGSS_GameSettingValueDiscreteDynamic::AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const
@@ -95,26 +105,7 @@ void UGSS_GameSettingValueDiscreteDynamic::OnInitialized()
 
 void UGSS_GameSettingValueDiscreteDynamic::StoreInitial()
 {
-	FString AppliedValue;
-	if (Accessor.GetValue(LocalPlayer, AppliedValue))
-	{
-		InitialValue = AppliedValue;
-	}
-	else if (DefaultValue.IsSet())
-	{
-		InitialValue = DefaultValue.GetValue();
-	}
-
-	if (const int32 MatchingIndex = OptionValues.IndexOfByPredicate([this](const FString& Option)
-		{
-			return AreOptionsEqual(InitialValue, Option);
-		});
-		MatchingIndex != INDEX_NONE)
-	{
-		InitialValue = OptionValues[MatchingIndex];
-	}
-
-	PendingValue = InitialValue;
+	InitialValue = GetValueAsString();
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::ResetToDefault()
@@ -128,11 +119,6 @@ void UGSS_GameSettingValueDiscreteDynamic::ResetToDefault()
 void UGSS_GameSettingValueDiscreteDynamic::RestoreToInitial()
 {
 	SetValueFromString(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
-}
-
-void UGSS_GameSettingValueDiscreteDynamic::OnApply()
-{
-	Accessor.SetValue(LocalPlayer, PendingValue);
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetDiscreteOptionByIndex(int32 Index)

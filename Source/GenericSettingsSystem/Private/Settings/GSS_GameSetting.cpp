@@ -12,13 +12,13 @@
 
 #define UE_CAN_SHOW_SETTINGS_DEBUG_INFO (!UE_BUILD_SHIPPING)
 
-namespace GameSettingsConsoleVars
+namespace GSSSettingsConsoleVars
 {
 #if UE_CAN_SHOW_SETTINGS_DEBUG_INFO
 	int32 ShowDebugInfoMode = -1;
 
-	static FAutoConsoleVariableRef CVarGameSettingsShowDebugInfo(
-		TEXT("GameSettings.ShowDebugInfo"),
+	static FAutoConsoleVariableRef CVarGSSShowDebugInfo(
+		TEXT("GSS.Settings.ShowDebugInfo"),
 		ShowDebugInfoMode,
 		TEXT("Should we show the developer name and class as part of dynamic details?\n")
 		TEXT("  -1: Default (enabled in editor, disabled in -game or cooked builds)\n")
@@ -294,7 +294,7 @@ FText UGSS_GameSetting::GetDynamicDetails() const
 	FText DynamicDetailsText = DynamicDetails.IsBound() ? DynamicDetails.Execute(*LocalPlayer) : FText::GetEmpty();
 	
 #if UE_CAN_SHOW_SETTINGS_DEBUG_INFO
-	if ((GameSettingsConsoleVars::ShowDebugInfoMode == 1) || ((GameSettingsConsoleVars::ShowDebugInfoMode == -1) && GIsEditor))
+	if ((GSSSettingsConsoleVars::ShowDebugInfoMode == 1) || ((GSSSettingsConsoleVars::ShowDebugInfoMode == -1) && GIsEditor))
 	{
 		const FString DevSettingDetails = FString::Printf(TEXT("%s<debug>DevName: %s</>\n<debug>Class: %s</>"),
 			DynamicDetailsText.IsEmpty() ? TEXT("") : TEXT("\n"),

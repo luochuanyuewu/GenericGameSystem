@@ -78,8 +78,15 @@
 - UI Policy：`Source/GenericUISystem/Public/UI/GUIS_GameUIPolicy.h`
 - 设置注册表：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingRegistry.h`
 - 设置子系统：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingsSubsystem.h`
+- Shared Settings：`Source/GenericSettingsSystem/Public/Settings/GSS_SettingsShared.h`（`ApplySettings` / `SaveSettings` 均为 BlueprintNativeEvent；默认保存走 `AsyncSaveGameToSlotForLocalPlayer`）
 - 通用设置 Provider：`Source/GenericSettingsSystemCommon/Public/Settings/`（Video、Audio、Input、Accessibility）
 - 设置 UI：`Source/GenericSettingsSystemUI/Public/SettingsUI/GSS_GameSettingsMenu.h`
+
+对照 Epic GameSettings / Lyra 时，只用本机 Lyra 5.8 工程，不要再用旧的独立 `GameSettings` 或 `LyraGame` 路径：
+
+- 工程：`/Users/kinson/Documents/Unreal Projects/Lyra5.8`
+- 原版插件：`Plugins/GameSettings/Source`
+- Lyra 设置与 Screen：`Source/LyraGame/Settings`、`Source/LyraGame/UI/LyraSettingScreen.h`
 
 ## 构建和验证
 

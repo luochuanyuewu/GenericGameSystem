@@ -64,6 +64,10 @@ void UGSS_GameSettingsMenu::NativeOnActivated()
 
 void UGSS_GameSettingsMenu::NativeOnDeactivated()
 {
+	if (HaveSettingsBeenChanged())
+	{
+		CancelChanges();
+	}
 	UnbindTopSettingsTabs();
 	UnbindSubsystemEvents();
 	Super::NativeOnDeactivated();

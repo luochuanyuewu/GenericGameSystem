@@ -139,7 +139,7 @@ void UGSS_GameSettingsSubsystem::SaveChanges()
 	if (SharedSettings)
 	{
 		SharedSettings->ApplySettings();
-		SharedSettings->SaveGameToSlotForLocalPlayer();
+		SharedSettings->SaveSettings();
 	}
 }
 
