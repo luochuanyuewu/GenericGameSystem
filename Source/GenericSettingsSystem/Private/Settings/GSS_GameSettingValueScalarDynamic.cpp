@@ -201,9 +201,9 @@ void UGSS_GameSettingValueScalarDynamic::SetValue(double InValue, EGSS_GameSetti
 	NotifySettingChanged(Reason);
 }
 
-bool UGSS_GameSettingValueScalarDynamic::OnApply()
+void UGSS_GameSettingValueScalarDynamic::OnApply()
 {
-	return Accessor.SetValue(LocalPlayer, LexToString(PendingValue));
+	Accessor.SetValue(LocalPlayer, LexToString(PendingValue));
 }
 
 FText UGSS_GameSettingValueScalarDynamic::GetFormattedText() const

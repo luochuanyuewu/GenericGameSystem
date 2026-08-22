@@ -22,10 +22,10 @@ void UGSS_GameSettingListEntry::SetSetting(UGSS_GameSetting* InSetting)
 	Setting = InSetting;
 	if (Setting)
 	{
+		Setting->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleEditConditionChanged);
 		Setting->OnSettingChangedEvent.AddUObject(this, &ThisClass::HandleSettingChanged);
-		Setting->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleEditStateChanged);
 		RefreshSettingName();
-		HandleEditStateChanged(Setting);
+		HandleEditConditionChanged(Setting);
 	}
 	else
 	{
@@ -82,7 +82,7 @@ FReply UGSS_GameSettingListEntry::NativeOnFocusReceived(const FGeometry& InGeome
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
-void UGSS_GameSettingListEntry::RefreshSettingName()
+void UGSS_GameSettingListEntry::RefreshSettingName_Implementation()
 {
 }
 
@@ -92,7 +92,7 @@ void UGSS_GameSettingListEntry_Setting::SetSetting(UGSS_GameSetting* InSetting)
 	RefreshSettingName();
 }
 
-void UGSS_GameSettingListEntry_Setting::RefreshSettingName()
+void UGSS_GameSettingListEntry_Setting::RefreshSettingName_Implementation()
 {
 	if (Text_SettingName)
 	{
@@ -101,18 +101,28 @@ void UGSS_GameSettingListEntry_Setting::RefreshSettingName()
 	}
 }
 
-void UGSS_GameSettingListEntry::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry::HandleSettingChanged(UGSS_GameSetting*, EGSS_GameSettingChangeReason)
 {
-	RefreshSettingName();
-	OnSettingValueChanged();
-	OnSettingValueChangedWithReason(Reason);
+	if (!bSuspendChangeUpdates)
+	{
+		OnSettingChanged();
+	}
 }
 
-void UGSS_GameSettingListEntry::HandleEditStateChanged(UGSS_GameSetting*)
+void UGSS_GameSettingListEntry::OnSettingChanged()
 {
-	RefreshSettingName();
-	OnSettingEditableStateChanged();
-	OnSettingEditableStateChangedWithState(Setting ? Setting->GetEditState() : FGSS_GameSettingEditableState());
+}
+
+void UGSS_GameSettingListEntry::HandleEditConditionChanged(UGSS_GameSetting*)
+{
+	if (Setting)
+	{
+		RefreshEditableState(Setting->GetEditState());
+	}
+}
+
+void UGSS_GameSettingListEntry::RefreshEditableState_Implementation(const FGSS_GameSettingEditableState&)
+{
 }
 
 bool UGSS_GameSettingListEntry::CanInteractWithSetting() const

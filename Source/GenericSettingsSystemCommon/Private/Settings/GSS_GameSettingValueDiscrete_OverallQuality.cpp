@@ -33,9 +33,12 @@ TArray<FText> UGSS_GameSettingValueDiscrete_OverallQuality::GetDiscreteOptions()
 	return Result;
 }
 
-bool UGSS_GameSettingValueDiscrete_OverallQuality::OnApply()
+void UGSS_GameSettingValueDiscrete_OverallQuality::OnApply()
 {
-	return GetValueAsString() == CustomValue || Super::OnApply();
+	if (GetValueAsString() != CustomValue)
+	{
+		Super::OnApply();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

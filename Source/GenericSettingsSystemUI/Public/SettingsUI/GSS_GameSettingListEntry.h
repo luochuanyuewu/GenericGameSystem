@@ -4,6 +4,7 @@
 
 #include "Blueprint/IUserObjectListEntry.h"
 #include "CommonUserWidget.h"
+#include "Settings/GSS_GameSettingFilterState.h"
 
 #include "GSS_GameSettingListEntry.generated.h"
 
@@ -53,26 +54,19 @@ public:
 	virtual void NativeOnEntryReleased() override;
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 
-	/** Called for pending-value changes and restores. / 待应用值变化或恢复时调用。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingValueChanged();
-	/** State-aware variant of OnSettingValueChanged. / 带变更原因的 OnSettingValueChanged 变体。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingValueChangedWithReason(EGSS_GameSettingChangeReason Reason);
-	/** Called when visibility, availability or option state changes. / 可见性、可用性或选项状态变化时调用。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingEditableStateChanged();
-	/** State-aware variant of OnSettingEditableStateChanged. / 带编辑状态快照的 OnSettingEditableStateChanged 变体。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingEditableStateChangedWithState(FGSS_GameSettingEditableState EditableState);
 	/** Returns the child control that should receive gamepad focus when this row is focused. / 本行获得游戏手柄焦点时，应接收焦点的子控件。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
 	UWidget* GetPrimaryGamepadFocusWidget();
 
 protected:
-	virtual void RefreshSettingName();
-	virtual void HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason);
-	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting);
+	/** Refreshes the row title from the assigned setting or display-name override. / 用已分配设置或标题覆盖刷新行标题。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void RefreshSettingName();
+	virtual void OnSettingChanged();
+	virtual void HandleEditConditionChanged(UGSS_GameSetting* InSetting);
+	/** Applies visibility, availability and option state to this row's native controls. / 将可见性、可用性和选项状态应用到本行的原生控件。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void RefreshEditableState(const FGSS_GameSettingEditableState& InEditableState);
 	bool CanInteractWithSetting() const;
 
 	/** Suppresses control refresh while a control writes a setting and receives its synchronous change notification. / 控件写入设置并同步收到变更通知时，抑制控件刷新。 */
@@ -82,6 +76,9 @@ protected:
 	TObjectPtr<UGSS_GameSetting> Setting;
 
 	FText DisplayNameOverride;
+
+private:
+	void HandleSettingChanged(UGSS_GameSetting* InSetting, EGSS_GameSettingChangeReason Reason);
 };
 
 /** Setting row that binds the standard title widget. / 绑定标准标题控件的设置行。 */
@@ -94,7 +91,7 @@ public:
 	virtual void SetSetting(UGSS_GameSetting* InSetting) override;
 
 protected:
-	virtual void RefreshSettingName() override;
+	virtual void RefreshSettingName_Implementation() override;
 
 	/** Optional standard title for the assigned setting. / 已分配设置的可选标准标题。 */
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")

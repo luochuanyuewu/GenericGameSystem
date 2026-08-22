@@ -44,12 +44,11 @@ void UGSS_GameSettingValueScalar_Brightness::StoreInitial()
 	PendingValue = InitialValue;
 }
 
-bool UGSS_GameSettingValueScalar_Brightness::OnApply()
+void UGSS_GameSettingValueScalar_Brightness::OnApply()
 {
 	const float Gamma = static_cast<float>(PendingValue);
 	ApplyGamma(Gamma);
 	SaveGamma(Gamma);
-	return true;
 }
 
 bool UGSS_GameSettingValueScalar_Brightness::TryLoadSavedGamma(float& OutGamma)

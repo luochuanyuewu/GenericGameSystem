@@ -15,9 +15,8 @@ struct FObjectKey;
  * Tracks pending edits for a Registry and coordinates transactional Apply/Cancel behavior.
  * 跟踪 Registry 的待应用修改，并协调事务式 Apply/Cancel 行为。
  *
- * The subsystem owns one tracker per LocalPlayer. A failed Accessor write deliberately remains dirty so callers
- * can correct the problem and retry Apply.
- * 子系统为每个 LocalPlayer 持有一个 Tracker。Accessor 写入失败时会刻意保留脏状态，调用方可修正问题后重试 Apply。
+ * The subsystem owns one tracker per LocalPlayer.
+ * 子系统为每个 LocalPlayer 持有一个 Tracker。
  */
 class GENERICSETTINGSSYSTEM_API FGSS_GameSettingRegistryChangeTracker : public FNoncopyable
 {
@@ -30,7 +29,7 @@ public:
 	/** Removes the current Registry subscription. / 解除当前 Registry 订阅。 */
 	void StopWatchingRegistry();
 
-	/** Applies dirty values; values whose Accessor rejects the write remain dirty. / 应用脏值；Accessor 拒绝写入的值将保持脏状态。 */
+	/** Applies every dirty value, stores the new initial, then clears dirty state. / 应用全部脏值、记录新的初始值，然后清除脏状态。 */
 	void ApplyChanges();
 
 	/** Restores all dirty values to their last stored initial value and clears dirty state. / 将全部脏值恢复为最后记录的初始值并清除脏状态。 */

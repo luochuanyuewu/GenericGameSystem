@@ -45,24 +45,23 @@ void UGSS_GameSettingValueDiscrete_Resolution::RestoreToInitial()
 	SetValueFromString(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
 }
 
-bool UGSS_GameSettingValueDiscrete_Resolution::OnApply()
+void UGSS_GameSettingValueDiscrete_Resolution::OnApply()
 {
 	UGameUserSettings* Settings = GEngine ? GEngine->GetGameUserSettings() : nullptr;
 	FString WidthString;
 	FString HeightString;
 	if (!Settings || !PendingValue.Split(TEXT("x"), &WidthString, &HeightString, ESearchCase::IgnoreCase))
 	{
-		return false;
+		return;
 	}
 
 	const FIntPoint Resolution(FCString::Atoi(*WidthString), FCString::Atoi(*HeightString));
 	if (Resolution.X <= 0 || Resolution.Y <= 0)
 	{
-		return false;
+		return;
 	}
 
 	Settings->SetScreenResolution(Resolution);
-	return true;
 }
 
 void UGSS_GameSettingValueDiscrete_Resolution::RefreshResolutionOptions()

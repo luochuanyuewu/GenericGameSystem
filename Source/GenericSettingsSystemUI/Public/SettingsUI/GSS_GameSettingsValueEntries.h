@@ -6,6 +6,7 @@
 
 #include "GSS_GameSettingsValueEntries.generated.h"
 
+class UGUIS_ButtonBase;
 class UAnalogSlider;
 class UCommonButtonBase;
 class UCommonTextBlock;
@@ -37,8 +38,14 @@ public:
 	bool SelectOption(int32 OptionIndex);
 
 protected:
-	virtual void HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason) override;
-	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting) override;
+	virtual void OnSettingChanged() override;
+	virtual void HandleEditConditionChanged(UGSS_GameSetting* InSetting) override;
+	virtual void RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState) override;
+	/** Called only after this row successfully receives a discrete setting. / 仅在本行成功接收到离散设置后调用。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void OnSettingAssigned(UGSS_GameSettingValueDiscrete* AssignedSetting);
+	/** Pushes the discrete setting's current options and selection onto native controls. / 将离散设置的当前选项和选中项推到原生控件上。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
 	void RefreshDiscreteControl();
 	void HandleOptionDecrease();
 	void HandleOptionIncrease();
@@ -84,8 +91,13 @@ public:
 	bool SetNormalizedValue(double Value);
 
 protected:
-	virtual void HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason) override;
-	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting) override;
+	virtual void OnSettingChanged() override;
+	virtual void RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState) override;
+	/** Called only after this row successfully receives a scalar setting. / 仅在本行成功接收到标量设置后调用。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void OnSettingAssigned(UGSS_GameSettingValueScalar* AssignedSetting);
+	/** Pushes the scalar setting's current value onto native controls. / 将标量设置的当前值推到原生控件上。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
 	void RefreshScalarControl();
 	UFUNCTION() void HandleSliderValueChanged(float Value);
 	UFUNCTION() void HandleSliderCaptureEnded();
@@ -122,13 +134,14 @@ public:
 	bool ExecuteAction();
 
 protected:
-	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting) override;
+	virtual void RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState) override;
 	void HandleActionButtonClicked();
-	/** Called when the row receives an Action setting, so Blueprint can populate Button_Action text. / 行接收 Action 设置时调用，供蓝图填充 Button_Action 文本。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingAssigned(const FText& ActionText);
+	/** Called only after this row successfully receives an Action setting. / 仅在本行成功接收到 Action 设置后调用。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void OnSettingAssigned(UGSS_GameSettingAction* AssignedSetting);
 	UPROPERTY(Transient) TObjectPtr<UGSS_GameSettingAction> ActionSetting;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") TObjectPtr<UCommonButtonBase> Button_Action;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") 
+	TObjectPtr<UGUIS_ButtonBase> Button_Action;
 };
 
 /** Blueprint base for a navigable GSS settings page row. / 可导航 GSS 设置页面行的蓝图基类。 */
@@ -147,11 +160,15 @@ public:
 	bool Navigate();
 
 protected:
-	virtual void HandleEditStateChanged(UGSS_GameSetting* ChangedSetting) override;
+	virtual void RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState) override;
 	void HandleNavigationButtonClicked();
-	/** Called when the row receives a page setting, so Blueprint can populate Button_Navigate text. / 行接收页面设置时调用，供蓝图填充 Button_Navigate 文本。 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
-	void OnSettingAssigned(const FText& ActionText);
-	UPROPERTY(Transient) TObjectPtr<UGSS_GameSettingCollectionPage> CollectionSetting;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") TObjectPtr<UCommonButtonBase> Button_Navigate;
+	/** Called only after this row successfully receives a page setting. / 仅在本行成功接收到页面设置后调用。 */
+	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
+	void OnSettingAssigned(UGSS_GameSettingCollectionPage* AssignedSetting);
+	
+	UPROPERTY(Transient) 
+	TObjectPtr<UGSS_GameSettingCollectionPage> CollectionSetting;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") 
+	TObjectPtr<UGUIS_ButtonBase> Button_Navigate;
 };

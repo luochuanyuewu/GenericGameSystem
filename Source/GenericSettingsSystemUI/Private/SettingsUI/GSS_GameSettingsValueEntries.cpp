@@ -11,12 +11,16 @@
 #include "Settings/GSS_GameSettingValueScalar.h"
 #include "SettingsUI/GSS_GameSettingRotator.h"
 #include "Components/PanelWidget.h"
+#include "UI/Foundation/GUIS_ButtonBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsValueEntries)
 
 TArray<FText> UGSS_GameSettingListEntry_Discrete::GetOptions() const
 {
-	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptions();
+	if (DiscreteSetting)
+	{
+		return DiscreteSetting->GetDiscreteOptions();
+	}
 	return {};
 }
 
@@ -25,6 +29,14 @@ void UGSS_GameSettingListEntry_Discrete::SetSetting(UGSS_GameSetting* InSetting)
 	DiscreteSetting = Cast<UGSS_GameSettingValueDiscrete>(InSetting);
 	Super::SetSetting(InSetting);
 	RefreshDiscreteControl();
+	if (DiscreteSetting)
+	{
+		OnSettingAssigned(DiscreteSetting);
+	}
+}
+
+void UGSS_GameSettingListEntry_Discrete::OnSettingAssigned_Implementation(UGSS_GameSettingValueDiscrete*)
+{
 }
 
 void UGSS_GameSettingListEntry_Discrete::NativeOnInitialized()
@@ -49,44 +61,61 @@ void UGSS_GameSettingListEntry_Discrete::NativeOnEntryReleased()
 	DiscreteSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
+
 int32 UGSS_GameSettingListEntry_Discrete::GetSelectedOptionIndex() const
 {
-	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptionIndex();
-	return INDEX_NONE;
+	return DiscreteSetting ? DiscreteSetting->GetDiscreteOptionIndex() : INDEX_NONE;
 }
+
 int32 UGSS_GameSettingListEntry_Discrete::GetDefaultOptionIndex() const
 {
-	if (const UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting)) return Discrete->GetDiscreteOptionDefaultIndex();
-	return INDEX_NONE;
+	return DiscreteSetting ? DiscreteSetting->GetDiscreteOptionDefaultIndex() : INDEX_NONE;
 }
+
 bool UGSS_GameSettingListEntry_Discrete::SelectOption(int32 OptionIndex)
 {
-	if (UGSS_GameSettingValueDiscrete* Discrete = Cast<UGSS_GameSettingValueDiscrete>(Setting); Discrete && CanInteractWithSetting() && Discrete->GetDiscreteOptions().IsValidIndex(OptionIndex)) { Discrete->SetDiscreteOptionByIndex(OptionIndex); return true; }
+	if (DiscreteSetting && CanInteractWithSetting() && DiscreteSetting->GetDiscreteOptions().IsValidIndex(OptionIndex))
+	{
+		DiscreteSetting->SetDiscreteOptionByIndex(OptionIndex);
+		return true;
+	}
 	return false;
 }
 
-void UGSS_GameSettingListEntry_Discrete::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry_Discrete::OnSettingChanged()
 {
-	if (!bSuspendChangeUpdates)
+	RefreshDiscreteControl();
+}
+
+void UGSS_GameSettingListEntry_Discrete::HandleEditConditionChanged(UGSS_GameSetting* InSetting)
+{
+	Super::HandleEditConditionChanged(InSetting);
+	RefreshDiscreteControl();
+}
+
+void UGSS_GameSettingListEntry_Discrete::RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState)
+{
+	Super::RefreshEditableState_Implementation(InEditableState);
+	const bool bEnabled = InEditableState.IsEnabled();
+	if (Panel_Value)
 	{
-		Super::HandleSettingChanged(ChangedSetting, Reason);
-		RefreshDiscreteControl();
+		Panel_Value->SetIsEnabled(bEnabled);
+	}
+	if (Rotator_SettingValue)
+	{
+		Rotator_SettingValue->SetIsEnabled(bEnabled);
+	}
+	if (Button_Decrease)
+	{
+		Button_Decrease->SetIsEnabled(bEnabled);
+	}
+	if (Button_Increase)
+	{
+		Button_Increase->SetIsEnabled(bEnabled);
 	}
 }
 
-void UGSS_GameSettingListEntry_Discrete::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
-{
-	DiscreteSetting = Cast<UGSS_GameSettingValueDiscrete>(Setting);
-	Super::HandleEditStateChanged(ChangedSetting);
-	RefreshDiscreteControl();
-	const bool bEnabled = IsSettingEnabled();
-	if (Panel_Value) Panel_Value->SetIsEnabled(bEnabled);
-	if (Rotator_SettingValue) Rotator_SettingValue->SetIsEnabled(bEnabled);
-	if (Button_Decrease) Button_Decrease->SetIsEnabled(bEnabled);
-	if (Button_Increase) Button_Increase->SetIsEnabled(bEnabled);
-}
-
-void UGSS_GameSettingListEntry_Discrete::RefreshDiscreteControl()
+void UGSS_GameSettingListEntry_Discrete::RefreshDiscreteControl_Implementation()
 {
 	if (!DiscreteSetting || !Rotator_SettingValue)
 	{
@@ -124,10 +153,10 @@ void UGSS_GameSettingListEntry_Discrete::HandleRotatorChangedValue(int32 Value, 
 		SelectOption(Value);
 	}
 }
+
 double UGSS_GameSettingListEntry_Scalar::GetNormalizedValue() const
 {
-	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetValueNormalized();
-	return 0.0;
+	return ScalarSetting ? ScalarSetting->GetValueNormalized() : 0.0;
 }
 
 void UGSS_GameSettingListEntry_Scalar::SetSetting(UGSS_GameSetting* InSetting)
@@ -135,6 +164,14 @@ void UGSS_GameSettingListEntry_Scalar::SetSetting(UGSS_GameSetting* InSetting)
 	ScalarSetting = Cast<UGSS_GameSettingValueScalar>(InSetting);
 	Super::SetSetting(InSetting);
 	RefreshScalarControl();
+	if (ScalarSetting)
+	{
+		OnSettingAssigned(ScalarSetting);
+	}
+}
+
+void UGSS_GameSettingListEntry_Scalar::OnSettingAssigned_Implementation(UGSS_GameSettingValueScalar*)
+{
 }
 
 void UGSS_GameSettingListEntry_Scalar::NativeOnInitialized()
@@ -153,52 +190,61 @@ void UGSS_GameSettingListEntry_Scalar::NativeOnEntryReleased()
 	ScalarSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
+
 FText UGSS_GameSettingListEntry_Scalar::GetFormattedValue() const
 {
-	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetFormattedText();
-	return FText::GetEmpty();
+	return ScalarSetting ? ScalarSetting->GetFormattedText() : FText::GetEmpty();
 }
+
 bool UGSS_GameSettingListEntry_Scalar::GetDefaultNormalizedValue(double& OutValue) const
 {
-	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting); Scalar && Scalar->GetDefaultValueNormalized().IsSet())
+	if (ScalarSetting)
 	{
-		OutValue = Scalar->GetDefaultValueNormalized().GetValue();
-		return true;
+		if (const TOptional<double> DefaultValue = ScalarSetting->GetDefaultValueNormalized(); DefaultValue.IsSet())
+		{
+			OutValue = DefaultValue.GetValue();
+			return true;
+		}
 	}
 	OutValue = 0.0;
 	return false;
 }
+
 double UGSS_GameSettingListEntry_Scalar::GetNormalizedStepSize() const
 {
-	if (const UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting)) return Scalar->GetNormalizedStepSize();
-	return 0.0;
+	return ScalarSetting ? ScalarSetting->GetNormalizedStepSize() : 0.0;
 }
+
 bool UGSS_GameSettingListEntry_Scalar::SetNormalizedValue(double Value)
 {
-	if (UGSS_GameSettingValueScalar* Scalar = Cast<UGSS_GameSettingValueScalar>(Setting); Scalar && CanInteractWithSetting()) { Scalar->SetValueNormalized(Value); return true; }
+	if (ScalarSetting && CanInteractWithSetting())
+	{
+		ScalarSetting->SetValueNormalized(Value);
+		return true;
+	}
 	return false;
 }
 
-void UGSS_GameSettingListEntry_Scalar::HandleSettingChanged(UGSS_GameSetting* ChangedSetting, EGSS_GameSettingChangeReason Reason)
+void UGSS_GameSettingListEntry_Scalar::OnSettingChanged()
 {
-	if (!bSuspendChangeUpdates)
+	RefreshScalarControl();
+}
+
+void UGSS_GameSettingListEntry_Scalar::RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState)
+{
+	Super::RefreshEditableState_Implementation(InEditableState);
+	const bool bEnabled = InEditableState.IsEnabled();
+	if (Panel_Value)
 	{
-		Super::HandleSettingChanged(ChangedSetting, Reason);
-		RefreshScalarControl();
+		Panel_Value->SetIsEnabled(bEnabled);
+	}
+	if (Slider_SettingValue)
+	{
+		Slider_SettingValue->SetIsEnabled(bEnabled);
 	}
 }
 
-void UGSS_GameSettingListEntry_Scalar::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
-{
-	ScalarSetting = Cast<UGSS_GameSettingValueScalar>(Setting);
-	Super::HandleEditStateChanged(ChangedSetting);
-	RefreshScalarControl();
-	const bool bEnabled = IsSettingEnabled();
-	if (Panel_Value) Panel_Value->SetIsEnabled(bEnabled);
-	if (Slider_SettingValue) Slider_SettingValue->SetIsEnabled(bEnabled);
-}
-
-void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl()
+void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl_Implementation()
 {
 	if (!ScalarSetting)
 	{
@@ -216,10 +262,9 @@ void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl()
 		Text_SettingValue->SetText(ScalarSetting->GetFormattedText());
 	}
 	const TOptional<double> DefaultValue = ScalarSetting->GetDefaultValueNormalized();
-	if (DefaultValue.IsSet())
-	{
-		OnDefaultValueChanged(static_cast<float>(DefaultValue.GetValue()));
-	}
+	
+	OnDefaultValueChanged(DefaultValue.IsSet()?DefaultValue.GetValue():-1.0f);
+	
 	OnValueChanged(NormalizedValue);
 }
 
@@ -240,10 +285,10 @@ void UGSS_GameSettingListEntry_Scalar::HandleSliderValueChanged(float Value)
 void UGSS_GameSettingListEntry_Scalar::HandleSliderCaptureEnded()
 {
 }
+
 FText UGSS_GameSettingListEntry_Action::GetActionText() const
 {
-	if (const UGSS_GameSettingAction* Action = Cast<UGSS_GameSettingAction>(Setting)) return Action->GetActionText();
-	return FText::GetEmpty();
+	return ActionSetting ? ActionSetting->GetActionText() : FText::GetEmpty();
 }
 
 void UGSS_GameSettingListEntry_Action::SetSetting(UGSS_GameSetting* InSetting)
@@ -252,7 +297,15 @@ void UGSS_GameSettingListEntry_Action::SetSetting(UGSS_GameSetting* InSetting)
 	Super::SetSetting(InSetting);
 	if (ActionSetting)
 	{
-		OnSettingAssigned(ActionSetting->GetActionText());
+		OnSettingAssigned(ActionSetting);
+	}
+}
+
+void UGSS_GameSettingListEntry_Action::OnSettingAssigned_Implementation(UGSS_GameSettingAction* AssignedSetting)
+{
+	if (Button_Action && AssignedSetting)
+	{
+		Button_Action->SetButtonText(AssignedSetting->GetActionText());
 	}
 }
 
@@ -270,31 +323,34 @@ void UGSS_GameSettingListEntry_Action::NativeOnEntryReleased()
 	ActionSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
+
 bool UGSS_GameSettingListEntry_Action::ExecuteAction()
 {
-	if (UGSS_GameSettingAction* Action = Cast<UGSS_GameSettingAction>(Setting); Action && CanInteractWithSetting()) { Action->ExecuteAction(); return true; }
+	if (ActionSetting && CanInteractWithSetting())
+	{
+		ActionSetting->ExecuteAction();
+		return true;
+	}
 	return false;
 }
 
-void UGSS_GameSettingListEntry_Action::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Action::RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState)
 {
-	ActionSetting = Cast<UGSS_GameSettingAction>(Setting);
-	Super::HandleEditStateChanged(ChangedSetting);
-	if (ActionSetting)
+	Super::RefreshEditableState_Implementation(InEditableState);
+	if (Button_Action)
 	{
-		OnSettingAssigned(ActionSetting->GetActionText());
+		Button_Action->SetIsEnabled(InEditableState.IsEnabled());
 	}
-	if (Button_Action) Button_Action->SetIsEnabled(IsSettingEnabled());
 }
 
 void UGSS_GameSettingListEntry_Action::HandleActionButtonClicked()
 {
 	ExecuteAction();
 }
+
 FText UGSS_GameSettingListEntry_Navigation::GetNavigationText() const
 {
-	if (const UGSS_GameSettingCollectionPage* Page = Cast<UGSS_GameSettingCollectionPage>(Setting)) return Page->GetNavigationText();
-	return FText::GetEmpty();
+	return CollectionSetting ? CollectionSetting->GetNavigationText() : FText::GetEmpty();
 }
 
 void UGSS_GameSettingListEntry_Navigation::SetSetting(UGSS_GameSetting* InSetting)
@@ -303,7 +359,15 @@ void UGSS_GameSettingListEntry_Navigation::SetSetting(UGSS_GameSetting* InSettin
 	Super::SetSetting(InSetting);
 	if (CollectionSetting)
 	{
-		OnSettingAssigned(CollectionSetting->GetNavigationText());
+		OnSettingAssigned(CollectionSetting);
+	}
+}
+
+void UGSS_GameSettingListEntry_Navigation::OnSettingAssigned_Implementation(UGSS_GameSettingCollectionPage* AssignedSetting)
+{
+	if (Button_Navigate && AssignedSetting)
+	{
+		Button_Navigate->SetButtonText(AssignedSetting->GetNavigationText());
 	}
 }
 
@@ -321,21 +385,24 @@ void UGSS_GameSettingListEntry_Navigation::NativeOnEntryReleased()
 	CollectionSetting = nullptr;
 	Super::NativeOnEntryReleased();
 }
+
 bool UGSS_GameSettingListEntry_Navigation::Navigate()
 {
-	if (UGSS_GameSettingCollectionPage* Page = Cast<UGSS_GameSettingCollectionPage>(Setting); Page && CanInteractWithSetting()) { Page->ExecuteNavigation(); return true; }
+	if (CollectionSetting && CanInteractWithSetting())
+	{
+		CollectionSetting->ExecuteNavigation();
+		return true;
+	}
 	return false;
 }
 
-void UGSS_GameSettingListEntry_Navigation::HandleEditStateChanged(UGSS_GameSetting* ChangedSetting)
+void UGSS_GameSettingListEntry_Navigation::RefreshEditableState_Implementation(const FGSS_GameSettingEditableState& InEditableState)
 {
-	CollectionSetting = Cast<UGSS_GameSettingCollectionPage>(Setting);
-	Super::HandleEditStateChanged(ChangedSetting);
-	if (CollectionSetting)
+	Super::RefreshEditableState_Implementation(InEditableState);
+	if (Button_Navigate)
 	{
-		OnSettingAssigned(CollectionSetting->GetNavigationText());
+		Button_Navigate->SetIsEnabled(InEditableState.IsEnabled());
 	}
-	if (Button_Navigate) Button_Navigate->SetIsEnabled(IsSettingEnabled());
 }
 
 void UGSS_GameSettingListEntry_Navigation::HandleNavigationButtonClicked()

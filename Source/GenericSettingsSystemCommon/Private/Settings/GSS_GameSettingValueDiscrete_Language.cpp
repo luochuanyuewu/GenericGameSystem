@@ -66,39 +66,33 @@ int32 UGSS_GameSettingValueDiscrete_Language::GetDiscreteOptionIndex() const
 	return GetDiscreteOptionDefaultIndex();
 }
 
-bool UGSS_GameSettingValueDiscrete_Language::OnApply()
+void UGSS_GameSettingValueDiscrete_Language::OnApply()
 {
 	if (!GConfig)
 	{
-		return false;
+		return;
 	}
 
 	if (PendingValue.IsEmpty())
 	{
 		const FCulturePtr SystemDefaultCulture = FInternationalization::Get().GetDefaultCulture();
-		if (!SystemDefaultCulture.IsValid())
+		if (!SystemDefaultCulture.IsValid() || !FInternationalization::Get().SetCurrentCulture(SystemDefaultCulture->GetName()))
 		{
-			return false;
-		}
-
-		if (!FInternationalization::Get().SetCurrentCulture(SystemDefaultCulture->GetName()))
-		{
-			return false;
+			return;
 		}
 
 		GConfig->RemoveKey(GSS_Language::ConfigSection, GSS_Language::ConfigKey, GGameUserSettingsIni);
 		GConfig->Flush(false, GGameUserSettingsIni);
-		return true;
+		return;
 	}
 
 	if (!FInternationalization::Get().SetCurrentCulture(PendingValue))
 	{
-		return false;
+		return;
 	}
 
 	GConfig->SetString(GSS_Language::ConfigSection, GSS_Language::ConfigKey, *PendingValue, GGameUserSettingsIni);
 	GConfig->Flush(false, GGameUserSettingsIni);
-	return true;
 }
 
 bool UGSS_GameSettingValueDiscrete_Language::IsUsingDefaultCulture()

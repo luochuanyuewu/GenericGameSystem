@@ -58,7 +58,7 @@ protected:
 
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-	virtual bool OnApply() override;
+	virtual void OnApply() override;
 
 	bool AreOptionsEqual(const FString& InOptionA, const FString& InOptionB) const;
 	/** Returns raw option indices which remain available after edit-condition evaluation. / 返回编辑条件评估后仍可用的原始选项索引。 */

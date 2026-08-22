@@ -47,10 +47,9 @@ UClass* FGSS_SettingValueAccessor::ResolveTargetClass() const
 		return UGameUserSettings::StaticClass();
 	}
 
-	const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>();
-	if (Settings && Settings->SharedSettingsClass)
+	if (const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>())
 	{
-		return Settings->SharedSettingsClass.Get();
+		return Settings->ResolveSharedSettingsClass();
 	}
 	return UGSS_SettingsShared::StaticClass();
 }

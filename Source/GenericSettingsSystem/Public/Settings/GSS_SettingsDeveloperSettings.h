@@ -22,7 +22,10 @@ public:
 
 	/** Shared preference class loaded separately for every LocalPlayer. / 为每个 LocalPlayer 单独加载的共享偏好类。 */
 	UPROPERTY(Config, EditAnywhere, Category = "GSS|Settings", meta = (AllowAbstract = false))
-	TSubclassOf<UGSS_SettingsShared> SharedSettingsClass;
+	TSoftClassPtr<UGSS_SettingsShared> SharedSettingsClass;
+
+	/** Loads SharedSettingsClass, or UGSS_SettingsShared when the soft reference is empty. / 加载 SharedSettingsClass；软引用为空时回退到 UGSS_SettingsShared。 */
+	UClass* ResolveSharedSettingsClass() const;
 
 	/** Provider classes registered automatically for every LocalPlayer registry. / 为每个 LocalPlayer Registry 自动注册的 Provider 类。 */
 	UPROPERTY(Config, EditAnywhere, Category = "GSS|Settings", meta = (AllowAbstract = false))

@@ -154,10 +154,8 @@ public:
 	 * Gets the cached native editable state computed from edit conditions.
 	 * 获取由编辑条件计算的缓存原生编辑状态。
 	 */
+	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	const FGSS_GameSettingEditableState& GetEditState() const { return EditableStateCache; }
-	/** Returns an editable-state snapshot for Blueprint UI and conditions. / 为蓝图 UI 和条件返回编辑状态快照。 */
-	UFUNCTION(BlueprintPure, Category = "GSS|Settings", meta = (DisplayName = "Get Edit State"))
-	FGSS_GameSettingEditableState GetEditableState() const { return EditableStateCache; }
 
 	/** Adds an edit condition that controls this node's visibility, availability or options. / 添加控制节点可见性、可用性或选项的编辑条件。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
@@ -187,11 +185,8 @@ public:
 	 */
 	void RefreshEditableState(bool bNotifyEditConditionsChanged = true);
 
-	/**
-	 * Applies this node's pending change. Returns false when the underlying Accessor rejects the write.
-	 * 应用节点的待应用修改；底层 Accessor 拒绝写入时返回 false。
-	 */
-	bool Apply();
+	/** Applies this node's pending change. / 应用此节点的待应用修改。 */
+	void Apply();
 
 	/** Gets the current world of the owning LocalPlayer. / 获取所属 LocalPlayer 当前所在的世界。 */
 	virtual UWorld* GetWorld() const override;
@@ -202,7 +197,7 @@ protected:
 	void StartupComplete();
 
 	virtual void OnInitialized();
-	virtual bool OnApply();
+	virtual void OnApply();
 	virtual void OnGatherEditState(FGSS_GameSettingEditableState& InOutEditState) const;
 	virtual void OnDependencyChanged();
 

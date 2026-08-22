@@ -75,7 +75,7 @@ public:
 protected:
 	/** UGSS_GameSettingValue */
 	virtual void OnInitialized() override;
-	virtual bool OnApply() override;
+	virtual void OnApply() override;
 
 protected:
 

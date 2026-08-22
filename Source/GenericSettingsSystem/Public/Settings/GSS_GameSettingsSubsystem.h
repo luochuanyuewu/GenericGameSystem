@@ -79,7 +79,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GSS|Settings")
 	UGSS_SettingsShared* GetSharedSettings() const { return SharedSettings; }
 
-	/** Applies pending edits, applies local engine settings and saves Shared Settings. Failed value writes remain pending. / 应用待提交修改、应用本地引擎设置并保存 Shared Settings；写入失败的值保持待提交。 */
+	/** Writes pending values, then commits local engine settings and Shared Settings. / 写入待应用值，随后提交本地引擎设置与 Shared Settings。 */
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void ApplyChanges();
 	/** Returns whether this LocalPlayer has unapplied setting edits. / 返回此 LocalPlayer 是否存在尚未应用的设置修改。 */
@@ -111,6 +111,7 @@ public:
 private:
 	void BuildDefinitions(UGSS_GameSettingsDefinitionAsset* DefinitionAsset);
 	void LoadSharedSettings();
+	void SaveChanges();
 	void HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
 	void HandleSettingApplied(UGSS_GameSetting* Setting);
 	void HandleSettingAction(UGSS_GameSetting* Setting, FGameplayTag ActionId);

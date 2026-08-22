@@ -83,12 +83,9 @@ void UGSS_GameSetting::StartupComplete()
 	}
 }
 
-bool UGSS_GameSetting::Apply()
+void UGSS_GameSetting::Apply()
 {
-	if (!OnApply())
-	{
-		return false;
-	}
+	OnApply();
 
 	// Run through any edit conditions and let them know things changed.
 	for (UGSS_GameSettingEditCondition* EditCondition : EditConditions)
@@ -97,7 +94,6 @@ bool UGSS_GameSetting::Apply()
 	}
 
 	OnSettingAppliedEvent.Broadcast(this);
-	return true;
 }
 
 void UGSS_GameSetting::OnInitialized()
@@ -106,9 +102,8 @@ void UGSS_GameSetting::OnInitialized()
 	ComputeEditableState();
 }
 
-bool UGSS_GameSetting::OnApply()
+void UGSS_GameSetting::OnApply()
 {
-	return true;
 }
 
 UWorld* UGSS_GameSetting::GetWorld() const

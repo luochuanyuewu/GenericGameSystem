@@ -28,7 +28,7 @@ public:
 
 protected:
 	virtual void OnInitialized() override;
-	virtual bool OnApply() override;
+	virtual void OnApply() override;
 
 private:
 	static bool IsUsingDefaultCulture();

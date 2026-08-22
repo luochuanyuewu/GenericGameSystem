@@ -34,5 +34,5 @@ protected:
 	static FString ToResolutionValue(const FIntPoint& Resolution);
 	virtual void OnInitialized() override;
 	virtual void OnDependencyChanged() override;
-	virtual bool OnApply() override;
+	virtual void OnApply() override;
 };

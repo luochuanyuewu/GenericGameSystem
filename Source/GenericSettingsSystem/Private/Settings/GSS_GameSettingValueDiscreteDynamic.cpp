@@ -130,9 +130,9 @@ void UGSS_GameSettingValueDiscreteDynamic::RestoreToInitial()
 	SetValueFromString(InitialValue, EGSS_GameSettingChangeReason::RestoreToInitial);
 }
 
-bool UGSS_GameSettingValueDiscreteDynamic::OnApply()
+void UGSS_GameSettingValueDiscreteDynamic::OnApply()
 {
-	return Accessor.SetValue(LocalPlayer, PendingValue);
+	Accessor.SetValue(LocalPlayer, PendingValue);
 }
 
 void UGSS_GameSettingValueDiscreteDynamic::SetDiscreteOptionByIndex(int32 Index)

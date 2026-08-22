@@ -125,7 +125,13 @@ void UGSS_GameSettingsSubsystem::ApplyChanges()
 	{
 		return;
 	}
+
 	ChangeTracker->ApplyChanges();
+	SaveChanges();
+}
+
+void UGSS_GameSettingsSubsystem::SaveChanges()
+{
 	if (UGameUserSettings* LocalSettings = GEngine ? GEngine->GetGameUserSettings() : nullptr)
 	{
 		LocalSettings->ApplySettings(false);
@@ -164,8 +170,8 @@ void UGSS_GameSettingsSubsystem::Reload()
 void UGSS_GameSettingsSubsystem::LoadSharedSettings()
 {
 	const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>();
-	const TSubclassOf<UGSS_SettingsShared> SharedClass = Settings->SharedSettingsClass ? Settings->SharedSettingsClass : TSubclassOf<UGSS_SettingsShared>(UGSS_SettingsShared::StaticClass());
-	SharedSettings = Cast<UGSS_SettingsShared>(ULocalPlayerSaveGame::LoadOrCreateSaveGameForLocalPlayer(SharedClass, GetLocalPlayer(), Settings->SharedSettingsSlotName));
+	SharedSettings = Cast<UGSS_SettingsShared>(ULocalPlayerSaveGame::LoadOrCreateSaveGameForLocalPlayer(
+		Settings->ResolveSharedSettingsClass(), GetLocalPlayer(), Settings->SharedSettingsSlotName));
 }
 
 void UGSS_GameSettingsSubsystem::BuildDefinitions(UGSS_GameSettingsDefinitionAsset* DefinitionAsset)
