@@ -6,7 +6,7 @@
 #include "Components/SlateWrapperTypes.h"
 #include "GSS_GameSettingFilterState.h"
 #include "GSS_GameSettingEditCondition.h"
-#include "GameplayTagContainer.h"
+#include "UObject/WeakObjectPtr.h"
 
 #include "GSS_GameSetting.generated.h"
 
@@ -169,8 +169,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
 	void AddEditCondition(UGSS_GameSettingEditCondition* InEditCondition);
 
-	/** Adds a dependency; its changes trigger this node's edit-state reevaluation. / 添加依赖；依赖变化会触发本节点重新计算编辑状态。 */
-	void AddEditDependency(UGSS_GameSetting* DependencySetting);
+	/**
+	 * Adds a dependency by SettingId. Changes to that setting refresh this node's edit state.
+	 * The other setting may be registered later; the Registry resolves the tag when it appears.
+	 * 按 SettingId 添加依赖；该设置变化时会刷新本节点的编辑状态。
+	 * 对方可以稍后注册，Registry 会在其出现时解析该 Tag。
+	 */
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
+	void AddEditDependency(UPARAM(meta = (Categories = "GSS.Settings")) FGameplayTag DependencySettingId);
+
+	/** Adds several SettingId dependencies. / 添加多个 SettingId 依赖。 */
+	UFUNCTION(BlueprintCallable, Category = "GSS|Settings")
+	void AddEditDependencies(const TArray<FGameplayTag>& DependencySettingIds);
+
+	/** Resolves pending SettingId dependencies against the owning Registry. / 按所属 Registry 解析尚未绑定的 SettingId 依赖。 */
+	void ResolveEditDependencies();
 
 	/** Sets the parent setting, normally a collection. / 设置父设置，通常为 Collection。 */
 	void SetSettingParent(UGSS_GameSetting* InSettingParent);
@@ -219,6 +232,7 @@ protected:
 	/** Handles an edit dependency change. / 处理编辑依赖变化。 */
 	void HandleEditDependencyChanged(UGSS_GameSetting* DependencySetting, EGSS_GameSettingChangeReason Reason);
 	void HandleEditDependencyChanged(UGSS_GameSetting* DependencySetting);
+	void BindEditDependency(FGameplayTag DependencySettingId);
 
 	/** Regenerates cached plain searchable text when invalidated. / 失效后重新生成缓存的可搜索纯文本。 */
 	void RefreshPlainText() const;
@@ -265,6 +279,12 @@ protected:
 	/** Runtime edit conditions for this setting. / 此设置的运行时编辑条件。 */
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UGSS_GameSettingEditCondition>> EditConditions;
+
+	/** SettingIds whose changes refresh this node. / 变化时会刷新本节点的 SettingId。 */
+	UPROPERTY(Transient)
+	TArray<FGameplayTag> EditDependencyIds;
+
+	TMap<FGameplayTag, TWeakObjectPtr<UGSS_GameSetting>> BoundEditDependencies;
 
 	class FStringCultureCache
 	{

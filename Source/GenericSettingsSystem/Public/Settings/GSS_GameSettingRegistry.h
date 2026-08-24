@@ -103,6 +103,7 @@ public:
 
 	// Internal registration and event handlers.
 	void RegisterSettingTree(UGSS_GameSetting* InSetting);
+	void ResolveRegisteredEditDependencies();
 	void HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason);
 	void HandleSettingApplied(UGSS_GameSetting* Setting);
 	void HandleSettingEditConditionsChanged(UGSS_GameSetting* Setting);

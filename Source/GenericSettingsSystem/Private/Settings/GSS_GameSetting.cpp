@@ -1,6 +1,7 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
 #include "Settings/GSS_GameSetting.h"
+#include "Settings/GSS_GameSettingRegistry.h"
 #include "Framework/Text/ITextDecorator.h"
 #include "Framework/Text/RichTextMarkupProcessing.h"
 #include "Engine/LocalPlayer.h"
@@ -57,6 +58,8 @@ void UGSS_GameSetting::Initialize(ULocalPlayer* InLocalPlayer)
 	{
 		EditCondition->InitializeCondition(this);
 	}
+
+	ResolveEditDependencies();
 
 	// If there are any child settings go ahead and initialize them as well.
 	for (UGSS_GameSetting* Setting : GetChildSettings())
@@ -213,12 +216,73 @@ void UGSS_GameSetting::AddEditCondition(UGSS_GameSettingEditCondition* InEditCon
 	}
 }
 
-void UGSS_GameSetting::AddEditDependency(UGSS_GameSetting* DependencySetting)
+void UGSS_GameSetting::AddEditDependency(FGameplayTag DependencySettingId)
 {
-	if (ensure(DependencySetting))
+	if (!DependencySettingId.IsValid() || DependencySettingId == SettingId)
 	{
-		DependencySetting->OnSettingChangedEvent.AddUObject(this, &ThisClass::HandleEditDependencyChanged);
-		DependencySetting->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleEditDependencyChanged);
+		return;
+	}
+
+	EditDependencyIds.AddUnique(DependencySettingId);
+	BindEditDependency(DependencySettingId);
+}
+
+void UGSS_GameSetting::AddEditDependencies(const TArray<FGameplayTag>& DependencySettingIds)
+{
+	for (const FGameplayTag& DependencySettingId : DependencySettingIds)
+	{
+		AddEditDependency(DependencySettingId);
+	}
+}
+
+void UGSS_GameSetting::ResolveEditDependencies()
+{
+	for (const FGameplayTag& DependencySettingId : EditDependencyIds)
+	{
+		BindEditDependency(DependencySettingId);
+	}
+}
+
+void UGSS_GameSetting::BindEditDependency(FGameplayTag DependencySettingId)
+{
+	UGSS_GameSetting* OtherSetting = OwningRegistry ? OwningRegistry->FindSettingById(DependencySettingId) : nullptr;
+	if (OtherSetting == this)
+	{
+		OtherSetting = nullptr;
+	}
+
+	TWeakObjectPtr<UGSS_GameSetting>& BoundSetting = BoundEditDependencies.FindOrAdd(DependencySettingId);
+	UGSS_GameSetting* PreviousSetting = BoundSetting.Get();
+	if (PreviousSetting == OtherSetting)
+	{
+		return;
+	}
+
+	if (PreviousSetting)
+	{
+		PreviousSetting->OnSettingChangedEvent.RemoveAll(this);
+		PreviousSetting->OnSettingEditConditionChangedEvent.RemoveAll(this);
+	}
+
+	if (OtherSetting)
+	{
+		OtherSetting->OnSettingChangedEvent.AddUObject(this, &ThisClass::HandleEditDependencyChanged);
+		OtherSetting->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleEditDependencyChanged);
+		BoundSetting = OtherSetting;
+	}
+	else
+	{
+		BoundSetting.Reset();
+	}
+
+	// First Initialize may run before SetRegistry, or the target may register later.
+	// Recompute once the live node is known so edit state and OnDependencyChanged stay current.
+	// 首次 Initialize 可能早于 SetRegistry，或依赖目标稍后才注册。
+	// 绑定到实际节点后再算一次，避免 EditableState 与 OnDependencyChanged 停在旧结果。
+	if (bReady)
+	{
+		OnDependencyChanged();
+		RefreshEditableState();
 	}
 }
 

@@ -60,6 +60,10 @@ public:
 	UPROPERTY(EditAnywhere, Instanced, BlueprintReadOnly, Category = "GSS|Settings")
 	TArray<TObjectPtr<UGSS_GameSettingEditCondition>> EditConditions;
 
+	/** Other settings that refresh this node when they change, identified by SettingId. / 变化时刷新本节点的其他设置，用 SettingId 标识。 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings", meta = (Categories = "GSS.Settings"))
+	TArray<FGameplayTag> EditDependencies;
+
 	/** Compatible Getter names for the current Accessor source. / 当前 Accessor 源上签名匹配的 Getter 名。 */
 	UFUNCTION()
 	TArray<FString> GetAccessorGetterFunctionOptions() const { return Accessor.GetCompatibleGetterNames(); }

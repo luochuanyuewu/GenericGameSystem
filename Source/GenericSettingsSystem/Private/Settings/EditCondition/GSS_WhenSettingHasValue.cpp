@@ -14,13 +14,7 @@ void UGSS_WhenSettingHasValue::OnConditionInitialized_Implementation()
 		return;
 	}
 
-	if (UGSS_GameSettingRegistry* Registry = Setting->GetRegistry())
-	{
-		if (UGSS_GameSetting* OtherSetting = Registry->FindSettingById(OtherSettingId))
-		{
-			Setting->AddEditDependency(OtherSetting);
-		}
-	}
+	Setting->AddEditDependency(OtherSettingId);
 }
 
 void UGSS_WhenSettingHasValue::Evaluate_Implementation(FGSS_GameSettingEditableState& InOutEditState)

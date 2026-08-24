@@ -133,6 +133,11 @@ void UGSS_GameSettingRegistry::RegisterSetting(UGSS_GameSetting* InSetting, UGSS
 	{
 		InSetting->Initialize(OwningLocalPlayer);
 	}
+	else
+	{
+		InSetting->ResolveEditDependencies();
+	}
+	ResolveRegisteredEditDependencies();
 }
 
 void UGSS_GameSettingRegistry::UnregisterSetting(UGSS_GameSetting* InSetting)
@@ -163,6 +168,18 @@ void UGSS_GameSettingRegistry::UnregisterSetting(UGSS_GameSetting* InSetting)
 		PageSetting->OnExecuteNavigationEvent.RemoveAll(this);
 	}
 	RegisteredSettings.Remove(InSetting);
+	ResolveRegisteredEditDependencies();
+}
+
+void UGSS_GameSettingRegistry::ResolveRegisteredEditDependencies()
+{
+	for (UGSS_GameSetting* Setting : RegisteredSettings)
+	{
+		if (Setting)
+		{
+			Setting->ResolveEditDependencies();
+		}
+	}
 }
 
 void UGSS_GameSettingRegistry::ReloadSettingsFromAccessors()

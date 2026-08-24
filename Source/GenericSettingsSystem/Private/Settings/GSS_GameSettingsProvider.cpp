@@ -166,6 +166,7 @@ UGSS_GameSetting* UGSS_GameSettingsBuilder::AddDefinition(const UGSS_GameSetting
 			Setting->AddEditCondition(DuplicateObject<UGSS_GameSettingEditCondition>(ConditionTemplate, Setting));
 		}
 	}
+	Setting->AddEditDependencies(Definition->EditDependencies);
 	Registry->RegisterSetting(Setting, Cast<UGSS_GameSettingCollection>(Parent));
 	CreatedSettings.Add(Setting);
 

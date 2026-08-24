@@ -61,7 +61,7 @@ GGS 采用模块化架构，由七个 Runtime 模块和一个仅编辑器集成�
   - 面向本地玩家的设置注册表和设置集合
   - 支持统一 Local/Shared Accessor 的离散值与标量值
   - 支持应用、恢复、过滤和编辑条件
-  - 蓝图编辑条件按引用接收 `FGSS_GameSettingEditableState`，可通过 `UGSS_GameSettingEditableStateLibrary` 隐藏、禁用、排除选项或禁止重置。内置条件还可以检查另一个设置的待应用值，或使用 `FPlatformProperties::SupportsWindowedMode()`
+  - 蓝图编辑条件按引用接收 `FGSS_GameSettingEditableState`，可通过 `UGSS_GameSettingEditableStateLibrary` 隐藏、禁用、排除选项或禁止重置。内置条件还可以检查另一个设置的待应用值，或使用 `FPlatformProperties::SupportsWindowedMode()`。编辑依赖按 SettingId 声明（`AddEditDependency` 或 Data Asset 的 `EditDependencies`），蓝图、C++ 与资产都不必引用对象。
   - 支持 Data Asset 配置，以及面向蓝图/C++ 的 Local/Shared 轻量反射值 Accessor。Data Asset 的 Getter/Setter 为下拉列表，按项目 `GameUserSettings` 类（Local）或 Shared Settings Class（Shared）上签名匹配的函数筛选；无效配对会在注册时被拒绝。C++ Provider 可使用 `GSS_MAKE_LOCAL_ACCESSOR` / `GSS_MAKE_SHARED_ACCESSOR` 在编译期检查函数名。Scalar Definition 与 `AddScalar` 可选择原始值、百分比或整数等内置显示格式
   - 支持运行时 Provider 注册、本地 `UGameUserSettings` 和按 LocalPlayer 隔离的 Shared SaveGame 偏好
   - Dynamic 离散/标量设置会立即通过 Accessor 写入，因此音量等值可以即时预览。Shared Settings 的 `ApplySettings` 会在加载/Reload 后立刻调用，以便开机应用已存偏好；`ApplyChanges` 时会再次调用，并一并持久化 `SaveSettings` 与本地 `UGameUserSettings`。Language 与 Resolution 是自定义 Discrete 节点而不是 Dynamic：Language 会将 Culture 暂存到 Apply；Resolution 会立即调用 `SetScreenResolution`，由子系统在 Apply 时提交窗口。

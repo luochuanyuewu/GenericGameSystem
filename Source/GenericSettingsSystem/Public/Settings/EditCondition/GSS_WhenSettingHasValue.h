@@ -11,7 +11,7 @@
  * 根据另一个离散设置的当前序列化值，禁用或隐藏本设置。
  *
  * Matching uses the same string contract as Accessors: bool tokens and case-insensitive enum names compare equal.
- * When this condition is initialized it also registers an edit dependency on the other setting.
+ * When this condition is initialized it also registers an edit dependency on OtherSettingId.
  * 匹配规则与 Accessor 相同：布尔记号和枚举名不区分大小写。初始化时会把另一个设置注册为编辑依赖。
  */
 UCLASS(BlueprintType, EditInlineNew)

@@ -78,5 +78,4 @@ private:
 	static FGSS_DiscreteOptionDefinition MakeOption(const TCHAR* Value, const FText& DisplayName);
 	static TArray<FGSS_DiscreteOptionDefinition> MakeQualityOptions();
 	static UGSS_GameSetting* AddQualitySetting(UGSS_GameSettingsBuilder* Builder, FGameplayTag SettingId, const FText& DisplayName, const FText& Description, FName Getter, FName Setter, UGSS_GameSetting* Parent);
-	static void BindQualityPresetDependency(UGSS_GameSetting* OverallQuality, UGSS_GameSetting* OtherSetting);
 };
