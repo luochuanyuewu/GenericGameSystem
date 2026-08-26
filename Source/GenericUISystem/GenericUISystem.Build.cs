@@ -13,7 +13,9 @@ public class GenericUISystem : ModuleRules
             new string[]
             {
                 "Core",
-                "CommonUI"
+                "CommonUI",
+                "Slate",
+                "UMG"
             }
         );
 
@@ -22,13 +24,11 @@ public class GenericUISystem : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "Slate",
                 "SlateCore",
                 "ApplicationCore",
                 "EnhancedInput",
                 "PropertyPath",
                 "GameplayTags",
-                "UMG",
                 "InputCore",
                 "CommonInput",
                 "DeveloperSettings",

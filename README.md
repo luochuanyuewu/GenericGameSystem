@@ -51,6 +51,7 @@ GGS is built with seven Runtime modules plus an editor-only integration module:
 - **Purpose**: Extended CommonUI functionality
 - **Features**:
   - Enhanced UI components and widgets
+  - Responsive Panel that flows children horizontally and stacks them on small physical screens
   - Input routing and action handling
   - Data-driven UI systems
   - Localization support

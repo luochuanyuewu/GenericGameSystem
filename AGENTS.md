@@ -77,6 +77,7 @@
 - 布娃娃组件：`Source/GenericGameSystem/Public/Ragdoll/GGS_RagdollComponent.h`
 - UI 子系统：`Source/GenericUISystem/Public/UI/GUIS_GameUISubsystem.h`
 - UI Policy：`Source/GenericUISystem/Public/UI/GUIS_GameUIPolicy.h`
+- 响应式面板：`Source/GenericUISystem/Public/UI/Responsive/GUIS_ResponsivePanel.h`
 - 设置注册表：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingRegistry.h`
 - 设置子系统：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingsSubsystem.h`
 - Shared Settings：`Source/GenericSettingsSystem/Public/Settings/GSS_SettingsShared.h`（`ApplySettings` / `SaveSettings` 均为 BlueprintNativeEvent；默认保存走 `AsyncSaveGameToSlotForLocalPlayer`）
