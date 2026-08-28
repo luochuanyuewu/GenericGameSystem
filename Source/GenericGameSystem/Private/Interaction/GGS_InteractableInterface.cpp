@@ -8,7 +8,7 @@
 
 FText IGGS_InteractableInterface::GetInteractionDisplayName_Implementation() const
 {
-	if (UObject* Object = _getUObject())
+	if (const UObject* Object = Cast<UObject>(this))
 	{
 		return FText::FromString(GetNameSafe(Object));
 	}
