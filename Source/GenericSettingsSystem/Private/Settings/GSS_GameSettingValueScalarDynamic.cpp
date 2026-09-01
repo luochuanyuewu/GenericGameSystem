@@ -196,6 +196,16 @@ double UGSS_GameSettingValueScalarDynamic::SanitizeSourceValue(double InValue) c
 	InValue = FMath::RoundHalfFromZero(InValue / SourceStep);
 	InValue = InValue * SourceStep;
 
+	if (SourceRange.HasLowerBound())
+	{
+		InValue = FMath::Max(SourceRange.GetLowerBoundValue(), InValue);
+	}
+
+	if (SourceRange.HasUpperBound())
+	{
+		InValue = FMath::Min(SourceRange.GetUpperBoundValue(), InValue);
+	}
+
 	if (Minimum.IsSet())
 	{
 		InValue = FMath::Max(Minimum.GetValue(), InValue);

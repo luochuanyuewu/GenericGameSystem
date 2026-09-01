@@ -95,6 +95,7 @@ protected:
 	void HandleEditableStateChanged(UGSS_GameSetting* Setting);
 	void HandleSettingItemHoveredChanged(UObject* Item, bool bHovered);
 	void HandleSettingItemSelectionChanged(UObject* Item);
+	bool HandleIsItemSelectableOrNavigable(UObject* Item);
 	void FillSettingDetails(UGSS_GameSetting* Setting);
 	void BindRegistryEvents();
 	void UnbindRegistryEvents();

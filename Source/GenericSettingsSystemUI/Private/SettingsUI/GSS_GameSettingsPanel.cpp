@@ -24,6 +24,7 @@ void UGSS_GameSettingsPanel::NativeOnInitialized()
 	{
 		ListView_Settings->OnItemIsHoveredChanged().AddUObject(this, &ThisClass::HandleSettingItemHoveredChanged);
 		ListView_Settings->OnItemSelectionChanged().AddUObject(this, &ThisClass::HandleSettingItemSelectionChanged);
+		ListView_Settings->OnIsItemSelectableOrNavigable().BindUObject(this, &ThisClass::HandleIsItemSelectableOrNavigable);
 	}
 }
 
@@ -247,6 +248,16 @@ void UGSS_GameSettingsPanel::HandleSettingItemSelectionChanged(UObject* Item)
 		LastHoveredOrSelectedSetting = Setting;
 	}
 	FillSettingDetails(Setting);
+}
+
+bool UGSS_GameSettingsPanel::HandleIsItemSelectableOrNavigable(UObject* Item)
+{
+	if (const UGSS_GameSettingCollection* Collection = Cast<UGSS_GameSettingCollection>(Item))
+	{
+		return Collection->IsSelectable();
+	}
+
+	return true;
 }
 
 void UGSS_GameSettingsPanel::FillSettingDetails(UGSS_GameSetting* Setting)

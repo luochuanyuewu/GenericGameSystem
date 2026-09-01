@@ -187,8 +187,9 @@ void UGSS_GameSettingListEntry_Scalar::NativeOnInitialized()
 
 void UGSS_GameSettingListEntry_Scalar::NativeOnEntryReleased()
 {
-	ScalarSetting = nullptr;
 	Super::NativeOnEntryReleased();
+
+	ScalarSetting = nullptr;
 }
 
 FText UGSS_GameSettingListEntry_Scalar::GetFormattedValue() const
@@ -234,14 +235,8 @@ void UGSS_GameSettingListEntry_Scalar::RefreshEditableState_Implementation(const
 {
 	Super::RefreshEditableState_Implementation(InEditableState);
 	const bool bEnabled = InEditableState.IsEnabled();
-	if (Panel_Value)
-	{
-		Panel_Value->SetIsEnabled(bEnabled);
-	}
-	if (Slider_SettingValue)
-	{
-		Slider_SettingValue->SetIsEnabled(bEnabled);
-	}
+	Panel_Value->SetIsEnabled(bEnabled);
+	Slider_SettingValue->SetIsEnabled(bEnabled);
 }
 
 void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl_Implementation()
@@ -252,19 +247,14 @@ void UGSS_GameSettingListEntry_Scalar::RefreshScalarControl_Implementation()
 	}
 
 	const float NormalizedValue = static_cast<float>(ScalarSetting->GetValueNormalized());
-	if (Slider_SettingValue)
-	{
-		Slider_SettingValue->SetValue(NormalizedValue);
-		Slider_SettingValue->SetStepSize(static_cast<float>(ScalarSetting->GetNormalizedStepSize()));
-	}
-	if (Text_SettingValue)
-	{
-		Text_SettingValue->SetText(ScalarSetting->GetFormattedText());
-	}
+	Slider_SettingValue->SetValue(NormalizedValue);
+	Slider_SettingValue->SetStepSize(static_cast<float>(ScalarSetting->GetNormalizedStepSize()));
+	Text_SettingValue->SetText(ScalarSetting->GetFormattedText());
+
 	const TOptional<double> DefaultValue = ScalarSetting->GetDefaultValueNormalized();
-	
-	OnDefaultValueChanged(DefaultValue.IsSet()?DefaultValue.GetValue():-1.0f);
-	
+
+	OnDefaultValueChanged(DefaultValue.IsSet() ? DefaultValue.GetValue() : -1.0f);
+
 	OnValueChanged(NormalizedValue);
 }
 
@@ -284,6 +274,7 @@ void UGSS_GameSettingListEntry_Scalar::HandleSliderValueChanged(float Value)
 
 void UGSS_GameSettingListEntry_Scalar::HandleSliderCaptureEnded()
 {
+	TGuardValue<bool> Suspend(bSuspendChangeUpdates, true);
 }
 
 FText UGSS_GameSettingListEntry_Action::GetActionText() const

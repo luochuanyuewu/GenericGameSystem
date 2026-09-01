@@ -68,7 +68,7 @@ protected:
 };
 
 /** Blueprint base for a scalar GSS setting row. / 标量 GSS 设置行的蓝图基类。 */
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
+UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
 class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Scalar : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
@@ -99,8 +99,10 @@ protected:
 	/** Pushes the scalar setting's current value onto native controls. / 将标量设置的当前值推到原生控件上。 */
 	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
 	void RefreshScalarControl();
-	UFUNCTION() void HandleSliderValueChanged(float Value);
-	UFUNCTION() void HandleSliderCaptureEnded();
+	UFUNCTION()
+	void HandleSliderValueChanged(float Value);
+	UFUNCTION()
+	void HandleSliderCaptureEnded();
 
 	/** Called after the native slider has refreshed its normalized value. / 原生滑块刷新归一化值后调用。 */
 	UFUNCTION(BlueprintImplementableEvent, Category = "GSS|Settings UI")
@@ -110,16 +112,16 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingValueScalar> ScalarSetting;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UPanelWidget> Panel_Value;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UAnalogSlider> Slider_SettingValue;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UCommonTextBlock> Text_SettingValue;
 };
 
 /** Blueprint base for a command GSS setting row. / 命令型 GSS 设置行的蓝图基类。 */
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
+UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
 class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Action : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
@@ -139,13 +141,14 @@ protected:
 	/** Called only after this row successfully receives an Action setting. / 仅在本行成功接收到 Action 设置后调用。 */
 	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
 	void OnSettingAssigned(UGSS_GameSettingAction* AssignedSetting);
-	UPROPERTY(Transient) TObjectPtr<UGSS_GameSettingAction> ActionSetting;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") 
+	UPROPERTY(Transient)
+	TObjectPtr<UGSS_GameSettingAction> ActionSetting;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UGUIS_ButtonBase> Button_Action;
 };
 
 /** Blueprint base for a navigable GSS settings page row. / 可导航 GSS 设置页面行的蓝图基类。 */
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick,Category = "Generic Settings UI"))
+UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick, Category = "Generic Settings UI"))
 class GENERICSETTINGSSYSTEMUI_API UGSS_GameSettingListEntry_Navigation : public UGSS_GameSettingListEntry_Setting
 {
 	GENERATED_BODY()
@@ -165,10 +168,10 @@ protected:
 	/** Called only after this row successfully receives a page setting. / 仅在本行成功接收到页面设置后调用。 */
 	UFUNCTION(BlueprintNativeEvent, Category = "GSS|Settings UI")
 	void OnSettingAssigned(UGSS_GameSettingCollectionPage* AssignedSetting);
-	
-	UPROPERTY(Transient) 
+
+	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingCollectionPage> CollectionSetting;
-	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI") 
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UGUIS_ButtonBase> Button_Navigate;
 };

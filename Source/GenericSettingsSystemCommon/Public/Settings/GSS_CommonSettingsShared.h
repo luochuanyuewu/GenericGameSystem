@@ -8,11 +8,10 @@
  * Base Shared Settings preset for the standard GSS Common providers.
  * 标准 GSS Common Provider 使用的 Shared Settings 预制基类。
  *
- * This class only stores portable preference values. Dynamic settings invoke the setters immediately,
- * so C++ subclasses can apply live preview in those setters. Override ApplySettings to apply stored
- * preferences after load and on ApplyChanges. Override SaveSettings to add extra persistence after the default async save.
- * 本类仅存储可携带的偏好值。Dynamic 设置会立即调用这些 Setter，因此 C++ 子类可在 Setter 中做即时预览。
- * 重写 ApplySettings 以在加载后与 ApplyChanges 时应用已存偏好；重写 SaveSettings 可在默认异步保存之后追加额外持久化。
+ * Stores preferences only. Projects should subclass it and override ApplySettings to apply loaded values to their
+ * runtime systems. Override the relevant setters as well when immediate preview is required.
+ * 本类仅存储偏好。项目应继承本类并重写 ApplySettings，将已加载的数值应用到运行时系统；
+ * 如需即时预览，还应重写对应的 Setter。
  */
 UCLASS(BlueprintType, Blueprintable)
 class GENERICSETTINGSSYSTEMCOMMON_API UGSS_CommonSettingsShared : public UGSS_SettingsShared
