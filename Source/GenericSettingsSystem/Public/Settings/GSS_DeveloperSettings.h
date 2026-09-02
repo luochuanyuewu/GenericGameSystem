@@ -3,15 +3,15 @@
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
-#include "GSS_SettingsDeveloperSettings.generated.h"
+#include "GSS_DeveloperSettings.generated.h"
 
 class UGSS_GameSettingsDefinitionAsset;
 class UGSS_GameSettingsProvider;
 class UGSS_SettingsShared;
 
 /** Project-wide GSS configuration shown in Project Settings. / 在项目设置中显示的 GSS 项目级配置。 */
-UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Generic Settings System"))
-class GENERICSETTINGSSYSTEM_API UGSS_SettingsDeveloperSettings : public UDeveloperSettings
+UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Generic Setting System Developer Settings"))
+class GENERICSETTINGSSYSTEM_API UGSS_DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

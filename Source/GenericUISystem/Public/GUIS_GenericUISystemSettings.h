@@ -14,7 +14,7 @@ class UGUIS_GameUIPolicy;
  * Developer settings for the Generic UI System.
  * 通用UI系统的开发者设置。
  */
-UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Generic UI System Settings"))
+UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Generic UI System Developer Settings"))
 class GENERICUISYSTEM_API UGUIS_GenericUISystemSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -25,7 +25,7 @@ public:
 	 * 获取通用UI系统设置。
 	 * @return The UI system settings. UI系统设置。
 	 */
-	UFUNCTION(BlueprintPure, Category="GUIS|Settings", meta = (DisplayName = "Get Generic UI System Settings"))
+	UFUNCTION(BlueprintPure, Category="GUIS|Settings", meta = (DisplayName = "Get GUIS Developer Settings"))
 	static const UGUIS_GenericUISystemSettings* Get();
 
 	/**

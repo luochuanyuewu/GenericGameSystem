@@ -3,7 +3,7 @@
 
 #include "Engine/Engine.h"
 #include "GenericSettingsSystem.h"
-#include "Settings/GSS_SettingsDeveloperSettings.h"
+#include "Settings/GSS_DeveloperSettings.h"
 #include "Settings/GSS_SettingsShared.h"
 #include "Settings/GSS_GameSettingsSubsystem.h"
 #include "UObject/EnumProperty.h"
@@ -47,7 +47,7 @@ UClass* FGSS_SettingValueAccessor::ResolveTargetClass() const
 		return UGameUserSettings::StaticClass();
 	}
 
-	if (const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>())
+	if (const UGSS_DeveloperSettings* Settings = GetDefault<UGSS_DeveloperSettings>())
 	{
 		return Settings->ResolveSharedSettingsClass();
 	}
@@ -198,11 +198,11 @@ FGSS_SettingValueAccessor FGSS_SettingValueAccessor::MakeShared(FName Getter, FN
 void FGSS_SettingValueAccessor::LogFailure(const TCHAR* Operation, const UObject* Target, const FName FunctionName, const TCHAR* Reason) const
 {
 	UE_LOG(LogGSS, Warning, TEXT("Accessor %s failed on %s::%s (%s target): %s"),
-		Operation,
-		Target ? *Target->GetClass()->GetName() : TEXT("<none>"),
-		*FunctionName.ToString(),
-		Source == EGSS_SettingValueSource::Local ? TEXT("Local") : TEXT("Shared"),
-		Reason);
+	       Operation,
+	       Target ? *Target->GetClass()->GetName() : TEXT("<none>"),
+	       *FunctionName.ToString(),
+	       Source == EGSS_SettingValueSource::Local ? TEXT("Local") : TEXT("Shared"),
+	       Reason);
 }
 
 bool FGSS_SettingValueAccessor::AreSerializedValuesEqual(const FString& Left, const FString& Right)

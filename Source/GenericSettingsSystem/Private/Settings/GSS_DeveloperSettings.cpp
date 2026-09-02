@@ -1,12 +1,12 @@
 // Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
-#include "Settings/GSS_SettingsDeveloperSettings.h"
+#include "Settings/GSS_DeveloperSettings.h"
 
 #include "Settings/GSS_SettingsShared.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_SettingsDeveloperSettings)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_DeveloperSettings)
 
-UClass* UGSS_SettingsDeveloperSettings::ResolveSharedSettingsClass() const
+UClass* UGSS_DeveloperSettings::ResolveSharedSettingsClass() const
 {
 	if (UClass* LoadedClass = SharedSettingsClass.LoadSynchronous())
 	{

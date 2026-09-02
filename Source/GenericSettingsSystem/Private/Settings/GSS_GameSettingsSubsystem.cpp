@@ -11,7 +11,7 @@
 #include "Settings/GSS_GameSettingValueScalarDynamic.h"
 #include "Settings/GSS_GameSettingAction.h"
 #include "Settings/GSS_GameSettingsDefinitions.h"
-#include "Settings/GSS_SettingsDeveloperSettings.h"
+#include "Settings/GSS_DeveloperSettings.h"
 #include "Settings/GSS_GameSettingsProvider.h"
 #include "Settings/GSS_SettingsShared.h"
 
@@ -30,11 +30,11 @@ void UGSS_GameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection
 	Registry->OnSettingEditConditionChangedEvent.AddUObject(this, &ThisClass::HandleSettingEditState);
 	ChangeTracker = MakeUnique<FGSS_GameSettingRegistryChangeTracker>();
 	ChangeTracker->WatchRegistry(Registry);
-	if (UGSS_GameSettingsDefinitionAsset* Root = GetDefault<UGSS_SettingsDeveloperSettings>()->RootDefinition.LoadSynchronous())
+	if (UGSS_GameSettingsDefinitionAsset* Root = GetDefault<UGSS_DeveloperSettings>()->RootDefinition.LoadSynchronous())
 	{
 		BuildDefinitions(Root);
 	}
-	for (const TSoftClassPtr<UGSS_GameSettingsProvider>& ProviderClass : GetDefault<UGSS_SettingsDeveloperSettings>()->StartupProviderClasses)
+	for (const TSoftClassPtr<UGSS_GameSettingsProvider>& ProviderClass : GetDefault<UGSS_DeveloperSettings>()->StartupProviderClasses)
 	{
 		if (UClass* LoadedClass = ProviderClass.LoadSynchronous())
 		{
@@ -94,28 +94,41 @@ FString UGSS_GameSettingsSubsystem::GetStringSettingValue(FGameplayTag SettingId
 	if (const UGSS_GameSettingValueDiscreteDynamic* Setting = Registry ? Cast<UGSS_GameSettingValueDiscreteDynamic>(Registry->FindSettingById(SettingId)) : nullptr) return Setting->GetValueAsString();
 	return DefaultValue;
 }
+
 bool UGSS_GameSettingsSubsystem::SetStringSettingValue(FGameplayTag SettingId, const FString& Value)
 {
 	if (UGSS_GameSettingValueDiscreteDynamic* Setting = Registry ? Cast<UGSS_GameSettingValueDiscreteDynamic>(Registry->FindSettingById(SettingId)) : nullptr)
 	{
 		if (!Setting->HasDynamicOption(Value)) return false;
-		Setting->SetValueFromString(Value); return true;
+		Setting->SetValueFromString(Value);
+		return true;
 	}
 	return false;
 }
+
 double UGSS_GameSettingsSubsystem::GetScalarSettingValue(FGameplayTag SettingId, double DefaultValue) const
 {
 	if (const UGSS_GameSettingValueScalarDynamic* Setting = Registry ? Cast<UGSS_GameSettingValueScalarDynamic>(Registry->FindSettingById(SettingId)) : nullptr) return Setting->GetValue();
 	return DefaultValue;
 }
+
 bool UGSS_GameSettingsSubsystem::SetScalarSettingValue(FGameplayTag SettingId, double Value)
 {
-	if (UGSS_GameSettingValueScalarDynamic* Setting = Registry ? Cast<UGSS_GameSettingValueScalarDynamic>(Registry->FindSettingById(SettingId)) : nullptr) { Setting->SetValue(Value); return true; }
+	if (UGSS_GameSettingValueScalarDynamic* Setting = Registry ? Cast<UGSS_GameSettingValueScalarDynamic>(Registry->FindSettingById(SettingId)) : nullptr)
+	{
+		Setting->SetValue(Value);
+		return true;
+	}
 	return false;
 }
+
 bool UGSS_GameSettingsSubsystem::ExecuteAction(FGameplayTag SettingId)
 {
-	if (UGSS_GameSettingAction* Setting = Registry ? Cast<UGSS_GameSettingAction>(Registry->FindSettingById(SettingId)) : nullptr) { Setting->ExecuteAction(); return true; }
+	if (UGSS_GameSettingAction* Setting = Registry ? Cast<UGSS_GameSettingAction>(Registry->FindSettingById(SettingId)) : nullptr)
+	{
+		Setting->ExecuteAction();
+		return true;
+	}
 	return false;
 }
 
@@ -169,7 +182,7 @@ void UGSS_GameSettingsSubsystem::Reload()
 
 void UGSS_GameSettingsSubsystem::LoadSharedSettings()
 {
-	const UGSS_SettingsDeveloperSettings* Settings = GetDefault<UGSS_SettingsDeveloperSettings>();
+	const UGSS_DeveloperSettings* Settings = GetDefault<UGSS_DeveloperSettings>();
 	SharedSettings = Cast<UGSS_SettingsShared>(ULocalPlayerSaveGame::LoadOrCreateSaveGameForLocalPlayer(
 		Settings->ResolveSharedSettingsClass(), GetLocalPlayer(), Settings->SharedSettingsSlotName));
 	if (SharedSettings)
@@ -221,7 +234,11 @@ void UGSS_GameSettingsSubsystem::UnregisterSettingsProvider(FGSS_SettingsRegistr
 	}
 }
 
-void UGSS_GameSettingsSubsystem::HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason) { if (Setting) OnSettingPendingChanged.Broadcast(Setting->GetSettingId(), Setting, Reason); }
+void UGSS_GameSettingsSubsystem::HandleSettingChanged(UGSS_GameSetting* Setting, EGSS_GameSettingChangeReason Reason)
+{
+	if (Setting) OnSettingPendingChanged.Broadcast(Setting->GetSettingId(), Setting, Reason);
+}
+
 void UGSS_GameSettingsSubsystem::HandleSettingApplied(UGSS_GameSetting* Setting) { if (Setting) OnSettingApplied.Broadcast(Setting->GetSettingId(), Setting); }
 void UGSS_GameSettingsSubsystem::HandleSettingAction(UGSS_GameSetting* Setting, FGameplayTag) { if (Setting) OnSettingActionExecuted.Broadcast(Setting->GetSettingId(), Setting); }
 void UGSS_GameSettingsSubsystem::HandleSettingNavigation(UGSS_GameSetting* Setting) { if (Setting) OnSettingNavigationRequested.Broadcast(Setting->GetSettingId(), Setting); }
