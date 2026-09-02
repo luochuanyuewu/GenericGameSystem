@@ -189,7 +189,7 @@ void UGES_ContextEffectComponent::InjectPhysicalSurfaceToContexts(const FHitResu
 		TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType = PhysicalSurfaceTypePtr->SurfaceType;
 
 		// If Settings are valid
-		if (const UGES_ContextEffectsSettings* ContextEffectsSettings = GetDefault<UGES_ContextEffectsSettings>())
+		if (const UGES_DeveloperSettings* ContextEffectsSettings = GetDefault<UGES_DeveloperSettings>())
 		{
 			if (ContextEffectsSettings->SurfaceTypeToContextMap.IsEmpty())
 			{

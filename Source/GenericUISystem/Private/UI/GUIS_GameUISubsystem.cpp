@@ -2,7 +2,7 @@
 
 #include "UI/GUIS_GameUISubsystem.h"
 #include "GameFramework/Pawn.h"
-#include "GUIS_GenericUISystemSettings.h"
+#include "GUIS_DeveloperSettings.h"
 #include "CommonUserWidget.h"
 #include "GUIS_LogChannels.h"
 #include "Engine/GameInstance.h"
@@ -19,7 +19,7 @@ void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	if (UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.IsNull())
+	if (UGUIS_DeveloperSettings::Get()->GameUIPolicyClass.IsNull())
 	{
 		UE_LOG(LogGUIS, Error, TEXT("GUIS_GameUISubsystem::Initialize Failed, Missing GameUIPolicyClass in GenericUISystemSettings!!!"));
 		return;
@@ -27,7 +27,7 @@ void UGUIS_GameUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	if (!CurrentPolicy)
 	{
-		TSubclassOf<UGUIS_GameUIPolicy> PolicyClass = UGUIS_GenericUISystemSettings::Get()->GameUIPolicyClass.LoadSynchronous();
+		TSubclassOf<UGUIS_GameUIPolicy> PolicyClass = UGUIS_DeveloperSettings::Get()->GameUIPolicyClass.LoadSynchronous();
 		if (PolicyClass)
 		{
 			UGUIS_GameUIPolicy* NewPolicy = NewObject<UGUIS_GameUIPolicy>(this, PolicyClass);

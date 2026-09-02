@@ -1,7 +1,7 @@
 ﻿// Copyright 2026 https://yuewu.dev/en  All Rights Reserved.
 
 #include "UI/Actions/GUIS_AsyncAction_ShowModel.h"
-#include "GUIS_GenericUISystemSettings.h"
+#include "GUIS_DeveloperSettings.h"
 #include "Engine/GameInstance.h"
 #include "UI/GUIS_GameUIFunctionLibrary.h"
 #include "UI/GUIS_GameUILayout.h"
@@ -44,7 +44,7 @@ UGUIS_AsyncAction_ShowModel* UGUIS_AsyncAction_ShowModel::ShowModal(UObject* InW
 	}
 
 	ModalDefinition.LoadSynchronous();
-	
+
 	const UGUIS_ModalDefinition* Modal = ModalDefinition->GetDefaultObject<UGUIS_ModalDefinition>();
 	if (Modal == nullptr)
 		return nullptr;

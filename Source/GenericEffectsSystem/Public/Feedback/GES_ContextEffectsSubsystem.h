@@ -25,7 +25,7 @@ struct FGameplayTagContainer;
  * 情景效果系统的开发者设置。
  */
 UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "Generic Effects System Developer Settings"))
-class GENERICEFFECTSSYSTEM_API UGES_ContextEffectsSettings : public UDeveloperSettings
+class GENERICEFFECTSSYSTEM_API UGES_DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

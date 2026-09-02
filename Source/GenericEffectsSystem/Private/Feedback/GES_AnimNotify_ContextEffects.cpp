@@ -23,7 +23,7 @@ bool UGES_ContextEffectsSpawnParametersProvider::ProvideParameters_Implementatio
 	return false;
 }
 
-UGES_AnimNotify_ContextEffects::UGES_AnimNotify_ContextEffects(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UGES_AnimNotify_ContextEffects::UGES_AnimNotify_ContextEffects(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 #if WITH_EDITORONLY_DATA
 	NotifyColor = FColor::Blue;
@@ -141,7 +141,7 @@ void UGES_AnimNotify_ContextEffects::Notify(USkeletalMeshComponent* MeshComp, UA
 		Input.bAttached = bAttached;
 		Input.Bone = SocketName;
 		Input.ComponentToAttach = MeshComp;
-		Input.Location = bHitSuccess?HitResult.Location:SpawnLocation;
+		Input.Location = bHitSuccess ? HitResult.Location : SpawnLocation;
 		Input.Rotation = SpawnRotation;
 		Input.LocationOffset = LocationOffset;
 		Input.RotationOffset = RotationOffset;
@@ -200,7 +200,7 @@ void UGES_AnimNotify_ContextEffects::PerformEditorPreview(AActor* OwningActor, F
 	{
 		return;
 	}
-	const UGES_ContextEffectsSettings* ContextEffectsSettings = GetDefault<UGES_ContextEffectsSettings>();
+	const UGES_DeveloperSettings* ContextEffectsSettings = GetDefault<UGES_DeveloperSettings>();
 	if (ContextEffectsSettings == nullptr)
 	{
 		return;

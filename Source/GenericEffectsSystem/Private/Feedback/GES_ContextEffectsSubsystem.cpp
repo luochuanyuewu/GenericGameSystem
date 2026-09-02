@@ -23,7 +23,7 @@ void UGES_ContextEffectsSubsystem::SpawnContextEffects(UObject* WorldContextObje
 	{
 		return;
 	}
-	
+
 	if (EffectsLibrary.IsNull())
 	{
 		return;
@@ -232,7 +232,7 @@ bool UGES_ContextEffectsSubsystem::GetContextFromSurfaceType(
 	TEnumAsByte<EPhysicalSurface> PhysicalSurface, FGameplayTag& Context)
 {
 	// Get Project Settings
-	if (const UGES_ContextEffectsSettings* ProjectSettings = GetDefault<UGES_ContextEffectsSettings>())
+	if (const UGES_DeveloperSettings* ProjectSettings = GetDefault<UGES_DeveloperSettings>())
 	{
 		// Find which Gameplay Tag the Surface Type is mapped to
 		if (const FGameplayTag* GameplayTagPtr = ProjectSettings->SurfaceTypeToContextMap.Find(PhysicalSurface))

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Engine/DeveloperSettings.h"
-#include "GUIS_GenericUISystemSettings.generated.h"
+#include "GUIS_DeveloperSettings.generated.h"
 
 class UGUIS_GameModalWidget;
 class UGUIS_GameUIPolicy;
@@ -15,7 +15,7 @@ class UGUIS_GameUIPolicy;
  * 通用UI系统的开发者设置。
  */
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Generic UI System Developer Settings"))
-class GENERICUISYSTEM_API UGUIS_GenericUISystemSettings : public UDeveloperSettings
+class GENERICUISYSTEM_API UGUIS_DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,7 @@ public:
 	 * @return The UI system settings. UI系统设置。
 	 */
 	UFUNCTION(BlueprintPure, Category="GUIS|Settings", meta = (DisplayName = "Get GUIS Developer Settings"))
-	static const UGUIS_GenericUISystemSettings* Get();
+	static const UGUIS_DeveloperSettings* Get();
 
 	/**
 	 * Default UI policy class for the game layout.
