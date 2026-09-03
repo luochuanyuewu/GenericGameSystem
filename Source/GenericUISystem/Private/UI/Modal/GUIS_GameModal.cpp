@@ -2,7 +2,9 @@
 
 #include "UI/Modal/GUIS_GameModal.h"
 
+#include "CommonBorder.h"
 #include "CommonButtonBase.h"
+#include "CommonRichTextBlock.h"
 #include "CommonTextBlock.h"
 #include "Components/DynamicEntryBox.h"
 #include "UI/Foundation/GUIS_ButtonBase.h"
@@ -40,6 +42,11 @@ void UGUIS_GameModalWidget::SetupModal(const UGUIS_ModalDefinition* ModalDefinit
 		}
 	}
 
+	if (ModalDefinition->CancelActionTag.IsValid())
+	{
+		CancelActionTag = ModalDefinition->CancelActionTag;
+	}
+
 	OnSetupModal(ModalDefinition);
 }
 
@@ -51,6 +58,30 @@ void UGUIS_GameModalWidget::CloseModal(FGameplayTag ModalActionResult)
 
 void UGUIS_GameModalWidget::KillModal()
 {
+}
+
+void UGUIS_GameModalWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	if (bUseTapToCloseZone)
+	{
+		Border_TapToCloseZone->OnMouseButtonDownEvent.BindDynamic(this, &ThisClass::HandleTapToCloseZoneMouseButtonDown);
+	}
+}
+
+FEventReply UGUIS_GameModalWidget::HandleTapToCloseZoneMouseButtonDown(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
+{
+	FEventReply Reply;
+	Reply.NativeReply = FReply::Unhandled();
+
+	if (MouseEvent.IsTouchEvent() || MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		CloseModal(CancelActionTag);
+		Reply.NativeReply = FReply::Handled();
+	}
+
+	return Reply;
 }
 
 #undef LOCTEXT_NAMESPACE

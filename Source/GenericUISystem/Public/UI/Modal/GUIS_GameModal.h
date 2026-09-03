@@ -7,6 +7,8 @@
 #include "GUIS_GameModalTypes.h"
 #include "GUIS_GameModal.generated.h"
 
+class UCommonBorder;
+class UCommonRichTextBlock;
 class UCommonTextBlock;
 class UDynamicEntryBox;
 class UGUIS_GameModalWidget;
@@ -48,6 +50,13 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (ForceInlineRow, Categories = "GUIS.Modal.Action"))
 	TMap<FGameplayTag, FGUIS_GameModalAction> ModalActions;
+
+	/**
+	 * Default action tag for cancelling.
+	 * 默认取消动作Tag。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (Categories = "GUIS.Modal.Action"))
+	FGameplayTag CancelActionTag;
 };
 
 /**
@@ -90,6 +99,8 @@ public:
 	 */
 	virtual void KillModal();
 
+	virtual void NativeOnInitialized() override;
+
 protected:
 	/**
 	 * Event to apply modal definition data to UI elements.
@@ -99,11 +110,25 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category="GUIS")
 	void OnSetupModal(const UGUIS_ModalDefinition* ModalDefinition);
 
+	UFUNCTION()
+	FEventReply HandleTapToCloseZoneMouseButtonDown(FGeometry MyGeometry, const FPointerEvent& MouseEvent);
+
 	/**
 	 * Callback for modal action results.
 	 * 模态动作结果的回调。
 	 */
 	FGUIS_ModalActionResultSignature OnModalActionCallback;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (Categories = "GUIS.Modal.Action"))
+	bool bUseTapToCloseZone{true};
+
+	/**
+	 * Default action tag for cancelling.
+	 * 默认取消动作Tag。
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GUIS", meta = (Categories = "GUIS.Modal.Action"))
+	FGameplayTag CancelActionTag;
 
 private:
 	/**
@@ -126,4 +151,7 @@ private:
 	 */
 	UPROPERTY(Meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> Text_Body;
+
+	UPROPERTY(Meta = (BindWidget))
+	TObjectPtr<UCommonBorder> Border_TapToCloseZone;
 };

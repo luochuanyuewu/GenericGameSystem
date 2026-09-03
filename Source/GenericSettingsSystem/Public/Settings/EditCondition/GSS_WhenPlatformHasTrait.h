@@ -24,10 +24,14 @@ class GENERICSETTINGSSYSTEM_API UGSS_WhenPlatformHasTrait : public UGSS_GameSett
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") FGameplayTag VisibilityTag;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bRequireTrait = true;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") bool bHideWhenNotMatched = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings") FText DisabledReason;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
+	FGameplayTag VisibilityTag;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
+	bool bRequireTrait = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
+	bool bHideWhenNotMatched = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GSS|Settings")
+	FText DisabledReason;
 
 	/** Hides the setting when the platform does not have Tag. / 平台缺少 Tag 时隐藏设置。 */
 	static UGSS_WhenPlatformHasTrait* KillIfMissing(UObject* Outer, FGameplayTag Tag);
