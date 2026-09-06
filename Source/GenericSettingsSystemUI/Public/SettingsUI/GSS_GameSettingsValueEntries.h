@@ -55,11 +55,11 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<UGSS_GameSettingValueDiscrete> DiscreteSetting;
 
-	/** Optional container for the discrete value controls. / 离散值控件的可选容器。 */
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	/** container for the discrete value controls. / 离散值控件的可选容器。 */
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UPanelWidget> Panel_Value;
-	/** Optional CommonUI selector for discrete options. / 离散选项的可选 CommonUI 选择器。 */
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
+	/** CommonUI selector for discrete options. / 离散选项的可选 CommonUI 选择器。 */
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UGSS_GameSettingRotator> Rotator_SettingValue;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, BlueprintProtected = true, AllowPrivateAccess = true), Category = "GSS|Settings UI")
 	TObjectPtr<UCommonButtonBase> Button_Decrease;

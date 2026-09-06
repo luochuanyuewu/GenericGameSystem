@@ -4,10 +4,12 @@
 
 #include "NativeGameplayTags.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Settings/EditCondition/GSS_WhenPlatformHasTrait.h"
 #include "Settings/EditCondition/GSS_WhenPlatformSupportsWindowedMode.h"
 #include "Settings/EditCondition/GSS_WhenPlayingAsPrimaryPlayer.h"
 #include "Settings/EditCondition/GSS_WhenSettingHasValue.h"
 #include "Settings/GSS_GameSetting.h"
+#include "Settings/GSS_GameSettingValueDiscrete_Display.h"
 #include "Settings/GSS_GameSettingValueDiscrete_OverallQuality.h"
 #include "Settings/GSS_GameSettingValueDiscrete_Resolution.h"
 #include "Settings/GSS_GameSettingValueScalar_Brightness.h"
@@ -19,8 +21,12 @@
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video, "GSS.Settings.Video");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Display, "GSS.Settings.Video.Display");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_WindowMode, "GSS.Settings.Video.WindowMode");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Display_Monitor, "GSS.Settings.Video.Display.Monitor");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Resolution, "GSS.Settings.Video.Display.Resolution");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Brightness, "GSS.Settings.Video.Display.Brightness");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_Platform_Trait_SupportsWindowedMode, "Platform.Trait.SupportsWindowedMode");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_Platform_Trait_NeedsBrightnessAdjustment, "Platform.Trait.NeedsBrightnessAdjustment");
+UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_Platform_Trait_SupportsCustomDynamicResolution, "Platform.Trait.SupportsCustomDynamicResolution");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Quality, "GSS.Settings.Video.Quality");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Quality_Overall, "GSS.Settings.Video.Quality.Overall");
 UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_GSS_Settings_Video_Quality_Advanced, "GSS.Settings.Video.Quality.Advanced");
@@ -50,13 +56,15 @@ UGSS_GameSettingsProvider_Video::UGSS_GameSettingsProvider_Video()
 	VideoText = LOCTEXT("Video", "Video");
 	VideoDescriptionText = LOCTEXT("VideoDescription", "Configure display and graphics preferences.");
 	DisplayText = LOCTEXT("Display", "Display");
+	DisplayMonitorText = LOCTEXT("DisplayMonitor", "Display");
+	DisplayMonitorDescriptionText = LOCTEXT("DisplayMonitorDescription", "The display on which the window should be shown.");
 	WindowModeText = LOCTEXT("WindowMode", "Window Mode");
 	WindowModeDescriptionText = LOCTEXT("WindowModeDescription", "Choose how the game window is displayed.");
 	FullscreenText = LOCTEXT("Fullscreen", "Fullscreen");
 	WindowedFullscreenText = LOCTEXT("WindowedFullscreen", "Windowed Fullscreen");
 	WindowedText = LOCTEXT("Windowed", "Windowed");
 	ResolutionText = LOCTEXT("Resolution", "Resolution");
-	ResolutionDescriptionText = LOCTEXT("ResolutionDescription", "Choose the display output resolution.");
+	ResolutionDescriptionText = LOCTEXT("ResolutionDescription", "Display Resolution determines the size of the window in Windowed mode. In Fullscreen mode, Display Resolution determines the graphics card output resolution, which can result in black bars depending on monitor and graphics card. Display Resolution is inactive in Windowed Fullscreen mode.");
 	ResolutionDisabledWindowedFullscreenText = LOCTEXT("ResolutionDisabledWindowedFullscreen", "Resolution is controlled by the desktop in Windowed Fullscreen.");
 	BrightnessText = LOCTEXT("Brightness", "Brightness");
 	BrightnessDescriptionText = LOCTEXT("BrightnessDescription", "Adjust display brightness.");
@@ -129,6 +137,7 @@ static void RequireWindowedModeSupport(UGSS_GameSetting* Setting)
 	if (Setting)
 	{
 		Setting->AddEditCondition(UGSS_WhenPlatformSupportsWindowedMode::Create(Setting));
+		Setting->AddEditCondition(UGSS_WhenPlatformHasTrait::KillIfMissing(Setting, TAG_Platform_Trait_SupportsWindowedMode));
 	}
 }
 
@@ -189,6 +198,20 @@ void UGSS_GameSettingsProvider_Video::RegisterSettings_Implementation(UGSS_GameS
 			RequireWindowedModeSupport(WindowModeSetting);
 		}
 
+		if (IncludedSettings.bDisplay)
+		{
+			UGSS_GameSettingValueDiscrete_Display* DisplaySetting = NewObject<UGSS_GameSettingValueDiscrete_Display>(Builder);
+			DisplaySetting->SetSettingId(TAG_GSS_Settings_Video_Display_Monitor);
+			DisplaySetting->SetDevName(FName(TEXT("VideoDisplay")));
+			DisplaySetting->SetDisplayName(DisplayMonitorText);
+			DisplaySetting->SetDescriptionRichText(DisplayMonitorDescriptionText);
+			if (Builder->AddRuntimeSetting(DisplaySetting, DisplayCollection))
+			{
+				RestrictToPrimaryPlayer(DisplaySetting);
+				RequireWindowedModeSupport(DisplaySetting);
+			}
+		}
+
 		if (IncludedSettings.bResolution)
 		{
 			UGSS_GameSettingValueDiscrete_Resolution* ResolutionSetting = NewObject<UGSS_GameSettingValueDiscrete_Resolution>(Builder);
@@ -203,6 +226,8 @@ void UGSS_GameSettingsProvider_Video::RegisterSettings_Implementation(UGSS_GameS
 					TAG_GSS_Settings_Video_WindowMode,
 					TArray<FString>{ TEXT("WindowedFullscreen") },
 					ResolutionDisabledWindowedFullscreenText));
+				ResolutionSetting->AddEditDependency(TAG_GSS_Settings_Video_WindowMode);
+				ResolutionSetting->AddEditDependency(TAG_GSS_Settings_Video_Display_Monitor);
 				RestrictToPrimaryPlayer(ResolutionSetting);
 				RequireWindowedModeSupport(ResolutionSetting);
 			}
@@ -218,6 +243,7 @@ void UGSS_GameSettingsProvider_Video::RegisterSettings_Implementation(UGSS_GameS
 			if (Builder->AddRuntimeSetting(BrightnessSetting, DisplayCollection))
 			{
 				RestrictToPrimaryPlayer(BrightnessSetting);
+				BrightnessSetting->AddEditCondition(UGSS_WhenPlatformHasTrait::KillIfMissing(BrightnessSetting, TAG_Platform_Trait_NeedsBrightnessAdjustment));
 			}
 		}
 	}
@@ -278,7 +304,12 @@ void UGSS_GameSettingsProvider_Video::RegisterSettings_Implementation(UGSS_GameS
 		}
 		if (IncludedSettings.bDynamicResolution)
 		{
-			RestrictToPrimaryPlayer(Builder->AddBool(TAG_GSS_Settings_Video_Advanced_DynamicResolution, DynamicResolutionText, DynamicResolutionDescriptionText, false, GSS_MAKE_LOCAL_ACCESSOR(IsDynamicResolutionEnabled, SetDynamicResolutionEnabled), AdvancedCollection));
+			UGSS_GameSetting* DynamicResolutionSetting = Builder->AddBool(TAG_GSS_Settings_Video_Advanced_DynamicResolution, DynamicResolutionText, DynamicResolutionDescriptionText, false, GSS_MAKE_LOCAL_ACCESSOR(IsDynamicResolutionEnabled, SetDynamicResolutionEnabled), AdvancedCollection);
+			RestrictToPrimaryPlayer(DynamicResolutionSetting);
+			if (DynamicResolutionSetting)
+			{
+				DynamicResolutionSetting->AddEditCondition(UGSS_WhenPlatformHasTrait::KillIfMissing(DynamicResolutionSetting, TAG_Platform_Trait_SupportsCustomDynamicResolution));
+			}
 		}
 		if (IncludedSettings.bResolutionScale)
 		{

@@ -23,6 +23,10 @@ struct GENERICSETTINGSSYSTEMCOMMON_API FGSS_VideoSettingsInclusion
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Display")
 	bool bWindowMode = true;
 
+	/** Connected-monitor picker. / 已连接显示器选择。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Display")
+	bool bDisplay = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Display")
 	bool bResolution = true;
 
@@ -48,7 +52,7 @@ struct GENERICSETTINGSSYSTEMCOMMON_API FGSS_VideoSettingsInclusion
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Advanced")
 	bool bResolutionScale = true;
 
-	bool HasAnyDisplay() const { return bWindowMode || bResolution || bBrightness; }
+	bool HasAnyDisplay() const { return bWindowMode || bDisplay || bResolution || bBrightness; }
 	bool HasAnyQuality() const { return bOverallQuality || bIndividualQuality; }
 	bool HasAnyAdvanced() const { return bVSync || bFrameRateLimit || bDynamicResolution || bResolutionScale; }
 	bool HasAny() const { return HasAnyDisplay() || HasAnyQuality() || HasAnyAdvanced(); }
@@ -80,6 +84,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text")
 	FText BrightnessText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text")
+	FText DisplayMonitorText;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text")
 	FText DisplayText;
@@ -170,6 +177,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text", meta = (MultiLine = true))
 	FText WindowModeDescriptionText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text", meta = (MultiLine = true))
+	FText DisplayMonitorDescriptionText;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "GSS|Settings|Text", meta = (MultiLine = true))
 	FText ResolutionDescriptionText;

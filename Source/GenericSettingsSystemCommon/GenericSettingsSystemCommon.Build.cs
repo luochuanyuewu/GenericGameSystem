@@ -11,6 +11,7 @@ public class GenericSettingsSystemCommon : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"ApplicationCore",
 				"Core",
 				"CoreUObject",
 				"Engine",
@@ -21,7 +22,9 @@ public class GenericSettingsSystemCommon : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"RHI"
+				"RHI",
+				"Slate",
+				"SlateCore"
 			});
 	}
 }

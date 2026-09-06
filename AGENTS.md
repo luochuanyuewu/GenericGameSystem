@@ -82,6 +82,8 @@
 - 设置子系统：`Source/GenericSettingsSystem/Public/Settings/GSS_GameSettingsSubsystem.h`
 - Shared Settings：`Source/GenericSettingsSystem/Public/Settings/GSS_SettingsShared.h`（`ApplySettings` / `SaveSettings` 均为 BlueprintNativeEvent；默认保存走 `AsyncSaveGameToSlotForLocalPlayer`）
 - 通用设置 Provider：`Source/GenericSettingsSystemCommon/Public/Settings/`（Video、Audio、Input、Accessibility）
+- 显示器选择：`Source/GenericSettingsSystemCommon/Public/Settings/GSS_GameSettingValueDiscrete_Display.h`
+- 分辨率：`Source/GenericSettingsSystemCommon/Public/Settings/GSS_GameSettingValueDiscrete_Resolution.h`
 - 设置 UI：`Source/GenericSettingsSystemUI/Public/SettingsUI/GSS_GameSettingsMenu.h`
 
 对照 Epic GameSettings / Lyra 时，只用本机 Lyra 5.8 工程，不要再用旧的独立 `GameSettings` 或 `LyraGame` 路径：
