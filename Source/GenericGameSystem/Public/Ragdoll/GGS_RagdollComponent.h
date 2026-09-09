@@ -9,6 +9,7 @@
 #include "GGS_RagdollComponent.generated.h"
 
 class USkeletalMeshComponent;
+class ACharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGGS_RagdollStartedSignature);
 

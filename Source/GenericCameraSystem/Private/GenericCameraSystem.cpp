@@ -2,6 +2,7 @@
 
 #include "GenericCameraSystem.h"
 
+#include "DrawDebugHelpers.h"
 #include "GameFramework/HUD.h"
 #include "GCMS_CameraSystemComponent.h"
 

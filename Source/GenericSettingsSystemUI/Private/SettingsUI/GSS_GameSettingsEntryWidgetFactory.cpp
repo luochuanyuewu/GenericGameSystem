@@ -3,6 +3,7 @@
 #include "SettingsUI/GSS_GameSettingsEntryWidgetFactory.h"
 
 #include "Settings/GSS_GameSetting.h"
+#include "SettingsUI/GSS_GameSettingListEntry.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GSS_GameSettingsEntryWidgetFactory)
 

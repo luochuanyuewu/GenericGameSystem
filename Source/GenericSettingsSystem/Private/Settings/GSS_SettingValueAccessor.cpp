@@ -2,6 +2,7 @@
 #include "Settings/GSS_SettingValueAccessor.h"
 
 #include "Engine/Engine.h"
+#include "Engine/LocalPlayer.h"
 #include "GenericSettingsSystem.h"
 #include "Settings/GSS_DeveloperSettings.h"
 #include "Settings/GSS_SettingsShared.h"
